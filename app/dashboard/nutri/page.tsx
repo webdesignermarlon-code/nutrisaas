@@ -1,25 +1,25 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
-interface Patient {
-  id: string
-  name: string
-  phone?: string
-}
+// Criação direta do cliente para evitar erros de import de módulos inexistentes
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function NutriDashboard() {
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState('Nutricionista')
-  const [patients, setPatients] = useState<Patient[]>([])
+  const [patients, setPatients] = useState<any[]>([])
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoading(true)
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data } = await supabase.auth.getUser()
+        const user = data?.user
         
         if (user) {
           const nameFromMeta = user.user_metadata?.full_name || user.email?.split('@')[0]
@@ -27,11 +27,11 @@ export default function NutriDashboard() {
 
           const { data: patientsData } = await supabase
             .from('patients')
-            .select('id, name, phone')
+            .select('*')
             .eq('nutri_id', user.id)
 
           if (patientsData) {
-            setPatients(patientsData as Patient[])
+            setPatients(patientsData)
           }
         }
       } catch (error) {
@@ -92,7 +92,7 @@ export default function NutriDashboard() {
         </div>
       </div>
 
-      {/* Lista Vazia */}
+      {/* Agenda Vazia */}
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
         <h3 className="mb-4 text-lg font-semibold">Agenda de Hoje</h3>
         {patients.length === 0 ? (
@@ -102,7 +102,7 @@ export default function NutriDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {patients.map((patient) => (
+            {patients.map((patient: any) => (
               <div key={patient.id} className="flex items-center justify-between rounded-lg bg-slate-800/50 p-4">
                 <div>
                   <p className="font-medium text-white">{patient.name}</p>
