@@ -3,6 +3,11 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 function LoginForm() {
   const router = useRouter()
@@ -14,6 +19,7 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [crn, setCrn] = useState('')
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
   useEffect(() => {
     if (searchParams.get('tab') === 'register') {
@@ -21,17 +27,56 @@ function LoginForm() {
     }
   }, [searchParams])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setMessage(null)
 
-    localStorage.setItem('user_email', email)
-    if (name) localStorage.setItem('user_name', name)
+    try {
+      if (mode === 'register') {
+        // Realiza o cadastro real no Supabase Auth
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+              crn: crn,
+              role: 'nutri',
+            },
+          },
+        })
 
-    setTimeout(() => {
+        if (error) throw error
+
+        setMessage({
+          text: 'Cadastro realizado com sucesso! Enviamos um e-mail de confirmação para você.',
+          type: 'success',
+        })
+      } else {
+        // Login no Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        localStorage.setItem('user_email', email)
+        if (data.user?.user_metadata?.full_name) {
+          localStorage.setItem('user_name', data.user.user_metadata.full_name)
+        }
+
+        router.push('/dashboard/nutri')
+      }
+    } catch (err: any) {
+      setMessage({
+        text: err.message || 'Ocorreu um erro ao processar. Verifique os dados.',
+        type: 'error',
+      })
+    } finally {
       setLoading(false)
-      router.push('/dashboard/nutri')
-    }, 1000)
+    }
   }
 
   return (
@@ -48,7 +93,10 @@ function LoginForm() {
       <div className="mb-6 flex rounded-xl border border-slate-800 bg-slate-950 p-1">
         <button
           type="button"
-          onClick={() => setMode('login')}
+          onClick={() => {
+            setMode('login')
+            setMessage(null)
+          }}
           className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
             mode === 'login'
               ? 'bg-emerald-500 text-slate-950'
@@ -59,7 +107,10 @@ function LoginForm() {
         </button>
         <button
           type="button"
-          onClick={() => setMode('register')}
+          onClick={() => {
+            setMode('register')
+            setMessage(null)
+          }}
           className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
             mode === 'register'
               ? 'bg-emerald-500 text-slate-950'
@@ -69,6 +120,19 @@ function LoginForm() {
           Criar Conta
         </button>
       </div>
+
+      {/* MENSAGEM DE ERRO OU SUCESSO */}
+      {message && (
+        <div
+          className={`mb-4 rounded-lg p-3 text-xs font-semibold ${
+            message.type === 'success'
+              ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+              : 'border border-red-500/30 bg-red-500/10 text-red-400'
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
       {/* FORMULÁRIO */}
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -138,7 +202,7 @@ function LoginForm() {
           className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
         >
           {loading
-            ? 'Acessando...'
+            ? 'Processando...'
             : mode === 'login'
             ? 'Entrar no Sistema'
             : 'Criar Minha Conta'}
