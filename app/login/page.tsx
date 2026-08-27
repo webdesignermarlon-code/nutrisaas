@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -25,7 +25,6 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    // Armazena a sessão local para uso na dashboard
     localStorage.setItem('user_email', email)
     if (name) localStorage.setItem('user_name', name)
 
@@ -36,122 +35,129 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl backdrop-blur-xl">
-        
-        {/* LOGO */}
-        <div className="mb-6 text-center">
-          <Link href="/" className="inline-block text-3xl font-black text-emerald-400">
-            🌱 NutriSaaS
-          </Link>
-          <p className="mt-2 text-xs text-slate-400">Plataforma de Gestão Nutricional</p>
-        </div>
-
-        {/* ABAS ENTRAR / CRIAR CONTA */}
-        <div className="mb-6 flex rounded-xl border border-slate-800 bg-slate-950 p-1">
-          <button
-            type="button"
-            onClick={() => setMode('login')}
-            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
-              mode === 'login'
-                ? 'bg-emerald-500 text-slate-950'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Entrar
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('register')}
-            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
-              mode === 'register'
-                ? 'bg-emerald-500 text-slate-950'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Criar Conta
-          </button>
-        </div>
-
-        {/* FORMULÁRIO */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'register' && (
-            <>
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Dra. Nome Sobrenome"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-300">
-                  CRN (Registro Profissional)
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="CRN-4 12345"
-                  value={crn}
-                  onChange={(e) => setCrn(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-300">
-              E-mail Profissional
-            </label>
-            <input
-              type="email"
-              required
-              placeholder="seuemail@nutri.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-300">
-              Senha
-            </label>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
-          >
-            {loading
-              ? 'Acessando...'
-              : mode === 'login'
-              ? 'Entrar no Sistema'
-              : 'Criar Minha Conta'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center text-xs text-slate-500">
-          NutriSaaS © {new Date().getFullYear()} • Todos os direitos reservados.
-        </div>
+    <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl backdrop-blur-xl">
+      {/* LOGO */}
+      <div className="mb-6 text-center">
+        <Link href="/" className="inline-block text-3xl font-black text-emerald-400">
+          🌱 NutriSaaS
+        </Link>
+        <p className="mt-2 text-xs text-slate-400">Plataforma de Gestão Nutricional</p>
       </div>
+
+      {/* ABAS ENTRAR / CRIAR CONTA */}
+      <div className="mb-6 flex rounded-xl border border-slate-800 bg-slate-950 p-1">
+        <button
+          type="button"
+          onClick={() => setMode('login')}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+            mode === 'login'
+              ? 'bg-emerald-500 text-slate-950'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          Entrar
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('register')}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+            mode === 'register'
+              ? 'bg-emerald-500 text-slate-950'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          Criar Conta
+        </button>
+      </div>
+
+      {/* FORMULÁRIO */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {mode === 'register' && (
+          <>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-300">
+                Nome Completo
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Dra. Nome Sobrenome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-300">
+                CRN (Registro Profissional)
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="CRN-4 12345"
+                value={crn}
+                onChange={(e) => setCrn(e.target.value)}
+                className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </>
+        )}
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-300">
+            E-mail Profissional
+          </label>
+          <input
+            type="email"
+            required
+            placeholder="seuemail@nutri.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-300">
+            Senha
+          </label>
+          <input
+            type="password"
+            required
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
+        >
+          {loading
+            ? 'Acessando...'
+            : mode === 'login'
+            ? 'Entrar no Sistema'
+            : 'Criar Minha Conta'}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center text-xs text-slate-500">
+        NutriSaaS © {new Date().getFullYear()} • Todos os direitos reservados.
+      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
+      <Suspense fallback={<div className="text-white">Carregando...</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   )
 }
