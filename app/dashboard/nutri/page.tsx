@@ -3,31 +3,35 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
+interface Patient {
+  id: string
+  name: string
+  phone?: string
+}
+
 export default function NutriDashboard() {
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState('Nutricionista')
-  const [patients, setPatients] = useState<any[]>([])
+  const [patients, setPatients] = useState<Patient[]>([])
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoading(true)
 
-        // Busca o usuário logado
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
           const nameFromMeta = user.user_metadata?.full_name || user.email?.split('@')[0]
           if (nameFromMeta) setUserName(nameFromMeta)
 
-          // Busca os pacientes cadastrados no Supabase
           const { data: patientsData } = await supabase
             .from('patients')
-            .select('*')
+            .select('id, name, phone')
             .eq('nutri_id', user.id)
 
           if (patientsData) {
-            setPatients(patientsData)
+            setPatients(patientsData as Patient[])
           }
         }
       } catch (error) {
