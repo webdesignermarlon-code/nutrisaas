@@ -1,43 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { useState } from 'react'
 
 export default function NutriDashboard() {
-  const [loading, setLoading] = useState(true)
-  const [userName, setUserName] = useState('Nutricionista')
-  const [patients, setPatients] = useState<any[]>([])
-
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        setLoading(true)
-
-        const { data } = await supabase.auth.getUser()
-        const user = data?.user
-        
-        if (user) {
-          const nameFromMeta = user.user_metadata?.full_name || user.email?.split('@')[0]
-          if (nameFromMeta) setUserName(nameFromMeta)
-
-          const { data: patientsData } = await supabase
-            .from('patients')
-            .select('*')
-            .eq('nutri_id', user.id)
-
-          if (patientsData) {
-            setPatients(patientsData)
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadDashboardData()
-  }, [])
+  const [loading] = useState(false)
+  const [userName] = useState('Nutricionista')
+  const [patients] = useState<any[]>([])
 
   if (loading) {
     return (
