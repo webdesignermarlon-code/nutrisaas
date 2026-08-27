@@ -10,64 +10,63 @@ export default function Home() {
     {
       icon: '🥗',
       title: 'Montador de Dietas Rápido',
-      desc: 'Crie planos alimentares personalizados calculando macronutrientes e calorias em tempo real.',
-      delay: 'delay-100'
+      desc: 'Crie planos alimentares personalizados calculando macronutrientes e calorias em tempo real.'
     },
     {
       icon: '📄',
       title: 'Anamnese Completa',
-      desc: 'Fichas pré-prontas configuráveis para investigar histórico, hábitos, alergias e objetivos do paciente.',
-      delay: 'delay-200'
+      desc: 'Fichas pré-prontas configuráveis para investigar histórico, hábitos, alergias e objetivos do paciente.'
     },
     {
       icon: '🧮',
       title: 'Calculadoras Nutricionais',
-      desc: 'Gasto energético, GET, TMB e percentual de gordura calculados automaticamente em poucos cliques.',
-      delay: 'delay-300'
+      desc: 'Gasto energético, GET, TMB e percentual de gordura calculados automaticamente em poucos cliques.'
     },
     {
       icon: '💊',
       title: 'Módulo de Suplementação',
-      desc: 'Prescreva suplementos e fitoterápicos de forma clara e padronizada para exportação em PDF.',
-      delay: 'delay-400'
+      desc: 'Prescreva suplementos e fitoterápicos de forma clara e padronizada para exportação em PDF.'
     },
     {
       icon: '👥',
       title: 'Gestão de Pacientes',
-      desc: 'Acompanhe a evolução de peso, medidas e dados de cada paciente de forma centralizada.',
-      delay: 'delay-500'
+      desc: 'Acompanhe a evolução de peso, medidas e dados de cada paciente de forma centralizada.'
     },
     {
       icon: '⚡',
       title: 'Interface Ultra Rápida',
-      desc: 'Sistema leve, moderno e acessível de qualquer lugar: computador, tablet ou celular.',
-      delay: 'delay-600'
+      desc: 'Sistema leve, moderno e acessível de qualquer lugar: computador, tablet ou celular.'
     }
   ]
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
-      {/* Estilos Globais para Animações Suaves */}
+      {/* CSS para o efeito de texto brilhante/molhado e movimento dos cards */}
       <style jsx global>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
+        @keyframes shinyText {
+          0% {
+            background-position: -200% 0;
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          100% {
+            background-position: 200% 0;
           }
         }
-        .animate-fade-in-up {
-          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+        .text-shine {
+          background: linear-gradient(
+            120deg,
+            #10b981 0%,
+            #34d399 25%,
+            #ffffff 50%,
+            #34d399 75%,
+            #10b981 100%
+          );
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: shinyText 4s linear infinite;
         }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
-        .delay-600 { animation-delay: 0.6s; }
       `}</style>
 
       {/* Background Decorativo */}
@@ -105,13 +104,13 @@ export default function Home() {
       <main className="relative z-10">
         {/* HERO SECTION */}
         <section className="mx-auto max-w-7xl px-6 pb-20 pt-16 text-center lg:pt-20">
-          {/* Badge Frase de Efeito */}
           <div className="inline-flex items-center space-x-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-5 py-2 text-xs sm:text-sm font-bold text-emerald-300 backdrop-blur-md shadow-lg shadow-emerald-500/10">
             <span>✨ Feito de Nutricionista para Nutricionistas</span>
           </div>
 
+          {/* TÍTULO COM O EFEITO DE BRILHO PASSANDO NA LETRA */}
           <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Monte dietas em minutos e <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-transparent">encante seus pacientes.</span>
+            Monte dietas em minutos e <span className="text-shine">encante seus pacientes.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
@@ -166,7 +165,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BENEFÍCIOS COM ANIMAÇÃO EM CASCATA */}
+        {/* BENEFÍCIOS COM MOVIMENTO E INTERAÇÃO DINÂMICA */}
         <section id="recursos" className="border-t border-slate-800/80 bg-slate-900/30 py-24">
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center">
@@ -182,12 +181,16 @@ export default function Home() {
               {benefits.map((item, index) => (
                 <div
                   key={index}
-                  className={`animate-fade-in-up ${item.delay} opacity-0 group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-2xl hover:shadow-emerald-500/10`}
+                  className="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-8 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-500/60 hover:bg-slate-900 hover:shadow-2xl hover:shadow-emerald-500/20"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400 group-hover:scale-110 transition-transform">
+                  <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-emerald-500/10 blur-xl transition-all duration-500 group-hover:scale-150 group-hover:bg-emerald-500/20" />
+                  
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400 transition-transform duration-300 group-hover:scale-125 group-hover:bg-emerald-500 group-hover:text-slate-950">
                     {item.icon}
                   </div>
-                  <h3 className="mt-6 text-xl font-bold text-white">{item.title}</h3>
+                  <h3 className="mt-6 text-xl font-bold text-white transition-colors duration-300 group-hover:text-emerald-400">
+                    {item.title}
+                  </h3>
                   <p className="mt-2 text-sm text-slate-400 leading-relaxed">{item.desc}</p>
                 </div>
               ))}
@@ -205,7 +208,6 @@ export default function Home() {
               Escolha o plano ideal com teste grátis e cancele a qualquer momento.
             </p>
 
-            {/* Alternador Mensal / Anual */}
             <div className="mt-8 flex justify-center">
               <div className="inline-flex rounded-xl border border-slate-800 bg-slate-900 p-1">
                 <button
@@ -231,7 +233,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Grid de Card de Preço */}
             <div className="mt-12 flex justify-center">
               <div className="relative w-full max-w-md rounded-3xl border-2 border-emerald-500/80 bg-slate-900/90 p-8 shadow-2xl backdrop-blur-xl">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-4 py-1 text-xs font-black uppercase text-slate-950">
