@@ -1,224 +1,220 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react'
+import Link from 'next/link'
 
-export default function LandingPage() {
-  const [ciclo, setCiclo] = useState<'mensal' | 'anual'>('anual');
+export default function Home() {
+  const [activeTab, setActiveTab] = useState('dietas')
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white font-sans selection:bg-emerald-500 selection:text-gray-950 overflow-x-hidden">
-      
-      {/* 1. NAVEGAÇÃO SUPERIOR (HEADER FIXO) */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800/60">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl text-emerald-400 tracking-tight">
-            <span className="text-2xl animate-pulse">🌱</span> NutriSaaS
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
+      {/* Background Decorativo com Gradients */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-emerald-600/15 blur-[120px]" />
+        <div className="absolute -right-40 top-1/3 h-[500px] w-[500px] rounded-full bg-teal-600/10 blur-[120px]" />
+      </div>
+
+      {/* Header / Navbar */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl font-black tracking-tight text-emerald-400">🌱 NutriSaaS</span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-gray-300">
-            <a href="#beneficios" className="hover:text-emerald-400 transition">Benefícios</a>
-            <a href="#funcionalidades" className="hover:text-emerald-400 transition">Recursos</a>
-            <a href="#depoimentos" className="hover:text-emerald-400 transition">Depoimentos</a>
-            <a href="#planos" className="hover:text-emerald-400 transition">Planos</a>
+          <nav className="hidden items-center space-x-8 text-sm font-medium text-slate-300 md:flex">
+            <a href="#recursos" className="transition-colors hover:text-emerald-400">Recursos</a>
+            <a href="#beneficios" className="transition-colors hover:text-emerald-400">Benefícios</a>
+            <a href="#planos" className="transition-colors hover:text-emerald-400">Planos</a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-4">
             <Link
               href="/login"
-              className="text-xs font-bold text-gray-300 hover:text-white px-3 py-2 transition"
+              className="text-sm font-semibold text-slate-300 transition-colors hover:text-white"
             >
               Entrar
             </Link>
             <Link
-              href="/planos"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-lg shadow-emerald-600/20 hover:scale-105 transform duration-200"
+              href="/login?tab=register"
+              className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95"
             >
-              Testar 15 Dias Grátis
+              Testar Grátis
             </Link>
           </div>
         </div>
       </header>
 
-      {/* 2. HERO SECTION COM MOVIMENTO */}
-      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-500/15 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-
-        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
-          
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full text-xs font-semibold text-emerald-400 backdrop-blur-md animate-bounce">
-            <span>✨</span> A Plataforma #1 para Nutricionistas de Alta Performance
+      <main className="relative z-10">
+        {/* HERO SECTION */}
+        <section className="mx-auto max-w-7xl px-6 pb-20 pt-16 text-center lg:pt-24">
+          <div className="inline-flex items-center space-x-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-sm">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>A plataforma completa para Nutricionistas de Alta Performance</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto">
-            Aumente a retenção de pacientes e{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              elimine o tempo perdido
-            </span>{' '}
-            com burocracia.
+          <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+            Monte dietas em minutos e <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-transparent">encante seus pacientes.</span>
           </h1>
 
-          <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-            Prescreva dietas com a Tabela TACO em minutos, monte fórmulas manipuladas com +100 ativos e automatize lembretes pelo WhatsApp.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
+            Simplifique sua rotina no consultório com cálculo automatizado, anamnese inteligente, gerenciamento de pacientes e prescrição de suplementação em um só lugar.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/planos"
-              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-8 py-4 rounded-xl transition shadow-xl shadow-emerald-600/30 hover:scale-105 transform duration-200 flex items-center justify-center gap-2"
+              href="/login?tab=register"
+              className="w-full rounded-xl bg-emerald-500 px-8 py-4 text-base font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/25 active:scale-95 sm:w-auto"
             >
-              <span>🚀</span> Testar Grátis por 15 Dias
+              Começar Teste Grátis Agora →
             </Link>
             <a
-              href="#beneficios"
-              className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-gray-200 border border-gray-800 font-bold text-sm px-8 py-4 rounded-xl transition hover:scale-105 transform duration-200 flex items-center justify-center gap-2"
+              href="#recursos"
+              className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-8 py-4 text-base font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white sm:w-auto"
             >
-              <span>🎬</span> Ver Recursos
+              Conhecer Recursos
             </a>
           </div>
 
-          {/* SIMULAÇÃO VISUAL DE PAINEL */}
-          <div className="pt-12 relative max-w-4xl mx-auto">
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-6 shadow-2xl relative overflow-hidden group">
-              <div className="flex items-center gap-2 border-b border-gray-800 pb-4 mb-4">
-                <div className="w-3 h-3 rounded-full bg-rose-500/80" />
-                <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                <span className="text-[10px] text-gray-500 font-mono ml-2">nutrisaas.com.br/dashboard</span>
+          {/* MOCKUP INTERATIVO DA PLATAFORMA */}
+          <div className="mt-16 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 backdrop-blur-xl shadow-2xl">
+            <div className="rounded-xl border border-slate-800/80 bg-slate-950 p-6 text-left">
+              <div className="mb-6 flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex space-x-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                </div>
+                <div className="text-xs font-medium text-slate-500">app.nutrisaas.com.br/dashboard</div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-                <div className="bg-gray-800/80 p-4 rounded-xl space-y-2 border border-gray-700/50">
-                  <span className="text-xs font-bold text-gray-400">Pacientes Ativos</span>
-                  <p className="text-2xl font-bold text-emerald-400">48 Pacientes</p>
-                  <span className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
-                    +8 este mês
-                  </span>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-5">
+                  <div className="text-xs font-semibold text-slate-400">PACIENTES ATIVOS</div>
+                  <div className="mt-2 text-3xl font-black text-white">128</div>
+                  <div className="mt-1 text-xs text-emerald-400">↑ +14% este mês</div>
                 </div>
-
-                <div className="bg-gray-800/80 p-4 rounded-xl space-y-2 border border-gray-700/50">
-                  <span className="text-xs font-bold text-gray-400">Lembretes por WhatsApp</span>
-                  <p className="text-2xl font-bold text-emerald-400">100% Confirmados</p>
-                  <span className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded">
-                    Automação Ativa
-                  </span>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-5">
+                  <div className="text-xs font-semibold text-slate-400">DIETAS GERADAS</div>
+                  <div className="mt-2 text-3xl font-black text-white">342</div>
+                  <div className="mt-1 text-xs text-emerald-400">Tempo médio: 4 min</div>
                 </div>
-
-                <div className="bg-gray-800/80 p-4 rounded-xl space-y-2 border border-gray-700/50">
-                  <span className="text-xs font-bold text-gray-400">Guia de Suplementação</span>
-                  <p className="text-2xl font-bold text-white">+100 Ativos</p>
-                  <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">
-                    Prescrição Rápida
-                  </span>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-5">
+                  <div className="text-xs font-semibold text-slate-400">SATISFAÇÃO DOS PACIENTES</div>
+                  <div className="mt-2 text-3xl font-black text-emerald-400">99.4%</div>
+                  <div className="mt-1 text-xs text-slate-400">Acompanhamento via app</div>
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-        </div>
-      </section>
-
-      {/* 3. SEÇÃO DE PLANOS */}
-      <section id="planos" className="py-20 px-6 bg-gray-900/80 border-t border-gray-800">
-        <div className="max-w-5xl mx-auto space-y-12">
-          
-          <div className="text-center space-y-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-400">Planos & Investimento</h2>
-            <p className="text-3xl md:text-4xl font-extrabold">Comece com 15 Dias Grátis</p>
-            <p className="text-gray-400 text-xs">Sem necessidade de cartão de crédito para testar.</p>
-
-            <div className="pt-4 flex items-center justify-center gap-3 text-xs font-bold">
-              <span className={ciclo === 'mensal' ? 'text-white' : 'text-gray-500'}>Mensal</span>
-              <button
-                onClick={() => setCiclo(ciclo === 'mensal' ? 'anual' : 'mensal')}
-                className="w-12 h-6 bg-emerald-600 rounded-full p-1 relative transition duration-200"
-              >
-                <div
-                  className={`w-4 h-4 bg-white rounded-full transition duration-200 ${
-                    ciclo === 'anual' ? 'translate-x-6' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-              <span className={ciclo === 'anual' ? 'text-emerald-400' : 'text-gray-500'}>
-                Anual <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-md text-[10px] ml-1">Com Desconto</span>
-              </span>
+        {/* BENEFÍCIOS / RECURSOS */}
+        <section id="recursos" className="border-t border-slate-800/80 bg-slate-900/30 py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="text-center">
+              <h2 className="text-3xl font-black text-white sm:text-4xl">
+                Tudo o que você precisa para alavancar seu consultório
+              </h2>
+              <p className="mt-4 text-slate-400">
+                Desenvolvido pensado na usabilidade prática do dia a dia do nutricionista.
+              </p>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            
-            {/* Plano Profissional */}
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl p-8 space-y-6 flex flex-col justify-between hover:border-gray-700 transition">
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold">Plano Profissional</h3>
-                <p className="text-gray-400 text-xs">Para nutricionistas autônomas em crescimento.</p>
-                
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-white">
-                    R$ {ciclo === 'anual' ? '87' : '97'}
-                  </span>
-                  <span className="text-gray-400 text-xs">/mês</span>
+            <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {/* Card 1 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  🥗
                 </div>
-
-                <ul className="space-y-3 text-xs text-gray-300 pt-2 border-t border-gray-800">
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Até 100 Pacientes Ativos</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Lembretes no WhatsApp</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Montador de Dietas TACO</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Guia de Suplementação (+100 Ativos)</li>
-                </ul>
+                <h3 className="mt-6 text-xl font-bold text-white">Montador de Dietas Rápido</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Crie planos alimentares personalizados calculando macronutrientes e calorias em tempo real.
+                </p>
               </div>
 
+              {/* Card 2 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  📄
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-white">Anamnese Completa</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Fichas pré-prontas configuráveis para investigar histórico, hábitos, alergias e objetivos do paciente.
+                </p>
+              </div>
+
+              {/* Card 3 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  🧮
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-white">Calculadoras Nutricionais</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Gasto energético, GET, TMB e percentual de gordura calculados automaticamente em poucos cliques.
+                </p>
+              </div>
+
+              {/* Card 4 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  💊
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-white">Módulo de Suplementação</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Prescreva suplementos e fitoterápicos de forma clara e padronizada para exportação em PDF.
+                </p>
+              </div>
+
+              {/* Card 5 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  👥
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-white">Gestão de Pacientes</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Acompanhe a evolução de peso, medidas e dados de cada paciente de forma centralizada.
+                </p>
+              </div>
+
+              {/* Card 6 */}
+              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
+                  ⚡
+                </div>
+                <h3 className="mt-6 text-xl font-bold text-white">Interface Ultra Rápida</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Sistema leve, moderno e acessível de qualquer lugar: computador, tablet ou celular.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA FINAL */}
+        <section className="mx-auto max-w-7xl px-6 py-24 text-center">
+          <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-slate-900 to-slate-950 p-12 backdrop-blur-xl">
+            <h2 className="text-3xl font-black text-white sm:text-5xl">
+              Pronta para modernizar o seu atendimento?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-400">
+              Cadastre-se agora e comece a utilizar todas as ferramentas no seu consultório imediatamente.
+            </p>
+            <div className="mt-8">
               <Link
-                href="/planos"
-                className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-emerald-400 border border-emerald-500/30 text-center font-bold text-xs rounded-xl transition"
+                href="/login?tab=register"
+                className="inline-block rounded-xl bg-emerald-500 px-8 py-4 text-base font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/25 active:scale-95"
               >
-                Ativar 15 Dias Grátis
+                Criar Minha Conta Grátis
               </Link>
             </div>
-
-            {/* Plano Elite */}
-            <div className="bg-gray-950 border-2 border-emerald-500 rounded-2xl p-8 space-y-6 flex flex-col justify-between shadow-2xl relative">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-gray-950 font-extrabold text-[10px] px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                Mais Vendido
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-emerald-400">Plano Elite & Consultório</h3>
-                <p className="text-gray-400 text-xs">Pacientes ilimitados e suporte prioritário.</p>
-                
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-white">
-                    R$ {ciclo === 'anual' ? '127' : '147'}
-                  </span>
-                  <span className="text-gray-400 text-xs">/mês</span>
-                </div>
-
-                <ul className="space-y-3 text-xs text-gray-300 pt-2 border-t border-gray-800">
-                  <li className="flex items-center gap-2 font-semibold text-white"><span className="text-emerald-400 font-bold">✓</span> Pacientes ILIMITADOS</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Disparo Automático 24h de Lembretes</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Portal do Paciente Exclusivo</li>
-                  <li className="flex items-center gap-2"><span className="text-emerald-400 font-bold">✓</span> Suporte Prioritário no WhatsApp</li>
-                </ul>
-              </div>
-
-              <Link
-                href="/planos"
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-center font-bold text-xs rounded-xl transition shadow-lg shadow-emerald-600/30"
-              >
-                Ativar 15 Dias Grátis
-              </Link>
-            </div>
-
           </div>
+        </section>
+      </main>
 
-        </div>
-      </section>
-
-      {/* RODAPÉ */}
-      <footer className="py-8 px-6 border-t border-gray-900 text-xs text-gray-500 text-center">
-        <p>NutriSaaS © 2026 • Todos os direitos reservados.</p>
+      {/* FOOTER */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} NutriSaaS. Todos os direitos reservados.</p>
       </footer>
-
     </div>
-  );
+  )
 }
