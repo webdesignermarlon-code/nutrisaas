@@ -1,203 +1,157 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [tipoUsuario, setTipoUsuario] = useState<'nutri' | 'paciente'>('nutri');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErro('');
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [crn, setCrn] = useState('')
+  const [loading, setLoading] = useState(false)
 
-    if (!email || !senha) {
-      setErro('Por favor, preencha todos os campos.');
-      return;
+  useEffect(() => {
+    if (searchParams.get('tab') === 'register') {
+      setMode('register')
     }
+  }, [searchParams])
 
-    // Lógica de Redirecionamento por Tipo de Usuário
-    if (tipoUsuario === 'nutri') {
-      if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('marlon')) {
-        router.push('/dashboard/admin');
-      } else {
-        router.push('/dashboard/nutri');
-      }
-    } else {
-      router.push('/dashboard/paciente');
-    }
-  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
 
-  // Atalho de preenchimento para testes rápidos
-  const preencherCredenciaisTeste = (tipo: 'admin' | 'nutri' | 'paciente') => {
-    if (tipo === 'admin') {
-      setTipoUsuario('nutri');
-      setEmail('marlon@admin.com');
-      setSenha('123456');
-    } else if (tipo === 'nutri') {
-      setTipoUsuario('nutri');
-      setEmail('luana.nutri@gmail.com');
-      setSenha('123456');
-    } else {
-      setTipoUsuario('paciente');
-      setEmail('ana.silva@gmail.com');
-      setSenha('123456');
-    }
-  };
+    // Armazena a sessão local para uso na dashboard
+    localStorage.setItem('user_email', email)
+    if (name) localStorage.setItem('user_name', name)
+
+    setTimeout(() => {
+      setLoading(false)
+      router.push('/dashboard/nutri')
+    }, 1000)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 font-sans text-white">
-      <div className="w-full max-w-4xl bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
+      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl backdrop-blur-xl">
         
-        {/* Lado Esquerdo: Formulário de Login */}
-        <div className="p-8 space-y-6 flex flex-col justify-center">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-2xl font-bold text-emerald-400">
-              <span>🌱</span> NutriSaaS
-            </div>
-            <h1 className="text-xl font-bold">Acesse sua conta</h1>
-            <p className="text-gray-400 text-xs">
-              Selecione o seu perfil para acessar a plataforma.
-            </p>
-          </div>
+        {/* LOGO */}
+        <div className="mb-6 text-center">
+          <Link href="/" className="inline-block text-3xl font-black text-emerald-400">
+            🌱 NutriSaaS
+          </Link>
+          <p className="mt-2 text-xs text-slate-400">Plataforma de Gestão Nutricional</p>
+        </div>
 
-          {/* Abas de Seleção: Profissional vs Paciente */}
-          <div className="grid grid-cols-2 p-1 bg-gray-800 rounded-xl border border-gray-700 text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => {
-                setTipoUsuario('nutri');
-                setErro('');
-              }}
-              className={`py-2 rounded-lg transition ${
-                tipoUsuario === 'nutri'
-                  ? 'bg-emerald-600 text-white shadow'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              👩‍⚕️ Nutricionista
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setTipoUsuario('paciente');
-                setErro('');
-              }}
-              className={`py-2 rounded-lg transition ${
-                tipoUsuario === 'paciente'
-                  ? 'bg-emerald-600 text-white shadow'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              👤 Paciente
-            </button>
-          </div>
+        {/* ABAS ENTRAR / CRIAR CONTA */}
+        <div className="mb-6 flex rounded-xl border border-slate-800 bg-slate-950 p-1">
+          <button
+            type="button"
+            onClick={() => setMode('login')}
+            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+              mode === 'login'
+                ? 'bg-emerald-500 text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Entrar
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('register')}
+            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+              mode === 'register'
+                ? 'bg-emerald-500 text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Criar Conta
+          </button>
+        </div>
 
-          {erro && (
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-lg">
-              {erro}
-            </div>
+        {/* FORMULÁRIO */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' && (
+            <>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  Nome Completo
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Dra. Nome Sobrenome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-300">
+                  CRN (Registro Profissional)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="CRN-4 12345"
+                  value={crn}
+                  onChange={(e) => setCrn(e.target.value)}
+                  className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+            </>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4 text-xs">
-            <div>
-              <label className="block text-gray-300 font-semibold mb-1">
-                E-mail ou Usuário
-              </label>
-              <input
-                type="email"
-                placeholder={
-                  tipoUsuario === 'nutri'
-                    ? 'seu.email@nutri.com'
-                    : 'seu.email@paciente.com'
-                }
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-300 font-semibold mb-1">
-                Senha
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            <div className="flex justify-between items-center text-[11px]">
-              <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
-                <input type="checkbox" className="rounded border-gray-700 bg-gray-800 text-emerald-500" />
-                Lembrar de mim
-              </label>
-              <a href="#" className="text-emerald-400 hover:underline">
-                Esqueceu a senha?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-lg transition shadow-lg text-sm"
-            >
-              Entrar no Sistema
-            </button>
-          </form>
-        </div>
-
-        {/* Lado Direito: Atalhos e Demonstração Rápida */}
-        <div className="bg-gray-800/60 p-8 border-t md:border-t-0 md:border-l border-gray-800 flex flex-col justify-between space-y-6">
-          <div className="space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-              ⚡ Acesso Rápido de Teste
-            </span>
-            <h2 className="text-sm font-bold text-gray-200">
-              Clique abaixo para preencher dados de teste em 1 clique:
-            </h2>
-
-            <div className="space-y-2 text-xs">
-              <button
-                type="button"
-                onClick={() => preencherCredenciaisTeste('admin')}
-                className="w-full p-3 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-xl font-bold transition text-left flex justify-between items-center"
-              >
-                <span>👑 SuperAdmin (Marlon)</span>
-                <span className="text-[10px] opacity-70">Entrar ➔</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => preencherCredenciaisTeste('nutri')}
-                className="w-full p-3 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 rounded-xl font-bold transition text-left flex justify-between items-center"
-              >
-                <span>👩‍⚕️ Nutricionista (Dra. Luana)</span>
-                <span className="text-[10px] opacity-70">Entrar ➔</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => preencherCredenciaisTeste('paciente')}
-                className="w-full p-3 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-xl font-bold transition text-left flex justify-between items-center"
-              >
-                <span>👤 Paciente (Ana Silva)</span>
-                <span className="text-[10px] opacity-70">Entrar ➔</span>
-              </button>
-            </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-300">
+              E-mail Profissional
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="seuemail@nutri.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+            />
           </div>
 
-          <div className="text-[10px] text-gray-500 text-center border-t border-gray-800 pt-4">
-            NutriSaaS © 2026 • Plataforma de Gestão Nutricional
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-300">
+              Senha
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
+            />
           </div>
-        </div>
 
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
+          >
+            {loading
+              ? 'Acessando...'
+              : mode === 'login'
+              ? 'Entrar no Sistema'
+              : 'Criar Minha Conta'}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-xs text-slate-500">
+          NutriSaaS © {new Date().getFullYear()} • Todos os direitos reservados.
+        </div>
       </div>
     </div>
-  );
+  )
 }
