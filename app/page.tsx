@@ -4,11 +4,73 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('dietas')
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+
+  const benefits = [
+    {
+      icon: '🥗',
+      title: 'Montador de Dietas Rápido',
+      desc: 'Crie planos alimentares personalizados calculando macronutrientes e calorias em tempo real.',
+      delay: 'delay-100'
+    },
+    {
+      icon: '📄',
+      title: 'Anamnese Completa',
+      desc: 'Fichas pré-prontas configuráveis para investigar histórico, hábitos, alergias e objetivos do paciente.',
+      delay: 'delay-200'
+    },
+    {
+      icon: '🧮',
+      title: 'Calculadoras Nutricionais',
+      desc: 'Gasto energético, GET, TMB e percentual de gordura calculados automaticamente em poucos cliques.',
+      delay: 'delay-300'
+    },
+    {
+      icon: '💊',
+      title: 'Módulo de Suplementação',
+      desc: 'Prescreva suplementos e fitoterápicos de forma clara e padronizada para exportação em PDF.',
+      delay: 'delay-400'
+    },
+    {
+      icon: '👥',
+      title: 'Gestão de Pacientes',
+      desc: 'Acompanhe a evolução de peso, medidas e dados de cada paciente de forma centralizada.',
+      delay: 'delay-500'
+    },
+    {
+      icon: '⚡',
+      title: 'Interface Ultra Rápida',
+      desc: 'Sistema leve, moderno e acessível de qualquer lugar: computador, tablet ou celular.',
+      delay: 'delay-600'
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-white">
-      {/* Background Decorativo com Gradients */}
+      {/* Estilos Globais para Animações Suaves */}
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+      `}</style>
+
+      {/* Background Decorativo */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-emerald-600/15 blur-[120px]" />
         <div className="absolute -right-40 top-1/3 h-[500px] w-[500px] rounded-full bg-teal-600/10 blur-[120px]" />
@@ -23,15 +85,11 @@ export default function Home() {
 
           <nav className="hidden items-center space-x-8 text-sm font-medium text-slate-300 md:flex">
             <a href="#recursos" className="transition-colors hover:text-emerald-400">Recursos</a>
-            <a href="#beneficios" className="transition-colors hover:text-emerald-400">Benefícios</a>
-            <a href="#planos" className="transition-colors hover:text-emerald-400">Planos</a>
+            <a href="#planos" className="transition-colors hover:text-emerald-400">Planos & Preços</a>
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-slate-300 transition-colors hover:text-white"
-            >
+            <Link href="/login" className="text-sm font-semibold text-slate-300 transition-colors hover:text-white">
               Entrar
             </Link>
             <Link
@@ -46,10 +104,10 @@ export default function Home() {
 
       <main className="relative z-10">
         {/* HERO SECTION */}
-        <section className="mx-auto max-w-7xl px-6 pb-20 pt-16 text-center lg:pt-24">
-          <div className="inline-flex items-center space-x-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-sm">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>A plataforma completa para Nutricionistas de Alta Performance</span>
+        <section className="mx-auto max-w-7xl px-6 pb-20 pt-16 text-center lg:pt-20">
+          {/* Badge Frase de Efeito */}
+          <div className="inline-flex items-center space-x-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-5 py-2 text-xs sm:text-sm font-bold text-emerald-300 backdrop-blur-md shadow-lg shadow-emerald-500/10">
+            <span>✨ Feito de Nutricionista para Nutricionistas</span>
           </div>
 
           <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
@@ -57,7 +115,7 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
-            Simplifique sua rotina no consultório com cálculo automatizado, anamnese inteligente, gerenciamento de pacientes e prescrição de suplementação em um só lugar.
+            A ferramenta exata criada por quem entende as dores reais do consultório. Economize horas no atendimento e entregue condutas impecáveis.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -68,14 +126,14 @@ export default function Home() {
               Começar Teste Grátis Agora →
             </Link>
             <a
-              href="#recursos"
+              href="#planos"
               className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-8 py-4 text-base font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white sm:w-auto"
             >
-              Conhecer Recursos
+              Ver Planos & Valores
             </a>
           </div>
 
-          {/* MOCKUP INTERATIVO DA PLATAFORMA */}
+          {/* MOCKUP INTERATIVO */}
           <div className="mt-16 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 backdrop-blur-xl shadow-2xl">
             <div className="rounded-xl border border-slate-800/80 bg-slate-950 p-6 text-left">
               <div className="mb-6 flex items-center justify-between border-b border-slate-800/80 pb-4">
@@ -108,104 +166,123 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BENEFÍCIOS / RECURSOS */}
+        {/* BENEFÍCIOS COM ANIMAÇÃO EM CASCATA */}
         <section id="recursos" className="border-t border-slate-800/80 bg-slate-900/30 py-24">
           <div className="mx-auto max-w-7xl px-6">
             <div className="text-center">
               <h2 className="text-3xl font-black text-white sm:text-4xl">
-                Tudo o que você precisa para alavancar seu consultório
+                Desenvolvido por quem vive a Nutrição no dia a dia
               </h2>
               <p className="mt-4 text-slate-400">
-                Desenvolvido pensado na usabilidade prática do dia a dia do nutricionista.
+                Livre-se de sistemas lentos e burocráticos. Tudo o que você precisa a poucos cliques.
               </p>
             </div>
 
             <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {/* Card 1 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  🥗
+              {benefits.map((item, index) => (
+                <div
+                  key={index}
+                  className={`animate-fade-in-up ${item.delay} opacity-0 group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:-translate-y-2 hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-2xl hover:shadow-emerald-500/10`}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm text-slate-400 leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Montador de Dietas Rápido</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Crie planos alimentares personalizados calculando macronutrientes e calorias em tempo real.
-                </p>
-              </div>
-
-              {/* Card 2 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  📄
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Anamnese Completa</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Fichas pré-prontas configuráveis para investigar histórico, hábitos, alergias e objetivos do paciente.
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  🧮
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Calculadoras Nutricionais</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Gasto energético, GET, TMB e percentual de gordura calculados automaticamente em poucos cliques.
-                </p>
-              </div>
-
-              {/* Card 4 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  💊
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Módulo de Suplementação</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Prescreva suplementos e fitoterápicos de forma clara e padronizada para exportação em PDF.
-                </p>
-              </div>
-
-              {/* Card 5 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  👥
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Gestão de Pacientes</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Acompanhe a evolução de peso, medidas e dados de cada paciente de forma centralizada.
-                </p>
-              </div>
-
-              {/* Card 6 */}
-              <div className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-2xl text-emerald-400">
-                  ⚡
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white">Interface Ultra Rápida</h3>
-                <p className="mt-2 text-sm text-slate-400">
-                  Sistema leve, moderno e acessível de qualquer lugar: computador, tablet ou celular.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA FINAL */}
-        <section className="mx-auto max-w-7xl px-6 py-24 text-center">
-          <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-slate-900 to-slate-950 p-12 backdrop-blur-xl">
+        {/* SEÇÃO DE PREÇOS / PLANOS */}
+        <section id="planos" className="border-t border-slate-800/80 py-24">
+          <div className="mx-auto max-w-7xl px-6 text-center">
             <h2 className="text-3xl font-black text-white sm:text-5xl">
-              Pronta para modernizar o seu atendimento?
+              Invista no crescimento do seu consultório
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-slate-400">
-              Cadastre-se agora e comece a utilizar todas as ferramentas no seu consultório imediatamente.
+            <p className="mt-4 text-slate-400">
+              Escolha o plano ideal com teste grátis e cancele a qualquer momento.
             </p>
-            <div className="mt-8">
-              <Link
-                href="/login?tab=register"
-                className="inline-block rounded-xl bg-emerald-500 px-8 py-4 text-base font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/25 active:scale-95"
-              >
-                Criar Minha Conta Grátis
-              </Link>
+
+            {/* Alternador Mensal / Anual */}
+            <div className="mt-8 flex justify-center">
+              <div className="inline-flex rounded-xl border border-slate-800 bg-slate-900 p-1">
+                <button
+                  onClick={() => setBillingCycle('monthly')}
+                  className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${
+                    billingCycle === 'monthly'
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Mensal
+                </button>
+                <button
+                  onClick={() => setBillingCycle('yearly')}
+                  className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${
+                    billingCycle === 'yearly'
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Anual (2 meses grátis)
+                </button>
+              </div>
+            </div>
+
+            {/* Grid de Card de Preço */}
+            <div className="mt-12 flex justify-center">
+              <div className="relative w-full max-w-md rounded-3xl border-2 border-emerald-500/80 bg-slate-900/90 p-8 shadow-2xl backdrop-blur-xl">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-4 py-1 text-xs font-black uppercase text-slate-950">
+                  Mais Popular
+                </div>
+
+                <h3 className="text-2xl font-bold text-white">Plano Nutri Pro</h3>
+                <p className="mt-2 text-xs text-slate-400">Acesso ilimitado a todas as ferramentas</p>
+
+                <div className="mt-6 flex items-baseline justify-center space-x-1">
+                  <span className="text-lg font-bold text-slate-400">R$</span>
+                  <span className="text-5xl font-black text-white">
+                    {billingCycle === 'monthly' ? '97' : '79'}
+                  </span>
+                  <span className="text-sm font-medium text-slate-400">/mês</span>
+                </div>
+
+                <p className="mt-1 text-xs text-emerald-400">
+                  {billingCycle === 'yearly' ? 'Cobrado anualmente (R$ 948/ano)' : 'Cobrado mensalmente'}
+                </p>
+
+                <ul className="mt-8 space-y-4 text-left text-sm text-slate-300">
+                  <li className="flex items-center space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>Pacientes ilimitados</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>Montador de dietas e calculadoras</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>Anamnese e módulo de suplementação</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>Exportação de PDFs personalizados</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>Suporte prioritário</span>
+                  </li>
+                </ul>
+
+                <Link
+                  href="/login?tab=register"
+                  className="mt-8 block w-full rounded-xl bg-emerald-500 py-4 text-center text-base font-bold text-slate-950 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/25 active:scale-95"
+                >
+                  Testar 7 Dias Grátis
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -213,7 +290,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} NutriSaaS. Todos os direitos reservados.</p>
+        <p>© {new Date().getFullYear()} NutriSaaS. Desenvolvido para Nutricionistas.</p>
       </footer>
     </div>
   )
