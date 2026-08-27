@@ -1,12 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '@/lib/supabase'
 
 export default function NutriDashboard() {
   const [loading, setLoading] = useState(true)
@@ -18,14 +13,14 @@ export default function NutriDashboard() {
       try {
         setLoading(true)
 
-        // Busca o usuário logado no Supabase
+        // Busca o usuário logado
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
           const nameFromMeta = user.user_metadata?.full_name || user.email?.split('@')[0]
           if (nameFromMeta) setUserName(nameFromMeta)
 
-          // Busca os pacientes reais cadastrados para este profissional
+          // Busca os pacientes cadastrados no Supabase
           const { data: patientsData } = await supabase
             .from('patients')
             .select('*')
@@ -36,7 +31,7 @@ export default function NutriDashboard() {
           }
         }
       } catch (error) {
-        console.error('Erro ao carregar dados do Supabase:', error)
+        console.error('Erro ao carregar dados:', error)
       } finally {
         setLoading(false)
       }
@@ -55,7 +50,7 @@ export default function NutriDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 p-6 text-white">
-      {/* Cabeçalho do Painel */}
+      {/* Cabeçalho */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">👋 Bem-vindo(a), {userName}!</h1>
@@ -93,7 +88,7 @@ export default function NutriDashboard() {
         </div>
       </div>
 
-      {/* Lista de Agenda Vazia */}
+      {/* Lista Vazia */}
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
         <h3 className="mb-4 text-lg font-semibold">Agenda de Hoje</h3>
         {patients.length === 0 ? (
