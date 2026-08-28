@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '../../../lib/supabase'
 
 export default function DietasPage() {
   const [paciente, setPaciente] = useState('')
@@ -10,7 +9,6 @@ export default function DietasPage() {
   const [refeicoes, setRefeicoes] = useState([
     { hora: '08:00', nome: 'Café da Manhã', descricao: '2 ovos mexidos + 1 fatia de pão integral + café preto' }
   ])
-  const [loading, setLoading] = useState(false)
 
   const adicionarRefeicao = () => {
     setRefeicoes([
@@ -19,41 +17,25 @@ export default function DietasPage() {
     ])
   }
 
-  const handleSalvarDieta = async () => {
+  const handleSalvarDieta = () => {
     if (!paciente || !titulo) {
       alert('Por favor, preencha o nome do paciente e o título do plano.')
       return
     }
-
-    setLoading(true)
-    const { error } = await supabase.from('dietas').insert([
-      {
-        paciente_nome: paciente,
-        titulo: titulo,
-        calorias_alvo: calorias ? parseInt(calorias) : null,
-        refeicoes: refeicoes
-      }
-    ])
-
-    if (!error) {
-      alert('Plano alimentar salvo com sucesso no banco de dados!')
-      setPaciente('')
-      setTitulo('')
-      setCalorias('')
-    } else {
-      alert('Erro ao salvar dieta: ' + error.message)
-    }
-    setLoading(false)
+    alert('Plano alimentar gerado com sucesso!')
+    setPaciente('')
+    setTitulo('')
+    setCalorias('')
   }
 
   return (
     <div className="space-y-6 text-slate-100">
       <h1 className="text-2xl font-bold text-emerald-400">Montador de Plano Alimentar</h1>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Nome do Paciente</label>
+            <label className="mb-1 block text-xs text-slate-400">Nome do Paciente</label>
             <input
               type="text"
               placeholder="Ex: Maria Silva"
@@ -63,7 +45,7 @@ export default function DietasPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Título do Plano</label>
+            <label className="mb-1 block text-xs text-slate-400">Título do Plano</label>
             <input
               type="text"
               placeholder="Ex: Dieta Hipertrofia - Fase 1"
@@ -73,7 +55,7 @@ export default function DietasPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Meta Calórica (kcal)</label>
+            <label className="mb-1 block text-xs text-slate-400">Meta Calórica (kcal)</label>
             <input
               type="number"
               placeholder="Ex: 1800"
@@ -84,12 +66,12 @@ export default function DietasPage() {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-800">
-          <div className="flex justify-between items-center mb-4">
+        <div className="border-t border-slate-800 pt-4">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">Refeições Estruturadas</h2>
             <button
               onClick={adicionarRefeicao}
-              className="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-400"
+              className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-emerald-400"
             >
               + Adicionar Refeição
             </button>
@@ -97,7 +79,7 @@ export default function DietasPage() {
 
           <div className="space-y-3">
             {refeicoes.map((ref, idx) => (
-              <div key={idx} className="p-4 rounded-xl border border-slate-800 bg-slate-950 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div key={idx} className="grid grid-cols-1 gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4 md:grid-cols-3">
                 <input
                   type="text"
                   defaultValue={ref.hora}
@@ -135,10 +117,9 @@ export default function DietasPage() {
 
         <button
           onClick={handleSalvarDieta}
-          disabled={loading}
-          className="w-full bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl hover:bg-emerald-400"
+          className="w-full rounded-xl bg-emerald-500 py-3 font-bold text-slate-950 hover:bg-emerald-400"
         >
-          {loading ? 'Salvando Plano...' : 'Salvar Plano Alimentar'}
+          Salvar Plano Alimentar
         </button>
       </div>
     </div>
