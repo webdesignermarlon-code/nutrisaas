@@ -1,14 +1,22 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const router = useRouter()
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    window.location.href = '/dashboard/nutri'
+    
+    // 1. Entrega a "chave" de autenticação para o DashboardLayout liberar o painel
+    sessionStorage.setItem('nutrisaas-auth', 'true')
+    
+    // 2. Faz o redirecionamento suave para a rota principal do dashboard
+    router.push('/dashboard')
   }
 
   return (
@@ -31,7 +39,16 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs text-slate-400">Senha</label>
+            {/* Rótulo de Senha + Link de Esqueci a Senha alinhados */}
+            <div className="mb-1 flex items-center justify-between">
+              <label className="block text-xs text-slate-400">Senha</label>
+              <Link 
+                href="/esqueci-senha" 
+                className="text-[11px] font-semibold text-emerald-500 hover:text-emerald-400 transition-colors"
+              >
+                Esqueci a senha
+              </Link>
+            </div>
             <input
               type="password"
               required
@@ -44,7 +61,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 hover:bg-emerald-400"
+            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-bold text-slate-950 hover:bg-emerald-400 transition-colors"
           >
             Entrar no Painel
           </button>
