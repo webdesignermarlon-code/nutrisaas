@@ -29,7 +29,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     const theme = localStorage.getItem('nutrisaas-theme')
-    setIsLight(theme === 'light')
+    const lightMode = theme === 'light'
+    setIsLight(lightMode)
 
     const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
     if (logadoAdmin === 'true') {
@@ -112,7 +113,6 @@ export default function AdminPage() {
     setModalWhats(null)
   }
 
-  // Classes globais de ponta a ponta
   const bgGlobal = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
@@ -121,7 +121,6 @@ export default function AdminPage() {
   if (!isAdminLogado) {
     return (
       <div className={`min-h-screen w-full flex items-center justify-center p-4 relative transition-colors duration-200 ${bgGlobal}`}>
-        
         <div className="absolute top-6 right-6">
           <button
             onClick={toggleTheme}
