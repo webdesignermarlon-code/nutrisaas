@@ -7,7 +7,7 @@ interface NutricionistaAdmin {
   id: string
   email: string
   nome: string
-  status: 'Ativo' | 'Bloqueado' | 'Inadimplente'
+  status: 'Ativo' | 'Bloqueado' | 'Inadimplente' | 'Em Teste (15 dias)'
   whatsapp: string
   criadoEm: string
 }
@@ -37,8 +37,8 @@ export default function AdminPage() {
       nome: 'Dra. Mariana Costa',
       email: 'mariana.nutri@gmail.com',
       whatsapp: '21988887777',
-      status: 'Ativo',
-      criadoEm: '2026-03-10',
+      status: 'Em Teste (15 dias)',
+      criadoEm: '2026-08-20',
     },
     {
       id: '3',
@@ -73,9 +73,9 @@ export default function AdminPage() {
   }, [])
 
   const toggleTheme = () => {
-    const nextTheme = isLight ? 'dark' : 'light'
-    setIsLight(!isLight)
-    localStorage.setItem('nutrisaas-theme', nextTheme)
+    const nextTheme = !isLight
+    setIsLight(nextTheme)
+    localStorage.setItem('nutrisaas-theme', nextTheme ? 'light' : 'dark')
   }
 
   const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
@@ -105,7 +105,7 @@ export default function AdminPage() {
     setSenhaInput('')
   }
 
-  const alternarStatus = (id: string, novoStatus: 'Ativo' | 'Bloqueado' | 'Inadimplente') => {
+  const alternarStatus = (id: string, novoStatus: NutricionistaAdmin['status']) => {
     const atualizada = nutris.map((n) => (n.id === id ? { ...n, status: novoStatus } : n))
     salvarNutris(atualizada)
   }
@@ -128,7 +128,7 @@ export default function AdminPage() {
     if (tipoMensagem === 'bloqueio') {
       msg = `⚠️ *AVISO IMPORTANTE - NUTRISAAS*\n\nOlá, *${nutri.nome}*.\nIdentificamos pendências relativas à sua assinatura do NutriSaaS. Seu acesso ao sistema encontra-se *bloqueado*. Para regularizar seu pagamento e reativar imediatamente o seu painel, por favor entre em contato conosco.`
     } else if (tipoMensagem === 'pagamento') {
-      msg = `💳 *LEMBRETE DE PAGAMENTO - NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nSua mensalidade do software NutriSaaS está próxima do vencimento. Evite interrupções no atendimento regularizando sua assinatura.`
+      msg = `💳 *LEMBRETE DE PAGAMENTO - NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nSua assinatura anual do software NutriSaaS está próxima do vencimento (Valor anual: R$ 399,00). Evite interrupções no atendimento regularizando sua assinatura.`
     } else {
       msg = `🚀 *NOVIDADES E ATUALIZAÇÕES NO NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nLançamos novas ferramentas incríveis no seu painel de gestão nutricional. Acesse agora e confira!`
     }
@@ -140,7 +140,7 @@ export default function AdminPage() {
 
   const bgPage = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
-  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
   const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
   if (!isAdminLogado) {
@@ -212,9 +212,14 @@ export default function AdminPage() {
     )
   }
 
+  // Faturamento baseado no plano anual de R$ 399,00 para cada conta ativa
+  const faturamentoTotal = nutris.filter((n) => n.status === 'Ativo').length * 399
+
   return (
     <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 ${bgPage}`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800">
+      
+      {/* Topo */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800/40">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-emerald-500">Painel Master Admin</h1>
@@ -223,15 +228,15 @@ export default function AdminPage() {
             </span>
           </div>
           <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-            Controle total de licenças, bloqueios de inadimplência e disparos via WhatsApp
+            Controle total de licenças, testes de 15 dias, bloqueios e disparos via WhatsApp
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
-            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition ${
-              isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
+            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold transition shadow-sm ${
+              isLight ? 'bg-white border-slate-300 text-slate-700' : 'bg-slate-900 border-slate-800 text-slate-300'
             }`}
           >
             {isLight ? '☀️ Claro' : '🌙 Escuro'}
@@ -245,25 +250,33 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Cards de Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className="text-xs text-slate-400 font-semibold block">Total de Profissionais</span>
+          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Total de Profissionais</span>
           <span className="text-2xl font-extrabold text-emerald-500">{nutris.length}</span>
         </div>
         <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className="text-xs text-slate-400 font-semibold block">Contas Ativas</span>
-          <span className="text-2xl font-extrabold text-sky-500">{nutris.filter((n) => n.status === 'Ativo').length}</span>
+          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Contas Ativas & Teste</span>
+          <span className="text-2xl font-extrabold text-sky-500">
+            {nutris.filter((n) => n.status === 'Ativo' || n.status === 'Em Teste (15 dias)').length}
+          </span>
         </div>
         <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className="text-xs text-slate-400 font-semibold block">Inadimplentes / Bloqueados</span>
-          <span className="text-2xl font-extrabold text-red-500">{nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}</span>
+          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Inadimplentes / Bloqueados</span>
+          <span className="text-2xl font-extrabold text-red-500">
+            {nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}
+          </span>
         </div>
         <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className="text-xs text-slate-400 font-semibold block">Faturamento Estimado</span>
-          <span className="text-2xl font-extrabold text-amber-500">R$ {(nutris.filter(n => n.status === 'Ativo').length * 97).toLocaleString('pt-BR')},00</span>
+          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Faturamento (Anual R$ 399)</span>
+          <span className="text-2xl font-extrabold text-amber-500">
+            R$ {faturamentoTotal.toLocaleString('pt-BR')},00
+          </span>
         </div>
       </div>
 
+      {/* Tabela de Gestão */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
           <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
@@ -276,7 +289,7 @@ export default function AdminPage() {
                 <th className="p-4">Profissional</th>
                 <th className="p-4">WhatsApp</th>
                 <th className="p-4">Data Cadastro</th>
-                <th className="p-4">Status</th>
+                <th className="p-4">Status da Assinatura</th>
                 <th className="p-4 text-right">Ações & Bloqueios / WhatsApp</th>
               </tr>
             </thead>
@@ -285,13 +298,14 @@ export default function AdminPage() {
                 <tr key={n.id} className={isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}>
                   <td className="p-4 font-bold">
                     <div>{n.nome}</div>
-                    <div className="text-[10px] text-slate-400 font-normal">{n.email}</div>
+                    <div className={`text-[10px] font-normal ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{n.email}</div>
                   </td>
                   <td className="p-4">{n.whatsapp || 'Não informado'}</td>
                   <td className="p-4">{n.criadoEm}</td>
                   <td className="p-4">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                       n.status === 'Ativo' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                      n.status === 'Em Teste (15 dias)' ? 'bg-sky-500/10 text-sky-500 border border-sky-500/20' :
                       n.status === 'Inadimplente' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
                       'bg-red-500/10 text-red-500 border border-red-500/20'
                     }`}>
@@ -302,6 +316,9 @@ export default function AdminPage() {
                     <div className="flex justify-end items-center gap-2">
                       {n.status !== 'Ativo' && (
                         <button onClick={() => alternarStatus(n.id, 'Ativo')} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">✓ Ativar</button>
+                      )}
+                      {n.status !== 'Em Teste (15 dias)' && (
+                        <button onClick={() => alternarStatus(n.id, 'Em Teste (15 dias)')} className="bg-sky-500/10 text-sky-500 border border-sky-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⏳ Teste 15d</button>
                       )}
                       {n.status !== 'Inadimplente' && (
                         <button onClick={() => alternarStatus(n.id, 'Inadimplente')} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⚠️ Inadimplente</button>
@@ -320,6 +337,7 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Modal WhatsApp */}
       {modalWhats && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
@@ -337,7 +355,7 @@ export default function AdminPage() {
                   className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
                 >
                   <option value="bloqueio">🔒 Aviso de Bloqueio de Acesso por Inadimplência</option>
-                  <option value="pagamento">💳 Lembrete de Renovação de Pagamento</option>
+                  <option value="pagamento">💳 Lembrete de Assinatura Anual (R$ 399)</option>
                   <option value="atualizacao">🚀 Informativo de Novas Atualizações do Sistema</option>
                 </select>
               </div>
@@ -346,7 +364,7 @@ export default function AdminPage() {
                 <span className="font-bold text-emerald-500 block">Prévia da Mensagem:</span>
                 <p className="text-slate-300 leading-relaxed text-[11px]">
                   {tipoMensagem === 'bloqueio' && `⚠️ Aviso: Seu acesso ao NutriSaaS encontra-se bloqueado por pendência na assinatura. Regularize para reativar.`}
-                  {tipoMentagem === 'pagamento' && `💳 Lembrete: Sua mensalidade do NutriSaaS vence em breve. Evite interrupções no atendimento.`}
+                  {tipoMensagem === 'pagamento' && `💳 Lembrete: Sua assinatura anual do NutriSaaS (R$ 399,00) vence em breve. Evite interrupções no atendimento.`}
                   {tipoMensagem === 'atualizacao' && `🚀 Novidades: Lançamos novas ferramentas no NutriSaaS. Acesse já!`}
                 </p>
               </div>
