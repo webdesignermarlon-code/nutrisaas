@@ -15,11 +15,104 @@ interface Paciente {
   objetivo: string
   dataPrimeiraConsulta: string
   idade: number
-  altura: number // em cm
+  altura: number
   pesoInicial: number
   percentualGorduraInicial: number
   historicoEvolucao: RegistroEvolucao[]
   status: string
+}
+
+// Componente Anatômico Estilo Escaneamento DEXA
+function AvatarDexa({ percentualGordura, peso, titulo }: { percentualGordura: number; peso: number; titulo: string }) {
+  // Ajuste proporcional da silhueta de gordura com base no % de gordura corporal
+  const fatPct = Math.max(8, Math.min(50, percentualGordura || 25))
+  const fatWidth = (fatPct / 100) * 28 // espessura da camada verde/amarela
+
+  return (
+    <div className="flex flex-col items-center bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-center text-white">
+      <span className="text-xs font-bold text-emerald-400">{titulo}</span>
+      <div className="text-[11px] text-slate-400 font-semibold">
+        {peso ? `${peso} kg` : '-'} • {percentualGordura ? `${percentualGordura}% Gordura` : '-'}
+      </div>
+
+      <div className="relative w-36 h-64 bg-slate-900 rounded-lg p-2 flex items-center justify-center overflow-hidden border border-slate-800/80">
+        <svg viewBox="0 0 100 200" className="w-full h-full">
+          {/* Fundo de escaneamento anatômico */}
+          <rect x="0" y="0" width="100" height="200" fill="#030712" />
+          
+          {/* Linhas de escaneamento de bioimpedância */}
+          <line x1="10" y1="20" x2="90" y2="20" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
+          <line x1="10" y1="60" x2="90" y2="60" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
+          <line x1="10" y1="100" x2="90" y2="100" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
+          <line x1="10" y1="140" x2="90" y2="140" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
+
+          {/* 🟢 Camada Externa de Gordura Corporal (Verde e Amarelo - Ajusta dinamicamente) */}
+          <path
+            d={`M 50 20 
+               C ${38 - fatWidth} 22, ${35 - fatWidth} 35, 50 40 
+               C ${25 - fatWidth} 50, ${20 - fatWidth} 80, ${25 - fatWidth} 100 
+               C ${20 - fatWidth} 110, ${15 - fatWidth} 130, ${20 - fatWidth} 185
+               L ${35 - fatWidth / 2} 185
+               L 42 120
+               L 50 120
+               L 58 120
+               L 65 + ${fatWidth / 2} 185
+               L ${80 + fatWidth} 185
+               C ${85 + fatWidth} 130, ${80 + fatWidth} 110, ${75 + fatWidth} 100
+               C ${80 + fatWidth} 80, ${75 + fatWidth} 50, 50 40 Z`}
+            fill="#22c55e"
+            opacity="0.85"
+          />
+
+          {/* Halo Amarelo / Visceral */}
+          <path
+            d={`M 50 45 C ${32 - fatWidth * 0.7} 60, ${30 - fatWidth * 0.7} 85, 50 95 C ${70 + fatWidth * 0.7} 85, ${68 + fatWidth * 0.7} 60, 50 45 Z`}
+            fill="#eab308"
+            opacity="0.6"
+          />
+
+          {/* 🔴 Tecido Muscular / Massa Magra (Vermelho Intenso) */}
+          <path
+            d="M 50 22 
+               C 42 24, 40 33, 50 38 
+               C 32 46, 28 75, 32 95 
+               C 28 105, 25 125, 28 180
+               L 38 180
+               L 44 115
+               L 50 115
+               L 56 115
+               L 62 180
+               L 72 180
+               C 75 125, 72 105, 68 95
+               C 72 75, 68 46, 50 38 Z"
+            fill="#ef4444"
+          />
+
+          {/* 🔵 Estrutura Óssea e Órgãos (Azul / Roxo / Rosa) */}
+          {/* Crânio e Coluna */}
+          <ellipse cx="50" cy="28" rx="5" ry="6" fill="#06b6d4" />
+          <line x1="50" y1="34" x2="50" y2="105" stroke="#e0e7ff" strokeWidth="2.5" />
+
+          {/* Caixa Torácica / Pulmões */}
+          <ellipse cx="44" cy="58" rx="5" ry="9" fill="#a855f7" />
+          <ellipse cx="56" cy="58" rx="5" ry="9" fill="#a855f7" />
+
+          {/* Fígado / Região Abdominal */}
+          <path d="M 42 70 Q 50 68 58 72 L 56 82 Q 48 84 42 78 Z" fill="#2563eb" />
+          
+          {/* Rins / Bacia Óssea */}
+          <circle cx="43" cy="85" r="3" fill="#ec4899" />
+          <circle cx="57" cy="85" r="3" fill="#ec4899" />
+          <path d="M 40 98 Q 50 105 60 98 L 57 110 L 43 110 Z" fill="#cbd5e1" opacity="0.8" />
+        </svg>
+      </div>
+
+      <div className="flex items-center gap-2 text-[9px] pt-1">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Muscular</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Gordura</span>
+      </div>
+    </div>
+  )
 }
 
 export default function PacientesPage() {
@@ -50,11 +143,10 @@ export default function PacientesPage() {
   const [tipoConsulta, setTipoConsulta] = useState('Retorno e Acompanhamento')
   const [enviarWhats, setEnviarWhats] = useState(true)
 
-  // Banco de dados em estado local
+  // Banco de dados local
   const [pacientes, setPacientes] = useState<Paciente[]>([])
 
   useEffect(() => {
-    // Carrega do tema e do banco local
     const checkTheme = () => {
       const theme = localStorage.getItem('nutrisaas-theme')
       setIsLight(theme === 'light')
@@ -78,7 +170,6 @@ export default function PacientesPage() {
     }
   }, [])
 
-  // Salva no banco de dados local sempre que houver alteração
   const salvarNoBanco = (novosPacientes: Paciente[]) => {
     setPacientes(novosPacientes)
     localStorage.setItem('nutrisaas-pacientes-db', JSON.stringify(novosPacientes))
@@ -115,7 +206,6 @@ export default function PacientesPage() {
     const atualizada = [novo, ...pacientes]
     salvarNoBanco(atualizada)
 
-    // Limpa o formulário
     setNome('')
     setTelefone('')
     setObjetivo('')
@@ -189,7 +279,7 @@ export default function PacientesPage() {
     const numeroLimpo = modalAgendar.telefone.replace(/\D/g, '')
 
     if (enviarWhats && numeroLimpo) {
-      const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${modalAgendar.nome}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida ou necessidade de reagendamento, favor me avisar por aqui. Até breve!`
+      const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${modalAgendar.nome}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida, entre em contato!`
       const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
       window.open(url, '_blank')
     } else {
@@ -212,11 +302,11 @@ export default function PacientesPage() {
       <div>
         <h1 className="text-2xl font-bold text-emerald-500">Banco de Dados e Gestão de Pacientes</h1>
         <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre dados antropométricos iniciais, agende consultas e acompanhe a evolução física
+          Cadastre dados antropométricos, agende consultas e veja o escaneamento visual de evolução corporal
         </p>
       </div>
 
-      {/* Formulário de Cadastro Completo de Prontuário */}
+      {/* Form Cadastro */}
       <form onSubmit={handleCadastrar} className={`rounded-2xl border p-6 space-y-4 ${bgCard}`}>
         <h2 className="text-sm font-bold border-b pb-2">Cadastrar Novo Paciente (Prontuário Inicial)</h2>
         
@@ -318,7 +408,7 @@ export default function PacientesPage() {
         </div>
       </form>
 
-      {/* Tabela de Prontuários */}
+      {/* Tabela de Pacientes */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
@@ -367,7 +457,7 @@ export default function PacientesPage() {
                             className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1"
                             title="Ver Histórico de Evolução"
                           >
-                            📈 Evolução ({p.historicoEvolucao.length})
+                            📈 Evolução & Visão DEXA
                           </button>
                           <button
                             onClick={() => setModalAgendar(p)}
@@ -401,18 +491,41 @@ export default function PacientesPage() {
         </div>
       </div>
 
-      {/* Modal de Prontuário e Evolução do Paciente */}
+      {/* Modal de Prontuário, Escaneamento DEXA e Evolução do Paciente */}
       {pacienteEvolucao && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-2xl rounded-2xl border p-6 space-y-5 max-h-[90vh] overflow-y-auto ${bgCard}`}>
+          <div className={`w-full max-w-3xl rounded-2xl border p-6 space-y-5 max-h-[90vh] overflow-y-auto ${bgCard}`}>
             <div className="flex justify-between items-center border-b pb-3">
               <div>
-                <h3 className="font-bold text-lg text-emerald-500">Evolução Clínica: {pacienteEvolucao.nome}</h3>
+                <h3 className="font-bold text-lg text-emerald-500">Prontuário & Evolução Corporal: {pacienteEvolucao.nome}</h3>
                 <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                  Histórico de avaliações antropométricas e alteração de composição corporal
+                  Comparação anatômica em modelo de escaneamento de composição corporal
                 </p>
               </div>
               <button onClick={() => setPacienteEvolucao(null)} className="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            {/* Escaneamento Anatômico Lado a Lado (Antes x Atual) */}
+            <div className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
+              <div className="flex justify-between items-center">
+                <h4 className="text-xs font-bold uppercase text-emerald-500">
+                  🔬 Escaneamento Anatômico DEXA (Comparativo de Gordura Corporal)
+                </h4>
+                <span className="text-[10px] text-slate-400">Mudança de Camada Subcutânea (Verde/Amarelo)</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <AvatarDexa
+                  titulo="1ª CONSULTA (INICIAL)"
+                  peso={pacienteEvolucao.pesoInicial}
+                  percentualGordura={pacienteEvolucao.percentualGorduraInicial}
+                />
+                <AvatarDexa
+                  titulo="AVALIAÇÃO ATUAL"
+                  peso={pacienteEvolucao.historicoEvolucao[0]?.peso || pacienteEvolucao.pesoInicial}
+                  percentualGordura={pacienteEvolucao.historicoEvolucao[0]?.percentualGordura || pacienteEvolucao.percentualGorduraInicial}
+                />
+              </div>
             </div>
 
             {/* Resumo Antropométrico */}
@@ -447,7 +560,7 @@ export default function PacientesPage() {
               </div>
             </div>
 
-            {/* Formulário de Nova Avaliação Física */}
+            {/* Form Nova Avaliação */}
             <form onSubmit={handleAdicionarEvolucao} className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
               <h4 className="text-xs font-bold uppercase text-emerald-500">+ Registrar Nova Reavaliação Física</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -493,7 +606,7 @@ export default function PacientesPage() {
               </button>
             </form>
 
-            {/* Tabela de Histórico de Consultas */}
+            {/* Tabela de Consultas */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold">Histórico de Consultas e Medições</h4>
               <div className="rounded-xl border overflow-hidden">
