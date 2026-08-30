@@ -136,6 +136,8 @@ export default function DietasPage() {
   const [calorias, setCalorias] = useState('')
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState('Todas')
+  const [refeicaoAtivaIndex, setRefeicaoAtivaIndex] = useState(0)
+
   const [refeicoes, setRefeicoes] = useState([
     {
       hora: '08:00',
@@ -151,33 +153,41 @@ export default function DietasPage() {
       setTitulo(mod.titulo)
       setCalorias(mod.calorias)
       setRefeicoes(mod.refeicoes)
+      setRefeicaoAtivaIndex(0)
     }
   }
 
   const adicionarRefeicao = () => {
-    setRefeicoes([
+    const novas = [
       ...refeicoes,
       { hora: '12:00', nome: 'Nova Refeição', op1: '', op2: '' }
-    ])
+    ]
+    setRefeicoes(novas)
+    setRefeicaoAtivaIndex(novas.length - 1)
   }
 
   const removerRefeicao = (idx: number) => {
-    setRefeicoes(refeicoes.filter((_, i) => i !== idx))
+    const filtradas = refeicoes.filter((_, i) => i !== idx)
+    setRefeicoes(filtradas)
+    if (refeicaoAtivaIndex >= filtradas.length) {
+      setRefeicaoAtivaIndex(Math.max(0, filtradas.length - 1))
+    }
   }
 
   const adicionarAlimento = (texto: string, idxRef: number, opcao: 'op1' | 'op2') => {
+    if (idxRef < 0 || idxRef >= refeicoes.length) return
     const novas = [...refeicoes]
     const atual = novas[idxRef][opcao]
     novas[idxRef][opcao] = atual ? `${atual} + ${texto}` : texto
     setRefeicoes(novas)
   }
 
-  // Ação de Imprimir/Baixar PDF
+  // Impressão PDF
   const handleImprimirPDF = () => {
     window.print()
   }
 
-  // Ação de Enviar via WhatsApp
+  // Enviar WhatsApp
   const handleEnviarWhatsApp = () => {
     let mensagem = `📋 *PLANO ALIMENTAR PERSONALIZADO*\n`
     mensagem += `👤 *Paciente:* ${paciente || 'Paciente'}\n`
@@ -207,7 +217,7 @@ export default function DietasPage() {
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Estilo Especial de Impressão (Apenas a Dieta Bonita e Profissional no PDF) */}
+      {/* Estilos para PDF / Impressão */}
       <style jsx global>{`
         @media print {
           body {
@@ -217,35 +227,44 @@ export default function DietasPage() {
           aside, nav, .no-print, button, input, select {
             display: none !important;
           }
-          .print-only {
-            display: block !important;
-          }
           .dieta-print-container {
-            padding: 20px !important;
+            padding: 0px !important;
             background: #ffffff !important;
             color: #000000 !important;
             width: 100% !important;
           }
           .card-print {
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #cbd5e1 !important;
             background-color: #f8fafc !important;
-            color: #000000 !important;
+            color: #0f172a !important;
             page-break-inside: avoid;
-            margin-bottom: 15px !important;
-            padding: 15px !important;
+            margin-bottom: 16px !important;
+            padding: 16px !important;
             border-radius: 8px !important;
+          }
+          .print-header-text {
+            display: block !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            color: #0f172a !important;
+            margin-bottom: 8px !important;
+          }
+          .print-value-text {
+            display: block !important;
+            font-size: 13px !important;
+            color: #334155 !important;
+            white-space: pre-wrap !important;
           }
         }
       `}</style>
 
-      {/* Topo do Montador */}
+      {/* Topo da Tela */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
         <div>
           <h1 className="text-2xl font-bold text-emerald-400">Montador de Plano Alimentar</h1>
-          <p className="text-xs text-slate-400">Monte, imprima em PDF elegante ou envie diretamente via WhatsApp</p>
+          <p className="text-xs text-slate-400">Monte a dieta e selecione em qual refeição adicionar os alimentos do banco TACO</p>
         </div>
 
-        {/* Botões de Ação Profissional */}
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleImprimirPDF}
@@ -264,7 +283,7 @@ export default function DietasPage() {
 
       {/* Seletor de Modelos Clínicos */}
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2 no-print">
-        <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos para Uso Rápido:</span>
+        <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos:</span>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => carregarModelo('diabeticos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🩺 Diabéticos</button>
           <button onClick={() => carregarModelo('tea')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🧩 TEA / Seletividade</button>
@@ -277,159 +296,145 @@ export default function DietasPage() {
         </div>
       </div>
 
-      {/* Formulário Principal */}
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 space-y-4 dieta-print-container">
         
         {/* Cabeçalho do PDF na Impressão */}
-        <div className="hidden print:block border-b pb-4 mb-6">
+        <div className="hidden print:block border-b border-slate-300 pb-4 mb-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">{nutricionista}</h1>
               <p className="text-sm text-slate-600">{crn}</p>
             </div>
             <div className="text-right">
-              <span className="text-xl font-bold text-emerald-600">NutriSaaS</span>
-              <p className="text-xs text-slate-500">Prescrição Alimentar</p>
+              <span className="text-xl font-bold text-emerald-700">NutriSaaS</span>
+              <p className="text-xs text-slate-500">Plano Alimentar Personalizado</p>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between text-sm text-slate-800">
+          <div className="mt-4 pt-3 border-t border-slate-200 flex justify-between text-sm text-slate-800">
             <div><b>Paciente:</b> {paciente || 'Não informado'}</div>
             <div><b>Plano:</b> {titulo || 'Prescrição Alimentar'}</div>
-            {calorias && <div><b>Meta Calórica:</b> {calorias} kcal</div>}
+            {calorias && <div><b>Meta:</b> {calorias} kcal/dia</div>}
           </div>
         </div>
 
-        {/* Dados do Profissional e Paciente (Interface Web) */}
+        {/* Dados da Interface Web */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Nome do Nutricionista</label>
-            <input
-              type="text"
-              value={nutricionista}
-              onChange={(e) => setNutricionista(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <label className="block text-xs text-slate-400 mb-1">Nutricionista</label>
+            <input type="text" value={nutricionista} onChange={(e) => setNutricionista(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">CRN do Profissional</label>
-            <input
-              type="text"
-              value={crn}
-              onChange={(e) => setCrn(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <label className="block text-xs text-slate-400 mb-1">CRN</label>
+            <input type="text" value={crn} onChange={(e) => setCrn(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
           <div>
             <label className="block text-xs text-slate-400 mb-1">Nome do Paciente</label>
-            <input
-              type="text"
-              placeholder="Ex: Maria Silva"
-              value={paciente}
-              onChange={(e) => setPaciente(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <input type="text" placeholder="Ex: Maria Silva" value={paciente} onChange={(e) => setPaciente(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">WhatsApp Paciente (com DDD)</label>
-            <input
-              type="text"
-              placeholder="Ex: 21999998888"
-              value={telefonePaciente}
-              onChange={(e) => setTelefonePaciente(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <label className="block text-xs text-slate-400 mb-1">WhatsApp Paciente</label>
+            <input type="text" placeholder="Ex: 21999998888" value={telefonePaciente} onChange={(e) => setTelefonePaciente(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
           <div>
             <label className="block text-xs text-slate-400 mb-1">Título do Plano Alimentar</label>
-            <input
-              type="text"
-              placeholder="Ex: Dieta Hipertrofia - Fase 1"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <input type="text" placeholder="Ex: Dieta Hipertrofia - Fase 1" value={titulo} onChange={(e) => setTitulo(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
           <div>
             <label className="block text-xs text-slate-400 mb-1">Meta Calórica (kcal)</label>
-            <input
-              type="number"
-              placeholder="Ex: 1800"
-              value={calorias}
-              onChange={(e) => setCalorias(e.target.value)}
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white"
-            />
+            <input type="number" placeholder="Ex: 1800" value={calorias} onChange={(e) => setCalorias(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-800">
-          {/* Coluna Esquerda: Refeições Estruturadas */}
+          
+          {/* Refeições */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center mb-2 no-print">
               <h2 className="text-lg font-bold text-white">Refeições Estruturadas</h2>
-              <button
-                onClick={adicionarRefeicao}
-                className="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-lg hover:bg-emerald-400 transition"
-              >
+              <button onClick={adicionarRefeicao} className="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-lg hover:bg-emerald-400 transition">
                 + Adicionar Refeição
               </button>
             </div>
 
             <div className="space-y-4">
-              {refeicoes.map((ref, idx) => (
-                <div key={idx} className="p-4 rounded-xl border border-slate-800 bg-slate-950 space-y-3 relative card-print">
-                  {refeicoes.length > 1 && (
-                    <button
-                      onClick={() => removerRefeicao(idx)}
-                      className="absolute top-3 right-3 text-xs text-red-400 hover:text-red-300 no-print"
-                    >
-                      ✕ Remover
-                    </button>
-                  )}
+              {refeicoes.map((ref, idx) => {
+                const isAtiva = refeicaoAtivaIndex === idx
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setRefeicaoAtivaIndex(idx)}
+                    className={`p-4 rounded-xl border transition cursor-pointer card-print relative ${
+                      isAtiva
+                        ? 'border-emerald-500 bg-slate-950/80 shadow-md shadow-emerald-500/5'
+                        : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
+                    }`}
+                  >
+                    {/* Selo Visual de Refeição Selecionada no Formulário */}
+                    <div className="no-print flex justify-between items-center mb-2">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        isAtiva ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {isAtiva ? '✓ Refeição Selecionada para Inserção' : 'Clique para Selecionar'}
+                      </span>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pr-8">
-                    <input
-                      type="text"
-                      value={ref.hora}
-                      onChange={(e) => {
-                        const newRefs = [...refeicoes]
-                        newRefs[idx].hora = e.target.value
-                        setRefeicoes(newRefs)
-                      }}
-                      className="rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white print:border-none print:font-bold print:text-slate-900"
-                      placeholder="Horário (ex: 08:00)"
-                    />
-                    <input
-                      type="text"
-                      value={ref.nome}
-                      onChange={(e) => {
-                        const newRefs = [...refeicoes]
-                        newRefs[idx].nome = e.target.value
-                        setRefeicoes(newRefs)
-                      }}
-                      className="md:col-span-2 rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white print:border-none print:font-bold print:text-slate-900"
-                      placeholder="Nome da Refeição"
-                    />
-                  </div>
+                      {refeicoes.length > 1 && (
+                        <button onClick={(e) => { e.stopPropagation(); removerRefeicao(idx); }} className="text-xs text-red-400 hover:text-red-300">
+                          ✕ Remover
+                        </button>
+                      )}
+                    </div>
 
-                  <div>
-                    <label className="block text-[10px] text-emerald-400 font-bold uppercase mb-1 print:text-emerald-700">Opção Principal (Opção 1)</label>
-                    <textarea
-                      value={ref.op1}
-                      onChange={(e) => {
-                        const newRefs = [...refeicoes]
-                        newRefs[idx].op1 = e.target.value
-                        setRefeicoes(newRefs)
-                      }}
-                      className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none print:bg-white print:text-slate-900 print:border-slate-300"
-                      rows={2}
-                      placeholder="Alimentos da primeira opção..."
-                    />
-                  </div>
+                    {/* Título Visível na Impressão/PDF */}
+                    <div className="hidden print:block print-header-text">
+                      ⏰ {ref.hora || '00:00'} - {ref.nome || 'Refeição'}
+                    </div>
 
-                  {ref.op2 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 no-print mb-3">
+                      <input
+                        type="text"
+                        value={ref.hora}
+                        onChange={(e) => {
+                          const newRefs = [...refeicoes]
+                          newRefs[idx].hora = e.target.value
+                          setRefeicoes(newRefs)
+                        }}
+                        className="rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white"
+                        placeholder="Horário (ex: 08:00)"
+                      />
+                      <input
+                        type="text"
+                        value={ref.nome}
+                        onChange={(e) => {
+                          const newRefs = [...refeicoes]
+                          newRefs[idx].nome = e.target.value
+                          setRefeicoes(newRefs)
+                        }}
+                        className="md:col-span-2 rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white"
+                        placeholder="Nome da Refeição"
+                      />
+                    </div>
+
+                    {/* Opção 1 */}
+                    <div className="mb-3">
+                      <label className="block text-[10px] text-emerald-400 font-bold uppercase mb-1 print:text-emerald-700">Opção Principal (Opção 1)</label>
+                      <textarea
+                        value={ref.op1}
+                        onChange={(e) => {
+                          const newRefs = [...refeicoes]
+                          newRefs[idx].op1 = e.target.value
+                          setRefeicoes(newRefs)
+                        }}
+                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none no-print"
+                        rows={2}
+                        placeholder="Alimentos da primeira opção..."
+                      />
+                      <div className="hidden print:block print-value-text">{ref.op1 || 'Nenhum alimento inserido.'}</div>
+                    </div>
+
+                    {/* Opção 2 */}
                     <div>
                       <label className="block text-[10px] text-sky-400 font-bold uppercase mb-1 print:text-sky-700">Opção de Substituição (Opção 2)</label>
                       <textarea
@@ -439,24 +444,46 @@ export default function DietasPage() {
                           newRefs[idx].op2 = e.target.value
                           setRefeicoes(newRefs)
                         }}
-                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-sky-500 focus:outline-none print:bg-white print:text-slate-900 print:border-slate-300"
+                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-sky-500 focus:outline-none no-print"
                         rows={2}
-                        placeholder="Alimentos alternativos de substituição..."
+                        placeholder="Alimentos de substituição..."
                       />
+                      <div className="hidden print:block print-value-text">{ref.op2 || 'Sem opção de substituição.'}</div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           </div>
 
-          {/* Coluna Direita: Banco de Alimentos TACO */}
+          {/* Banco de Alimentos TACO */}
           <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-4 h-fit no-print">
-            <h3 className="font-bold text-sm text-white">Banco Nutricional TACO</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-sm text-white">Banco Nutricional TACO</h3>
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-semibold">
+                Destino: Refeição {refeicaoAtivaIndex + 1}
+              </span>
+            </div>
+
+            {/* Seletor explícito de refeição destino */}
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1">Adicionar alimentos na refeição:</label>
+              <select
+                value={refeicaoAtivaIndex}
+                onChange={(e) => setRefeicaoAtivaIndex(Number(e.target.value))}
+                className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-emerald-400 font-semibold"
+              >
+                {refeicoes.map((r, i) => (
+                  <option key={i} value={i}>
+                    {i + 1}. {r.hora} - {r.nome || 'Refeição'}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <input
               type="text"
-              placeholder="Buscar por alimento (ex: frango, ovo)..."
+              placeholder="Buscar alimento (ex: frango, ovo)..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
@@ -479,7 +506,7 @@ export default function DietasPage() {
               <option value="Suplementos">Suplementos</option>
             </select>
 
-            <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[450px] overflow-y-auto pr-1">
               {alimentosFiltrados.slice(0, 50).map((item) => (
                 <div key={item.id} className="p-2.5 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5">
                   <div className="flex justify-between items-start">
@@ -495,13 +522,13 @@ export default function DietasPage() {
 
                   <div className="flex gap-1 pt-1">
                     <button
-                      onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, 0, 'op1')}
+                      onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, refeicaoAtivaIndex, 'op1')}
                       className="flex-1 text-[10px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 py-1 rounded transition"
                     >
                       + Opção 1
                     </button>
                     <button
-                      onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, 0, 'op2')}
+                      onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, refeicaoAtivaIndex, 'op2')}
                       className="flex-1 text-[10px] bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 py-1 rounded transition"
                     >
                       + Opção 2
