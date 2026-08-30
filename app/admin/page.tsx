@@ -28,9 +28,8 @@ export default function AdminPage() {
   const [tipoMensagem, setTipoMensagem] = useState<'bloqueio' | 'pagamento' | 'atualizacao'>('bloqueio')
 
   useEffect(() => {
-    const theme = localStorage.getItem('nutrisaas-theme')
-    const lightMode = theme === 'light'
-    setIsLight(lightMode)
+    const theme = localStorage.getItem('nutrisaas-admin-theme')
+    setIsLight(theme === 'light')
 
     const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
     if (logadoAdmin === 'true') {
@@ -50,7 +49,7 @@ export default function AdminPage() {
   const toggleTheme = () => {
     const nextTheme = !isLight
     setIsLight(nextTheme)
-    localStorage.setItem('nutrisaas-theme', nextTheme ? 'light' : 'dark')
+    localStorage.setItem('nutrisaas-admin-theme', nextTheme ? 'light' : 'dark')
   }
 
   const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
@@ -113,14 +112,15 @@ export default function AdminPage() {
     setModalWhats(null)
   }
 
-  const bgGlobal = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
-  const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
-  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
-  const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
+  // Classes que mudam o fundo da tela inteira de ponta a ponta
+  const pageBg = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
+  const cardBg = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
+  const inputBg = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
+  const labelColor = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
   if (!isAdminLogado) {
     return (
-      <div className={`min-h-screen w-full flex items-center justify-center p-4 relative transition-colors duration-200 ${bgGlobal}`}>
+      <div className={`fixed inset-0 w-full h-full flex items-center justify-center p-4 transition-colors duration-200 ${pageBg}`}>
         <div className="absolute top-6 right-6">
           <button
             onClick={toggleTheme}
@@ -132,7 +132,7 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className={`w-full max-w-md border p-8 rounded-3xl space-y-6 ${bgCard}`}>
+        <div className={`w-full max-w-md border p-8 rounded-3xl space-y-6 ${cardBg}`}>
           <div className="text-center space-y-2">
             <span className="text-3xl block">👑</span>
             <h1 className="text-2xl font-extrabold text-emerald-500">Painel Master Admin</h1>
@@ -145,25 +145,25 @@ export default function AdminPage() {
 
           <form onSubmit={handleLoginAdmin} className="space-y-4">
             <div>
-              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>E-mail do Administrador</label>
+              <label className={`block text-xs font-semibold mb-1 ${labelColor}`}>E-mail do Administrador</label>
               <input
                 type="email"
                 placeholder="Digite seu e-mail de admin..."
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${inputBg}`}
                 required
               />
             </div>
 
             <div>
-              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>Senha de Acesso Mestre</label>
+              <label className={`block text-xs font-semibold mb-1 ${labelColor}`}>Senha de Acesso Mestre</label>
               <input
                 type="password"
                 placeholder="••••••••••••"
                 value={senhaInput}
                 onChange={(e) => setSenhaInput(e.target.value)}
-                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${inputBg}`}
                 required
               />
             </div>
@@ -189,7 +189,7 @@ export default function AdminPage() {
   const faturamentoTotal = nutris.filter((n) => n.status === 'Ativo').length * 399
 
   return (
-    <div className={`min-h-screen w-full p-6 space-y-6 transition-colors duration-200 ${bgGlobal}`}>
+    <div className={`min-h-screen w-full p-6 space-y-6 transition-colors duration-200 ${pageBg}`}>
       
       {/* Topo */}
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800/40">
@@ -226,23 +226,23 @@ export default function AdminPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <div className={`p-4 rounded-2xl border ${cardBg}`}>
             <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Total de Profissionais</span>
             <span className="text-2xl font-extrabold text-emerald-500">{nutris.length}</span>
           </div>
-          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <div className={`p-4 rounded-2xl border ${cardBg}`}>
             <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Contas Ativas & Teste</span>
             <span className="text-2xl font-extrabold text-sky-500">
               {nutris.filter((n) => n.status === 'Ativo' || n.status === 'Em Teste (15 dias)').length}
             </span>
           </div>
-          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <div className={`p-4 rounded-2xl border ${cardBg}`}>
             <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Inadimplentes / Bloqueados</span>
             <span className="text-2xl font-extrabold text-red-500">
               {nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}
             </span>
           </div>
-          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <div className={`p-4 rounded-2xl border ${cardBg}`}>
             <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Faturamento (Anual R$ 399)</span>
             <span className="text-2xl font-extrabold text-amber-500">
               R$ {faturamentoTotal.toLocaleString('pt-BR')},00
@@ -251,7 +251,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tabela de Gestão */}
-        <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
+        <div className={`rounded-2xl border overflow-hidden ${cardBg}`}>
           <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
             <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
           </div>
@@ -323,7 +323,7 @@ export default function AdminPage() {
       {/* Modal WhatsApp */}
       {modalWhats && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
+          <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${cardBg}`}>
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-base text-emerald-500">Enviar WhatsApp para: {modalWhats.nome}</h3>
               <button onClick={() => setModalWhats(null)} className="text-slate-400 hover:text-white">✕</button>
@@ -331,11 +331,11 @@ export default function AdminPage() {
 
             <div className="space-y-3">
               <div>
-                <label className={`block text-xs mb-1 ${textLabel}`}>Selecione o Modelo de Mensagem</label>
+                <label className={`block text-xs mb-1 ${labelColor}`}>Selecione o Modelo de Mensagem</label>
                 <select
                   value={tipoMensagem}
                   onChange={(e) => setTipoMensagem(e.target.value as any)}
-                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
+                  className={`w-full rounded-xl border p-2.5 text-xs ${inputBg}`}
                 >
                   <option value="bloqueio">🔒 Aviso de Bloqueio de Acesso por Inadimplência</option>
                   <option value="pagamento">💳 Lembrete de Assinatura Anual (R$ 399)</option>
