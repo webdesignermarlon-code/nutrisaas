@@ -11,8 +11,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const verificarSessao = async () => {
-      // Se estiver na raiz (página de login), não bloqueia
-      if (pathname === '/') {
+      // Libera a página de login e a página de admin sem checar sessão de nutri
+      if (pathname === '/' || pathname === '/admin') {
         setVerificando(false)
         return
       }
@@ -20,7 +20,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session) {
-        // Sem sessão ativa, redireciona imediatamente para o login
         router.push('/')
       } else {
         setVerificando(false)
@@ -29,9 +28,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     verificarSessao()
 
-    // Ouve mudanças de estado de autenticação (ex: logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session && pathname !== '/') {
+      if (!session && pathname !== '/' && pathname !== '/admin') {
         router.push('/')
       }
     })
@@ -41,7 +39,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, router])
 
-  if (verificando && pathname !== '/') {
+  if (verificando && pathname !== '/' && pathname !== '/admin') {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-emerald-500 font-bold text-sm">
         Verificando credenciais de acesso...
