@@ -1,200 +1,328 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
-interface NutricionistaCliente {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  plano: 'Mensal' | 'Anual' | 'Trial (15 dias)';
-  valorMensal: number;
-  status: 'Ativo' | 'Inadimplente' | 'Bloqueado' | 'Trial';
-  diasRestantesTrial?: number;
-  dataCadastro: string;
+interface NutricionistaAdmin {
+  id: string
+  email: string
+  nome: string
+  status: 'Ativo' | 'Bloqueado' | 'Inadimplente'
+  whatsapp: string
+  criadoEm: string
 }
 
-const CLIENTES_INICIAIS: NutricionistaCliente[] = [
-  {
-    id: 'nutri_1',
-    nome: 'Dra. Luana Santos',
-    email: 'luana.nutri@gmail.com',
-    telefone: '(22) 99999-8888',
-    plano: 'Trial (15 dias)',
-    valorMensal: 0,
-    status: 'Trial',
-    diasRestantesTrial: 12,
-    dataCadastro: '2026-08-20',
-  },
-  {
-    id: 'nutri_2',
-    nome: 'Dra. Juliana Silva',
-    email: 'juliana.silva@nutri.com',
-    telefone: '(21) 98888-7777',
-    plano: 'Anual',
-    valorMensal: 87.0,
-    status: 'Ativo',
-    dataCadastro: '2026-02-01',
-  },
-  {
-    id: 'nutri_3',
-    nome: 'Dr. Roberto Costa',
-    email: 'roberto.costa@gmail.com',
-    telefone: '(31) 97777-6666',
-    plano: 'Mensal',
-    valorMensal: 97.0,
-    status: 'Inadimplente',
-    dataCadastro: '2025-11-15',
-  },
-];
+export default function AdminPage() {
+  const [isLight, setIsLight] = useState(false)
+  const [isAdminLogado, setIsAdminLogado] = useState(false)
+  
+  // Credenciais exigidas
+  const EMAIL_MESTRE = 'webdesignermarlon@gmail.com'
+  const [emailInput, setEmailInput] = useState('')
+  const [senhaInput, setSenhaInput] = useState('')
+  const [erroLogin, setErroLogin] = useState('')
 
-export default function SuperAdminDashboard() {
-  const [clientes, setClientes] = useState<NutricionistaCliente[]>(CLIENTES_INICIAIS);
-  const [termoBusca, setTermoBusca] = useState('');
+  const [nutris, setNutris] = useState<NutricionistaAdmin[]>([
+    {
+      id: '1',
+      nome: 'Marlon Andrade de Oliveira',
+      email: 'marlon@nutrisaas.com',
+      whatsapp: '21999998888',
+      status: 'Ativo',
+      criadoEm: '2026-03-01',
+    },
+    {
+      id: '2',
+      nome: 'Dra. Mariana Costa',
+      email: 'mariana.nutri@gmail.com',
+      whatsapp: '21988887777',
+      status: 'Ativo',
+      criadoEm: '2026-03-10',
+    },
+    {
+      id: '3',
+      nome: 'Dr. Carlos Eduardo',
+      email: 'carlos.junior@outlook.com',
+      whatsapp: '21977776666',
+      status: 'Inadimplente',
+      criadoEm: '2026-02-15',
+    },
+  ])
 
-  const totalAssinantesAtivos = clientes.filter((c) => c.status === 'Ativo').length;
-  const totalEmTrial = clientes.filter((c) => c.status === 'Trial').length;
-  const mrr = clientes
-    .filter((c) => c.status === 'Ativo')
-    .reduce((acc, curr) => acc + curr.valorMensal, 0);
+  const [modalWhats, setModalWhats] = useState<NutricionistaAdmin | null>(null)
+  const [tipoMensagem, setTipoMensagem] = useState<'bloqueio' | 'pagamento' | 'atualizacao'>('bloqueio')
 
-  const alternarStatusAcesso = (id: string, novoStatus: 'Ativo' | 'Bloqueado') => {
-    setClientes((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: novoStatus } : c))
-    );
-  };
+  useEffect(() => {
+    const theme = localStorage.getItem('nutrisaas-theme')
+    setIsLight(theme === 'light')
 
-  const clientesFiltrados = clientes.filter((c) =>
-    c.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-    c.email.toLowerCase().includes(termoBusca.toLowerCase())
-  );
+    // Verifica se já estava logado nesta sessão do navegador
+    const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
+    if (logadoAdmin === 'true') {
+      setIsAdminLogado(true)
+    }
 
+    const salvos = localStorage.getItem('nutrisaas-admin-nutris')
+    if (salvos) {
+      try {
+        setNutris(JSON.parse(salvos))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const nextTheme = isLight ? 'dark' : 'light'
+    setIsLight(!isLight)
+    localStorage.setItem('nutrisaas-theme', nextTheme)
+  }
+
+  const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
+    setNutris(novaLista)
+    localStorage.setItem('nutrisaas-admin-nutris', JSON.stringify(novaLista))
+  }
+
+  const handleLoginAdmin = (e: React.FormEvent) => {
+    e.preventDefault()
+    setErroLogin('')
+
+    // Validação estrita do e-mail master e da senha definida por você
+    if (emailInput.trim().toLowerCase() === EMAIL_MESTRE) {
+      if (senhaInput.length >= 6) {
+        setIsAdminLogado(true)
+        sessionStorage.setItem('nutrisaas-admin-auth', 'true')
+        // Salva a senha personalizada do admin se desejar persistir
+        localStorage.setItem('nutrisaas-admin-senha', senhaInput)
+      } else {
+        setErroLogin('A senha de segurança deve conter pelo menos 6 caracteres.')
+      }
+    } else {
+      setErroLogin('E-mail de Administrador não autorizado.')
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAdminLogado(false)
+    sessionStorage.removeItem('nutrisaas-admin-auth')
+    setEmailInput('')
+    setSenhaInput('')
+  }
+
+  const alternarStatus = (id: string, novoStatus: 'Ativo' | 'Bloqueado' | 'Inadimplente') => {
+    const atualizada = nutris.map((n) => (n.id === id ? { ...n, status: novoStatus } : n))
+    salvarNutris(atualizada)
+  }
+
+  const excluirNutri = (id: string, nome: string) => {
+    if (confirm(`Tem certeza que deseja remover o acesso de "${nome}" permanentemente?`)) {
+      const filtrada = nutris.filter((n) => n.id !== id)
+      salvarNutris(filtrada)
+    }
+  }
+
+  const enviarWhatsAppAdmin = (nutri: NutricionistaAdmin) => {
+    const num = nutri.whatsapp.replace(/\D/g, '')
+    if (!num) {
+      alert('Este profissional não possui um número de WhatsApp cadastrado.')
+      return
+    }
+
+    let msg = ''
+    if (tipoMensagem === 'bloqueio') {
+      msg = `⚠️ *AVISO IMPORTANTE - NUTRISAAS*\n\nOlá, *${nutri.nome}*.\nIdentificamos pendências relativas à sua assinatura do NutriSaaS. Seu acesso ao sistema encontra-se *bloqueado*. Para regularizar seu pagamento e reativar imediatamente o seu painel, por favor entre em contato conosco.`
+    } else if (tipoMensagem === 'pagamento') {
+      msg = `💳 *LEMBRETE DE PAGAMENTO - NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nSua mensalidade do software NutriSaaS está próxima do vencimento. Evite interrupções no atendimento regularizando sua assinatura.`
+    } else {
+      msg = `🚀 *NOVIDADES E ATUALIZAÇÕES NO NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nLançamos novas ferramentas incríveis no seu painel de gestão nutricional. Acesse agora e confira!`
+    }
+
+    const url = `https://api.whatsapp.com/send?phone=55${num}&text=${encodeURIComponent(msg)}`
+    window.open(url, '_blank')
+    setModalWhats(null)
+  }
+
+  const bgPage = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
+  const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
+  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
+  const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
+
+  // TELA DE LOGIN SEGURA COM E-MAIL E SENHA MASTER
+  if (!isAdminLogado) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 relative ${bgPage}`}>
+        
+        {/* Botão de Modo Claro / Escuro */}
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={toggleTheme}
+            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold transition ${
+              isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
+            }`}
+          >
+            {isLight ? '☀️ Modo Claro' : '🌙 Modo Escuro'}
+          </button>
+        </div>
+
+        <div className={`w-full max-w-md border p-8 rounded-3xl space-y-6 ${isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-slate-900 border-slate-800 shadow-2xl'}`}>
+          <div className="text-center space-y-2">
+            <span className="text-3xl block">👑</span>
+            <h1 className="text-2xl font-extrabold text-emerald-500">Painel Master Admin</h1>
+            <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+              Área restrita de segurança máxima do proprietário
+            </p>
+          </div>
+
+          {erroLogin && <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-xs">{erroLogin}</div>}
+
+          <form onSubmit={handleLoginAdmin} className="space-y-4">
+            <div>
+              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>E-mail do Administrador</label>
+              <input
+                type="email"
+                placeholder="webdesignermarlon@gmail.com"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                required
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>Crie ou Insira sua Senha de Acesso</label>
+              <input
+                type="password"
+                placeholder="Mínimo de 6 dígitos..."
+                value={senhaInput}
+                onChange={(e) => setSenhaInput(e.target.value)}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
+            >
+              Autenticar Painel Master
+            </button>
+          </form>
+
+          <div className="text-center pt-2 border-t border-slate-800/40">
+            <Link href="/dashboard" className="text-xs text-emerald-500 hover:underline font-semibold">
+              ← Voltar para o Sistema
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // PAINEL MASTER COMPLETO APÓS LOGIN SEGURO
   return (
-    <div className="min-h-screen p-6 md:p-8 transition-colors duration-200 bg-gray-900 text-white font-sans">
-      {/* Cabeçalho */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-800 pb-4 mb-8 gap-4">
+    <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 ${bgPage}`}>
+      
+      {/* Topo do Admin com Botão de Tema e Logout */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-emerald-400">
-            <span>👑</span> Painel Geral do Gestor (SuperAdmin)
-          </h1>
-          <p className="text-gray-400 text-sm">
-            Gestão global de assinaturas, contas de teste (15 dias) e controle de acessos.
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-emerald-500">Painel Master Admin</h1>
+            <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
+              👑 {EMAIL_MESTRE}
+            </span>
+          </div>
+          <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Controle total de licenças, bloqueios de inadimplência e disparos via WhatsApp
           </p>
         </div>
 
-        <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl text-xs font-mono text-emerald-400">
-          Modo Administrador Ativo
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition ${
+              isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
+            }`}
+          >
+            {isLight ? '☀️ Claro' : '🌙 Escuro'}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 text-xs font-bold px-3 py-2 rounded-xl transition"
+          >
+            Sair do Admin 🔒
+          </button>
         </div>
       </div>
 
       {/* Cards de Métricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gray-800 border border-gray-700 p-5 rounded-xl space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Faturamento Recorrente (MRR)
-          </span>
-          <p className="text-2xl font-bold text-emerald-400">
-            R$ {mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} /mês
-          </p>
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <span className="text-xs text-slate-400 font-semibold block">Total de Profissionais</span>
+          <span className="text-2xl font-extrabold text-emerald-500">{nutris.length}</span>
         </div>
-
-        <div className="bg-gray-800 border border-gray-700 p-5 rounded-xl space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Assinantes Pagantes
-          </span>
-          <p className="text-2xl font-bold text-white">{totalAssinantesAtivos}</p>
+        <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <span className="text-xs text-slate-400 font-semibold block">Contas Ativas</span>
+          <span className="text-2xl font-extrabold text-sky-500">{nutris.filter((n) => n.status === 'Ativo').length}</span>
         </div>
-
-        <div className="bg-gray-800 border border-gray-700 p-5 rounded-xl space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Em Teste Grátis (Trial)
-          </span>
-          <p className="text-2xl font-bold text-emerald-400">{totalEmTrial} nutris</p>
+        <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <span className="text-xs text-slate-400 font-semibold block">Inadimplentes / Bloqueados</span>
+          <span className="text-2xl font-extrabold text-red-500">{nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}</span>
         </div>
-
-        <div className="bg-gray-800 border border-gray-700 p-5 rounded-xl space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Total na Base
-          </span>
-          <p className="text-2xl font-bold text-blue-400">{clientes.length}</p>
+        <div className={`p-4 rounded-2xl border ${bgCard}`}>
+          <span className="text-xs text-slate-400 font-semibold block">Faturamento Estimado</span>
+          <span className="text-2xl font-extrabold text-amber-500">R$ {(nutris.filter(n => n.status === 'Ativo').length * 97).toLocaleString('pt-BR')},00</span>
         </div>
       </div>
 
-      {/* Tabela de Gestão de Clientes */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4 shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h2 className="text-lg font-bold">Gestão de Nutricionistas & Testes Grátis</h2>
-          <input
-            type="text"
-            placeholder="Buscar por nome ou e-mail..."
-            value={termoBusca}
-            onChange={(e) => setTermoBusca(e.target.value)}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 w-full md:w-72"
-          />
+      {/* Tabela de Gestão de Nutricionistas */}
+      <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
+        <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
+          <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-gray-700 text-gray-400 uppercase tracking-wider font-semibold">
-                <th className="py-3 px-4">Nutricionista</th>
-                <th className="py-3 px-4">Contato</th>
-                <th className="py-3 px-4">Plano</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Ação de Acesso</th>
+              <tr className={`border-b text-[10px] font-bold uppercase ${isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-950 text-slate-400'}`}>
+                <th className="p-4">Profissional</th>
+                <th className="p-4">WhatsApp</th>
+                <th className="p-4">Data Cadastro</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Ações & Bloqueios / WhatsApp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
-              {clientesFiltrados.map((cliente) => (
-                <tr key={cliente.id} className="hover:bg-gray-700/50 transition">
-                  <td className="py-3 px-4 font-bold text-white">
-                    {cliente.nome}
-                    <span className="block text-[10px] text-gray-400 font-normal">
-                      Cadastrado em {cliente.dataCadastro}
+            <tbody className="divide-y divide-slate-800/60">
+              {nutris.map((n) => (
+                <tr key={n.id} className={isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}>
+                  <td className="p-4 font-bold">
+                    <div>{n.nome}</div>
+                    <div className="text-[10px] text-slate-400 font-normal">{n.email}</div>
+                  </td>
+                  <td className="p-4">{n.whatsapp || 'Não informado'}</td>
+                  <td className="p-4">{n.criadoEm}</td>
+                  <td className="p-4">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                      n.status === 'Ativo' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                      n.status === 'Inadimplente' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                      'bg-red-500/10 text-red-500 border border-red-500/20'
+                    }`}>
+                      {n.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-gray-300">
-                    {cliente.email}
-                    <span className="block text-[10px] text-gray-400">{cliente.telefone}</span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="bg-gray-900 border border-gray-700 px-2 py-1 rounded font-mono">
-                      {cliente.plano}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        cliente.status === 'Ativo'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                          : cliente.status === 'Trial'
-                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                          : cliente.status === 'Inadimplente'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                      }`}
-                    >
-                      {cliente.status === 'Trial'
-                        ? `Trial (${cliente.diasRestantesTrial}d restantes)`
-                        : cliente.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    {cliente.status === 'Bloqueado' || cliente.status === 'Inadimplente' ? (
-                      <button
-                        onClick={() => alternarStatusAcesso(cliente.id, 'Ativo')}
-                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg transition"
-                      >
-                        🔓 Reativar Acesso
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => alternarStatusAcesso(cliente.id, 'Bloqueado')}
-                        className="bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 font-bold px-3 py-1.5 rounded-lg transition"
-                      >
-                        🔒 Bloquear
-                      </button>
-                    )}
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end items-center gap-2">
+                      {n.status !== 'Ativo' && (
+                        <button onClick={() => alternarStatus(n.id, 'Ativo')} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">✓ Ativar</button>
+                      )}
+                      {n.status !== 'Inadimplente' && (
+                        <button onClick={() => alternarStatus(n.id, 'Inadimplente')} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⚠️ Inadimplente</button>
+                      )}
+                      {n.status !== 'Bloqueado' && (
+                        <button onClick={() => alternarStatus(n.id, 'Bloqueado')} className="bg-red-500/10 text-red-500 border border-red-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">🔒 Bloquear</button>
+                      )}
+                      <button onClick={() => setModalWhats(n)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[10px]">💬 WhatsApp</button>
+                      <button onClick={() => excluirNutri(n.id, n.nome)} className="text-red-400 font-bold px-1.5 py-1 text-xs">🗑️</button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -202,6 +330,47 @@ export default function SuperAdminDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Modal de Disparo WhatsApp */}
+      {modalWhats && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-base text-emerald-500">Enviar WhatsApp para: {modalWhats.nome}</h3>
+              <button onClick={() => setModalWhats(null)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className={`block text-xs mb-1 ${textLabel}`}>Selecione o Modelo de Mensagem</label>
+                <select
+                  value={tipoMensagem}
+                  onChange={(e) => setTipoMensagem(e.target.value as any)}
+                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
+                >
+                  <option value="bloqueio">🔒 Aviso de Bloqueio de Acesso por Inadimplência</option>
+                  <option value="pagamento">💳 Lembrete de Renovação de Pagamento</option>
+                  <option value="atualizacao">🚀 Informativo de Novas Atualizações do Sistema</option>
+                </select>
+              </div>
+
+              <div className="p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs space-y-1">
+                <span className="font-bold text-emerald-500 block">Prévia da Mensagem:</span>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  {tipoMensagem === 'bloqueio' && `⚠️ Aviso: Seu acesso ao NutriSaaS encontra-se bloqueado por pendência na assinatura. Regularize para reativar.`}
+                  {tipoMensagem === 'pagamento' && `💳 Lembrete: Sua mensalidade do NutriSaaS vence em breve. Evite interrupções no atendimento.`}
+                  {tipoMensagem === 'atualizacao' && `🚀 Novidades: Lançamos novas ferramentas no NutriSaaS. Acesse já!`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button type="button" onClick={() => setModalWhats(null)} className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold ${isLight ? 'border-slate-300' : 'border-slate-800'}`}>Cancelar</button>
+              <button type="button" onClick={() => enviarWhatsAppAdmin(modalWhats)} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">Enviar via WhatsApp 💬</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
