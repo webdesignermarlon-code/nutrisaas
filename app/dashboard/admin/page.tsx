@@ -164,7 +164,7 @@ export default function AdminPage() {
             <span className="text-3xl block">👑</span>
             <h1 className="text-2xl font-extrabold text-emerald-500">Painel Master Admin</h1>
             <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-              Insira suas credenciais mestre para gerenciar o sistema
+              Insira seu e-mail e senha mestre para gerenciar o sistema
             </p>
           </div>
 
