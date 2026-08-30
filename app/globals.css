@@ -1,48 +1,12 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@variant dark (&:where(.dark, .dark *));
-
-/* Força a troca global de tema para o corpo e páginas */
-:root {
-  --bg-primary: #f9fafb;
-  --text-primary: #111827;
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb;
-}
-
-html.dark {
-  --bg-primary: #030712;
-  --text-primary: #f9fafb;
-  --card-bg: #111827;
-  --card-border: #1f2937;
-}
-
-body {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Força os cards e containers do dashboard a responderem ao tema */
-html:not(.dark) main,
-html:not(.dark) div[class*="min-h-screen"] {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-html:not(.dark) div[class*="bg-gray-900"],
-html:not(.dark) div[class*="bg-gray-950"] {
-  background-color: var(--card-bg) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--card-border) !important;
-}
-
-html:not(.dark) table th {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
-}
-
-html:not(.dark) table td {
-  border-color: #e5e7eb !important;
-  color: #111827 !important;
+/* Força o fundo escuro absoluto em toda a aplicação */
+html, body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
 }
