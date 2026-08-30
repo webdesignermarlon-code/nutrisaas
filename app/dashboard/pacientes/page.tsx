@@ -52,6 +52,24 @@ export default function PacientesPage() {
     setObjetivo('')
   }
 
+  const handleExcluir = (id: number, nomePaciente: string) => {
+    if (confirm(`Tem certeza que deseja excluir o paciente "${nomePaciente}"?`)) {
+      setPacientes(pacientes.filter((p) => p.id !== id))
+    }
+  }
+
+  const handleAbrirWhatsApp = (paciente: Paciente) => {
+    const numeroLimpo = paciente.telefone.replace(/\D/g, '')
+    if (!numeroLimpo) {
+      alert('Este paciente não possui um número de telefone válido cadastrado.')
+      return
+    }
+
+    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos conversar sobre o seu acompanhamento nutricional?`
+    const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
+    window.open(url, '_blank')
+  }
+
   // Estilos dinâmicos do tema claro / escuro
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
@@ -64,7 +82,7 @@ export default function PacientesPage() {
       <div>
         <h1 className="text-2xl font-bold text-emerald-500">Gestão de Pacientes</h1>
         <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre novos pacientes e gerencie o histórico de consultas
+          Cadastre novos pacientes, inicie conversas no WhatsApp e gerencie seus atendimentos
         </p>
       </div>
 
@@ -83,10 +101,10 @@ export default function PacientesPage() {
             />
           </div>
           <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp</label>
+            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp (com DDD)</label>
             <input
               type="text"
-              placeholder="Ex: (21) 99999-8888"
+              placeholder="Ex: 21999998888"
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
               className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -113,7 +131,7 @@ export default function PacientesPage() {
         </div>
       </form>
 
-      {/* Tabela de Pacientes */}
+      {/* Tabela de Pacientes com WhatsApp e Excluir */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
@@ -123,12 +141,13 @@ export default function PacientesPage() {
                 <th className="p-4">Telefone</th>
                 <th className="p-4">Objetivo</th>
                 <th className="p-4">Status</th>
+                <th className="p-4 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-slate-800/60'}`}>
               {pacientes.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-6 text-center text-slate-400">
+                  <td colSpan={5} className="p-6 text-center text-slate-400">
                     Nenhum paciente cadastrado ainda.
                   </td>
                 </tr>
@@ -142,6 +161,24 @@ export default function PacientesPage() {
                       <span className="bg-emerald-500/10 text-emerald-500 px-2.5 py-1 rounded-lg text-[10px] font-bold">
                         {p.status}
                       </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        <button
+                          onClick={() => handleAbrirWhatsApp(p)}
+                          className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm"
+                          title="Chamar no WhatsApp"
+                        >
+                          💬 WhatsApp
+                        </button>
+                        <button
+                          onClick={() => handleExcluir(p.id, p.nome)}
+                          className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-semibold px-2.5 py-1 rounded-lg text-[11px] transition"
+                          title="Excluir paciente"
+                        >
+                          🗑️ Excluir
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
