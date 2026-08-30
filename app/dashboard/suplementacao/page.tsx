@@ -172,11 +172,8 @@ export default function SuplementacaoPage() {
   const [observacoes, setObservacoes] = useState('')
   const [busca, setBusca] = useState('')
 
-  // Campos de edição do item atual
   const [suplementoAtual, setSuplementoAtual] = useState('')
   const [posologiaAtual, setPosologiaAtual] = useState('')
-
-  // Lista da receita final
   const [itensReceita, setItensReceita] = useState<ItemReceita[]>([])
 
   useEffect(() => {
@@ -257,7 +254,6 @@ export default function SuplementacaoPage() {
     window.open(url, '_blank')
   }
 
-  // Filtragem do Banco em Tempo Real
   const bancoFiltrado = bancoSuplementacao.map((cat) => ({
     ...cat,
     suplementos: cat.suplementos.filter(
@@ -274,7 +270,6 @@ export default function SuplementacaoPage() {
 
   return (
     <div className="space-y-6">
-      {/* Estilos para PDF e Impressão Timbrada */}
       <style jsx global>{`
         @media print {
           body {
@@ -295,12 +290,11 @@ export default function SuplementacaoPage() {
         }
       `}</style>
 
-      {/* Topo Web */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
         <div>
           <h1 className="text-2xl font-bold text-emerald-500">Receituário de Suplementação & Fórmulas</h1>
           <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-            Banco de dados clínico com mais de 180 suplementos + opção de escrita manual personalizada
+            Banco de dados clínico com suplementos e manipulados + opção de escrita manual personalizada
           </p>
         </div>
 
@@ -322,11 +316,10 @@ export default function SuplementacaoPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Painel do Banco de Dados de Suplementação com Busca */}
         <div className={`p-5 rounded-2xl border space-y-4 no-print ${bgCard}`}>
           <div className="flex justify-between items-center">
             <h2 className="text-sm font-bold text-emerald-500 flex items-center gap-1.5">
-              📚 Catálogo de Suplementos (>180)
+              📚 Catálogo de Suplementos (&gt;180)
             </h2>
           </div>
 
@@ -372,10 +365,8 @@ export default function SuplementacaoPage() {
           </div>
         </div>
 
-        {/* Formulário Manual e Emissão da Receita */}
         <div className={`lg:col-span-2 rounded-2xl border p-6 space-y-6 receita-print-container ${bgCard}`}>
           
-          {/* Cabeçalho do PDF na Impressão Timbrada */}
           <div className="hidden print:block border-b border-slate-300 pb-4 mb-6">
             <div className="flex justify-between items-center">
               <div>
@@ -395,7 +386,6 @@ export default function SuplementacaoPage() {
             </div>
           </div>
 
-          {/* Dados do Nutricionista e Paciente (Web) */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
             <div>
               <label className={`block text-xs mb-1 ${textLabel}`}>Nutricionista</label>
@@ -438,7 +428,6 @@ export default function SuplementacaoPage() {
             </div>
           </div>
 
-          {/* Área de Escrita Manual ou Edição */}
           <form onSubmit={handleAdicionarItem} className={`p-4 rounded-xl border space-y-3 no-print ${bgSubCard}`}>
             <div className="flex justify-between items-center">
               <h3 className="text-xs font-bold text-emerald-500 uppercase">
@@ -477,7 +466,6 @@ export default function SuplementacaoPage() {
             </button>
           </form>
 
-          {/* Lista da Receita Final */}
           <div className="space-y-4">
             <h2 className="text-sm font-bold border-b pb-2 uppercase text-emerald-500 print:text-slate-900">
               Prescrição de Suplementação
@@ -530,7 +518,6 @@ export default function SuplementacaoPage() {
             />
           </div>
 
-          {/* Rodapé na Impressão Timbrada */}
           <div className="hidden print:block mt-24 pt-8 text-center space-y-1">
             <div className="w-64 border-t border-slate-400 mx-auto mb-2"></div>
             <p className="text-sm font-bold text-slate-900">{nutricionista}</p>
