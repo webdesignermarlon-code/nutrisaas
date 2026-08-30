@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface NutricionistaAdmin {
@@ -16,7 +15,12 @@ interface NutricionistaAdmin {
 export default function AdminPage() {
   const [isLight, setIsLight] = useState(false)
   const [isAdminLogado, setIsAdminLogado] = useState(false)
-  const [senhaAdmin, setSenhaAdmin] = useState('')
+  
+  const EMAIL_MESTRE = 'webdesignermarlon@gmail.com'
+  const SENHA_MESTRE = 'Gratidao*11'
+
+  const [emailInput, setEmailInput] = useState('')
+  const [senhaInput, setSenhaInput] = useState('')
   const [erroLogin, setErroLogin] = useState('')
 
   const [nutris, setNutris] = useState<NutricionistaAdmin[]>([
@@ -53,6 +57,11 @@ export default function AdminPage() {
     const theme = localStorage.getItem('nutrisaas-theme')
     setIsLight(theme === 'light')
 
+    const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
+    if (logadoAdmin === 'true') {
+      setIsAdminLogado(true)
+    }
+
     const salvos = localStorage.getItem('nutrisaas-admin-nutris')
     if (salvos) {
       try {
@@ -63,6 +72,12 @@ export default function AdminPage() {
     }
   }, [])
 
+  const toggleTheme = () => {
+    const nextTheme = isLight ? 'dark' : 'light'
+    setIsLight(!isLight)
+    localStorage.setItem('nutrisaas-theme', nextTheme)
+  }
+
   const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
     setNutris(novaLista)
     localStorage.setItem('nutrisaas-admin-nutris', JSON.stringify(novaLista))
@@ -70,12 +85,24 @@ export default function AdminPage() {
 
   const handleLoginAdmin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (senhaAdmin === 'admin123' || senhaAdmin === 'marlon2026') {
+    setErroLogin('')
+
+    const emailLimpo = emailInput.trim().toLowerCase()
+    const senhaLimpa = senhaInput.trim()
+
+    if (emailLimpo === EMAIL_MESTRE && senhaLimpa === SENHA_MESTRE) {
       setIsAdminLogado(true)
-      setErroLogin('')
+      sessionStorage.setItem('nutrisaas-admin-auth', 'true')
     } else {
-      setErroLogin('Senha de Administrador incorreta.')
+      setErroLogin('E-mail ou senha de administrador incorretos.')
     }
+  }
+
+  const handleLogout = () => {
+    setIsAdminLogado(false)
+    sessionStorage.removeItem('nutrisaas-admin-auth')
+    setEmailInput('')
+    setSenhaInput('')
   }
 
   const alternarStatus = (id: string, novoStatus: 'Ativo' | 'Bloqueado' | 'Inadimplente') => {
@@ -99,11 +126,11 @@ export default function AdminPage() {
 
     let msg = ''
     if (tipoMensagem === 'bloqueio') {
-      msg = `⚠️ *AVISO IMPORTANTE - NUTRISAAS*\n\nOlá, *${nutri.nome}*.\nIdentificamos pendências relativas à sua assinatura do NutriSaaS. Seu acesso ao sistema encontra-se *bloqueado*. Para regularizar seu pagamento e reativar imediatamente o seu painel, por favor entre em contato conosco ou acesse a central de assinaturas.`
+      msg = `⚠️ *AVISO IMPORTANTE - NUTRISAAS*\n\nOlá, *${nutri.nome}*.\nIdentificamos pendências relativas à sua assinatura do NutriSaaS. Seu acesso ao sistema encontra-se *bloqueado*. Para regularizar seu pagamento e reativar imediatamente o seu painel, por favor entre em contato conosco.`
     } else if (tipoMensagem === 'pagamento') {
-      msg = `💳 *LEMBRETE DE PAGAMENTO - NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nSua mensalidade do software NutriSaaS está próxima do vencimento. Evite interrupções no atendimento aos seus pacientes regularizando sua assinatura.`
+      msg = `💳 *LEMBRETE DE PAGAMENTO - NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nSua mensalidade do software NutriSaaS está próxima do vencimento. Evite interrupções no atendimento regularizando sua assinatura.`
     } else {
-      msg = `🚀 *NOVIDADES E ATUALIZAÇÕES NO NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nLançamos novas ferramentas incríveis no seu painel de gestão nutricional (banco com +180 suplementos, escaneamento corporal DEXA e chat com fotos). Acesse agora e confira!`
+      msg = `🚀 *NOVIDADES E ATUALIZAÇÕES NO NUTRISAAS*\n\nOlá, *${nutri.nome}*!\nLançamos novas ferramentas incríveis no seu painel de gestão nutricional. Acesse agora e confira!`
     }
 
     const url = `https://api.whatsapp.com/send?phone=55${num}&text=${encodeURIComponent(msg)}`
@@ -111,32 +138,59 @@ export default function AdminPage() {
     setModalWhats(null)
   }
 
+  const bgPage = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
   const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
   if (!isAdminLogado) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-6 shadow-2xl">
+      <div className={`min-h-screen flex items-center justify-center p-4 relative ${bgPage}`}>
+        
+        {/* Botão de Modo Claro / Escuro */}
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={toggleTheme}
+            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold transition ${
+              isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
+            }`}
+          >
+            {isLight ? '☀️ Modo Claro' : '🌙 Modo Escuro'}
+          </button>
+        </div>
+
+        <div className={`w-full max-w-md border p-8 rounded-3xl space-y-6 ${isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-slate-900 border-slate-800 shadow-2xl'}`}>
           <div className="text-center space-y-2">
             <span className="text-3xl block">👑</span>
             <h1 className="text-2xl font-extrabold text-emerald-500">Painel Master Admin</h1>
-            <p className="text-xs text-slate-400">Área restrita de gestão de licenças, bloqueios e acessos</p>
+            <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+              Insira seu e-mail e senha mestre para gerenciar o sistema
+            </p>
           </div>
 
-          {erroLogin && <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-xs">{erroLogin}</div>}
+          {erroLogin && <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-xs">{erroLogin}</div>}
 
-          <form onSubmit={handleLoginAdmin} className="space-y-4 autocomplete-off">
+          <form onSubmit={handleLoginAdmin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Senha de Administrador Master</label>
+              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>E-mail do Administrador</label>
+              <input
+                type="email"
+                placeholder="webdesignermarlon@gmail.com"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                required
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>Senha de Acesso Mestre</label>
               <input
                 type="password"
-                autoComplete="new-password"
-                placeholder="Digite a senha master..."
-                value={senhaAdmin}
-                onChange={(e) => setSenhaAdmin(e.target.value)}
-                className="w-full rounded-xl bg-slate-950 border border-slate-800 p-3 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                placeholder="••••••••••••"
+                value={senhaInput}
+                onChange={(e) => setSenhaInput(e.target.value)}
+                className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
                 required
               />
             </div>
@@ -145,13 +199,13 @@ export default function AdminPage() {
               type="submit"
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
             >
-              Acessar Painel Master
+              Entrar no Painel Master
             </button>
           </form>
 
-          <div className="text-center pt-2">
-            <Link href="/dashboard" className="text-xs text-emerald-400 hover:underline">
-              ← Voltar para o Dashboard
+          <div className="text-center pt-2 border-t border-slate-800/40">
+            <Link href="/dashboard" className="text-xs text-emerald-500 hover:underline font-semibold">
+              ← Voltar para o Sistema
             </Link>
           </div>
         </div>
@@ -160,26 +214,36 @@ export default function AdminPage() {
   }
 
   return (
-    <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 ${isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
+    <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 ${bgPage}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-emerald-500">Painel Master Admin</h1>
             <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
-              👑 Acesso Master Autorizado
+              👑 {EMAIL_MESTRE}
             </span>
           </div>
           <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-            Gerenciamento global de nutricionistas, controle de acessos, bloqueios e disparos automáticos via WhatsApp
+            Controle total de licenças, bloqueios de inadimplência e disparos via WhatsApp
           </p>
         </div>
 
-        <Link
-          href="/dashboard"
-          className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm"
-        >
-          Ir para o Sistema
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition ${
+              isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
+            }`}
+          >
+            {isLight ? '☀️ Claro' : '🌙 Escuro'}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 text-xs font-bold px-3 py-2 rounded-xl transition"
+          >
+            Sair do Admin 🔒
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -284,7 +348,7 @@ export default function AdminPage() {
                 <p className="text-slate-300 leading-relaxed text-[11px]">
                   {tipoMensagem === 'bloqueio' && `⚠️ Aviso: Seu acesso ao NutriSaaS encontra-se bloqueado por pendência na assinatura. Regularize para reativar.`}
                   {tipoMensagem === 'pagamento' && `💳 Lembrete: Sua mensalidade do NutriSaaS vence em breve. Evite interrupções no atendimento.`}
-                  {tipoMensagem === 'atualizacao' && `🚀 Novidades: Lançamos novas ferramentas no NutriSaaS (banco de suplementos e chat com fotos). Acesse já!`}
+                  {tipoMensagem === 'atualizacao' && `🚀 Novidades: Lançamos novas ferramentas no NutriSaaS. Acesse já!`}
                 </p>
               </div>
             </div>
