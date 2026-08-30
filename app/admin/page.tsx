@@ -147,7 +147,6 @@ export default function AdminPage() {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 relative ${bgPage}`}>
         
-        {/* Botão de Modo Claro / Escuro */}
         <div className="absolute top-6 right-6">
           <button
             onClick={toggleTheme}
@@ -175,7 +174,7 @@ export default function AdminPage() {
               <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>E-mail do Administrador</label>
               <input
                 type="email"
-                placeholder="webdesignermarlon@gmail.com"
+                placeholder="Digite seu e-mail de admin..."
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -347,7 +346,7 @@ export default function AdminPage() {
                 <span className="font-bold text-emerald-500 block">Prévia da Mensagem:</span>
                 <p className="text-slate-300 leading-relaxed text-[11px]">
                   {tipoMensagem === 'bloqueio' && `⚠️ Aviso: Seu acesso ao NutriSaaS encontra-se bloqueado por pendência na assinatura. Regularize para reativar.`}
-                  {tipoMensagem === 'pagamento' && `💳 Lembrete: Sua mensalidade do NutriSaaS vence em breve. Evite interrupções no atendimento.`}
+                  {tipoMentagem === 'pagamento' && `💳 Lembrete: Sua mensalidade do NutriSaaS vence em breve. Evite interrupções no atendimento.`}
                   {tipoMensagem === 'atualizacao' && `🚀 Novidades: Lançamos novas ferramentas no NutriSaaS. Acesse já!`}
                 </p>
               </div>
