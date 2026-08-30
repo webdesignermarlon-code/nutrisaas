@@ -23,9 +23,7 @@ export default function AdminPage() {
   const [senhaInput, setSenhaInput] = useState('')
   const [erroLogin, setErroLogin] = useState('')
 
-  // Painel inicia vazio, populado apenas de acordo com os cadastros reais
   const [nutris, setNutris] = useState<NutricionistaAdmin[]>([])
-
   const [modalWhats, setModalWhats] = useState<NutricionistaAdmin | null>(null)
   const [tipoMensagem, setTipoMensagem] = useState<'bloqueio' | 'pagamento' | 'atualizacao'>('bloqueio')
 
@@ -114,15 +112,15 @@ export default function AdminPage() {
     setModalWhats(null)
   }
 
-  // Estilos dinâmicos puros para respeitar rigorosamente o Modo Claro e Modo Escuro
-  const bgPage = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
+  // Classes globais de ponta a ponta
+  const bgGlobal = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
   const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
   if (!isAdminLogado) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 relative ${bgPage}`}>
+      <div className={`min-h-screen w-full flex items-center justify-center p-4 relative transition-colors duration-200 ${bgGlobal}`}>
         
         <div className="absolute top-6 right-6">
           <button
@@ -131,7 +129,7 @@ export default function AdminPage() {
               isLight ? 'bg-white border-slate-300 text-slate-700 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-300'
             }`}
           >
-            {isLight ? '☀️ Modo Claro' : '🌙 Modo Escuro'}
+            {isLight ? '☀️ Claro' : '🌙 Escuro'}
           </button>
         </div>
 
@@ -192,10 +190,10 @@ export default function AdminPage() {
   const faturamentoTotal = nutris.filter((n) => n.status === 'Ativo').length * 399
 
   return (
-    <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 transition-colors duration-200 ${bgPage}`}>
+    <div className={`min-h-screen w-full p-6 space-y-6 transition-colors duration-200 ${bgGlobal}`}>
       
       {/* Topo */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800/40">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800/40">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-emerald-500">Painel Master Admin</h1>
@@ -226,98 +224,100 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Cards de Métricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Total de Profissionais</span>
-          <span className="text-2xl font-extrabold text-emerald-500">{nutris.length}</span>
-        </div>
-        <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Contas Ativas & Teste</span>
-          <span className="text-2xl font-extrabold text-sky-500">
-            {nutris.filter((n) => n.status === 'Ativo' || n.status === 'Em Teste (15 dias)').length}
-          </span>
-        </div>
-        <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Inadimplentes / Bloqueados</span>
-          <span className="text-2xl font-extrabold text-red-500">
-            {nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}
-          </span>
-        </div>
-        <div className={`p-4 rounded-2xl border ${bgCard}`}>
-          <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Faturamento (Anual R$ 399)</span>
-          <span className="text-2xl font-extrabold text-amber-500">
-            R$ {faturamentoTotal.toLocaleString('pt-BR')},00
-          </span>
-        </div>
-      </div>
-
-      {/* Tabela de Gestão */}
-      <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
-        <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
-          <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Cards de Métricas */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+            <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Total de Profissionais</span>
+            <span className="text-2xl font-extrabold text-emerald-500">{nutris.length}</span>
+          </div>
+          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+            <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Contas Ativas & Teste</span>
+            <span className="text-2xl font-extrabold text-sky-500">
+              {nutris.filter((n) => n.status === 'Ativo' || n.status === 'Em Teste (15 dias)').length}
+            </span>
+          </div>
+          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+            <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Inadimplentes / Bloqueados</span>
+            <span className="text-2xl font-extrabold text-red-500">
+              {nutris.filter((n) => n.status === 'Bloqueado' || n.status === 'Inadimplente').length}
+            </span>
+          </div>
+          <div className={`p-4 rounded-2xl border ${bgCard}`}>
+            <span className={`text-xs font-semibold block ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>Faturamento (Anual R$ 399)</span>
+            <span className="text-2xl font-extrabold text-amber-500">
+              R$ {faturamentoTotal.toLocaleString('pt-BR')},00
+            </span>
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className={`border-b text-[10px] font-bold uppercase ${isLight ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
-                <th className="p-4">Profissional</th>
-                <th className="p-4">WhatsApp</th>
-                <th className="p-4">Data Cadastro</th>
-                <th className="p-4">Status da Assinatura</th>
-                <th className="p-4 text-right">Ações & Bloqueios / WhatsApp</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-slate-800/60'}`}>
-              {nutris.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-400">
-                    Nenhum profissional cadastrado no momento. Os cadastros aparecerão aqui conforme novos nutricionistas entrarem na plataforma.
-                  </td>
+        {/* Tabela de Gestão */}
+        <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
+          <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
+            <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className={`border-b text-[10px] font-bold uppercase ${isLight ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-950 text-slate-400 border-slate-800'}`}>
+                  <th className="p-4">Profissional</th>
+                  <th className="p-4">WhatsApp</th>
+                  <th className="p-4">Data Cadastro</th>
+                  <th className="p-4">Status da Assinatura</th>
+                  <th className="p-4 text-right">Ações & Bloqueios / WhatsApp</th>
                 </tr>
-              ) : (
-                nutris.map((n) => (
-                  <tr key={n.id} className={isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}>
-                    <td className="p-4 font-bold">
-                      <div>{n.nome}</div>
-                      <div className={`text-[10px] font-normal ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{n.email}</div>
-                    </td>
-                    <td className="p-4">{n.whatsapp || 'Não informado'}</td>
-                    <td className="p-4">{n.criadoEm}</td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        n.status === 'Ativo' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                        n.status === 'Em Teste (15 dias)' ? 'bg-sky-500/10 text-sky-500 border border-sky-500/20' :
-                        n.status === 'Inadimplente' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                        'bg-red-500/10 text-red-500 border border-red-500/20'
-                      }`}>
-                        {n.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end items-center gap-2">
-                        {n.status !== 'Ativo' && (
-                          <button onClick={() => alternarStatus(n.id, 'Ativo')} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">✓ Ativar</button>
-                        )}
-                        {n.status !== 'Em Teste (15 dias)' && (
-                          <button onClick={() => alternarStatus(n.id, 'Em Teste (15 dias)')} className="bg-sky-500/10 text-sky-500 border border-sky-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⏳ Teste 15d</button>
-                        )}
-                        {n.status !== 'Inadimplente' && (
-                          <button onClick={() => alternarStatus(n.id, 'Inadimplente')} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⚠️ Inadimplente</button>
-                        )}
-                        {n.status !== 'Bloqueado' && (
-                          <button onClick={() => alternarStatus(n.id, 'Bloqueado')} className="bg-red-500/10 text-red-500 border border-red-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">🔒 Bloquear</button>
-                        )}
-                        <button onClick={() => setModalWhats(n)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[10px]">💬 WhatsApp</button>
-                        <button onClick={() => excluirNutri(n.id, n.nome)} className="text-red-400 font-bold px-1.5 py-1 text-xs">🗑️</button>
-                      </div>
+              </thead>
+              <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-slate-800/60'}`}>
+                {nutris.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center text-slate-400">
+                      Nenhum profissional cadastrado no momento. Os cadastros aparecerão aqui conforme novos nutricionistas entrarem na plataforma.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  nutris.map((n) => (
+                    <tr key={n.id} className={isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}>
+                      <td className="p-4 font-bold">
+                        <div>{n.nome}</div>
+                        <div className={`text-[10px] font-normal ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{n.email}</div>
+                      </td>
+                      <td className="p-4">{n.whatsapp || 'Não informado'}</td>
+                      <td className="p-4">{n.criadoEm}</td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          n.status === 'Ativo' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                          n.status === 'Em Teste (15 dias)' ? 'bg-sky-500/10 text-sky-500 border border-sky-500/20' :
+                          n.status === 'Inadimplente' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                          'bg-red-500/10 text-red-500 border border-red-500/20'
+                        }`}>
+                          {n.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex justify-end items-center gap-2">
+                          {n.status !== 'Ativo' && (
+                            <button onClick={() => alternarStatus(n.id, 'Ativo')} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">✓ Ativar</button>
+                          )}
+                          {n.status !== 'Em Teste (15 dias)' && (
+                            <button onClick={() => alternarStatus(n.id, 'Em Teste (15 dias)')} className="bg-sky-500/10 text-sky-500 border border-sky-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⏳ Teste 15d</button>
+                          )}
+                          {n.status !== 'Inadimplente' && (
+                            <button onClick={() => alternarStatus(n.id, 'Inadimplente')} className="bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">⚠️ Inadimplente</button>
+                          )}
+                          {n.status !== 'Bloqueado' && (
+                            <button onClick={() => alternarStatus(n.id, 'Bloqueado')} className="bg-red-500/10 text-red-500 border border-red-500/20 font-bold px-2 py-1 rounded-lg text-[10px]">🔒 Bloquear</button>
+                          )}
+                          <button onClick={() => setModalWhats(n)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[10px]">💬 WhatsApp</button>
+                          <button onClick={() => excluirNutri(n.id, n.nome)} className="text-red-400 font-bold px-1.5 py-1 text-xs">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
