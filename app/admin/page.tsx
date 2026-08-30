@@ -29,7 +29,11 @@ export default function AdminPage() {
 
   useEffect(() => {
     const theme = localStorage.getItem('nutrisaas-admin-theme')
-    setIsLight(theme === 'light')
+    const lightMode = theme === 'light'
+    setIsLight(lightMode)
+
+    // Pinta o fundo real do navegador de ponta a ponta
+    document.body.style.backgroundColor = lightMode ? '#f1f5f9' : '#020617'
 
     const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
     if (logadoAdmin === 'true') {
@@ -50,6 +54,7 @@ export default function AdminPage() {
     const nextTheme = !isLight
     setIsLight(nextTheme)
     localStorage.setItem('nutrisaas-admin-theme', nextTheme ? 'light' : 'dark')
+    document.body.style.backgroundColor = nextTheme ? '#f1f5f9' : '#020617'
   }
 
   const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
@@ -112,7 +117,6 @@ export default function AdminPage() {
     setModalWhats(null)
   }
 
-  // Classes que mudam o fundo da tela inteira de ponta a ponta
   const pageBg = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
   const cardBg = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl'
   const inputBg = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500'
@@ -120,7 +124,7 @@ export default function AdminPage() {
 
   if (!isAdminLogado) {
     return (
-      <div className={`fixed inset-0 w-full h-full flex items-center justify-center p-4 transition-colors duration-200 ${pageBg}`}>
+      <div className={`min-h-screen w-full flex items-center justify-center p-4 relative transition-colors duration-200 ${pageBg}`}>
         <div className="absolute top-6 right-6">
           <button
             onClick={toggleTheme}
