@@ -8,7 +8,6 @@ interface Paciente {
   telefone: string
   objetivo: string
   status: string
-  ultimaConsulta?: string
 }
 
 export default function PacientesPage() {
@@ -19,11 +18,12 @@ export default function PacientesPage() {
   const [modalAgendar, setModalAgendar] = useState<Paciente | null>(null)
   const [dataConsulta, setDataConsulta] = useState('')
   const [horaConsulta, setHoraConsulta] = useState('')
-  const [tipoConsulta, setTipoConsulta] = useState('Acompanhamento')
+  const [tipoConsulta, setTipoConsulta] = useState('Retorno e Acompanhamento')
+  const [enviarWhats, setEnviarWhats] = useState(true)
 
   const [pacientes, setPacientes] = useState<Paciente[]>([
-    { id: 1, nome: 'Maria Silva', telefone: '(21) 99888-7766', objetivo: 'Emagrecimento', status: 'Ativo' },
-    { id: 2, nome: 'João Pedro Santos', telefone: '(21) 98765-4321', objetivo: 'Hipertrofia', status: 'Ativo' },
+    { id: 1, nome: 'Maria Silva', telefone: '21998887766', objetivo: 'Emagrecimento', status: 'Ativo' },
+    { id: 2, nome: 'João Pedro Santos', telefone: '21987654321', objetivo: 'Hipertrofia', status: 'Ativo' },
   ])
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function PacientesPage() {
       return
     }
 
-    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos agendar seu acompanhamento nutricional?`
+    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos conversar sobre o seu acompanhamento nutricional?`
     const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
     window.open(url, '_blank')
   }
@@ -80,13 +80,24 @@ export default function PacientesPage() {
     e.preventDefault()
     if (!dataConsulta || !horaConsulta || !modalAgendar) return
 
-    alert(`Consulta agendada com sucesso para ${modalAgendar.nome} em ${dataConsulta} às ${horaConsulta}!`)
+    const partesData = dataConsulta.split('-')
+    const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : dataConsulta
+    const numeroLimpo = modalAgendar.telefone.replace(/\D/g, '')
+
+    // Se a opção de enviar WhatsApp estiver marcada
+    if (enviarWhats && numeroLimpo) {
+      const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${modalAgendar.nome}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida ou necessidade de reagendamento, favor me avisar por aqui. Até breve!`
+      const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
+      window.open(url, '_blank')
+    } else {
+      alert(`Consulta agendada para ${modalAgendar.nome} em ${dataFormatada} às ${horaConsulta}!`)
+    }
+
     setModalAgendar(null)
     setDataConsulta('')
     setHoraConsulta('')
   }
 
-  // Estilos dinâmicos do tema claro / escuro
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
   const bgHeaderTable = isLight ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-950 text-slate-400 border-slate-800'
@@ -94,15 +105,13 @@ export default function PacientesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Topo da Tela */}
       <div>
         <h1 className="text-2xl font-bold text-emerald-500">Gestão de Pacientes</h1>
         <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre pacientes, agende consultas e inicie atendimentos via WhatsApp
+          Cadastre pacientes e agende consultas com opção opcional de envio por WhatsApp
         </p>
       </div>
 
-      {/* Formulário de Cadastro */}
       <form onSubmit={handleCadastrar} className={`rounded-2xl border p-6 space-y-4 ${bgCard}`}>
         <h2 className="text-sm font-bold">Cadastrar Novo Paciente</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -117,7 +126,7 @@ export default function PacientesPage() {
             />
           </div>
           <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp</label>
+            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp (com DDD)</label>
             <input
               type="text"
               placeholder="Ex: 21999998888"
@@ -147,7 +156,6 @@ export default function PacientesPage() {
         </div>
       </form>
 
-      {/* Tabela de Pacientes */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
@@ -211,7 +219,6 @@ export default function PacientesPage() {
         </div>
       </div>
 
-      {/* Modal de Agendamento */}
       {modalAgendar && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
@@ -255,6 +262,20 @@ export default function PacientesPage() {
                   <option value="Bioimpedância / Avaliação">Bioimpedância / Avaliação</option>
                   <option value="Consulta Online">Consulta Online</option>
                 </select>
+              </div>
+
+              {/* Opção de Enviar ou Não por WhatsApp */}
+              <div className="pt-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="chkWhatsapp"
+                  checked={enviarWhats}
+                  onChange={(e) => setEnviarWhats(e.target.checked)}
+                  className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="chkWhatsapp" className={`text-xs cursor-pointer ${textLabel}`}>
+                  Enviar confirmação diretamente para o WhatsApp do paciente
+                </label>
               </div>
 
               <div className="flex gap-2 pt-2">

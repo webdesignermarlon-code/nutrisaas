@@ -10,6 +10,14 @@ export default function DashboardPage() {
   const [dataConsulta, setDataConsulta] = useState('')
   const [horaConsulta, setHoraConsulta] = useState('')
   const [tipoConsulta, setTipoConsulta] = useState('Retorno')
+  const [enviarWhats, setEnviarWhats] = useState(true)
+
+  const listaPacientesExemplo: Record<string, string> = {
+    'Maria Silva': '21998887766',
+    'João Pedro Santos': '21987654321',
+    'Ana Paula Souza': '21999998888',
+    'Carlos Eduardo Santos': '21977776666'
+  }
 
   const [proximasConsultas, setProximasConsultas] = useState([
     { nome: 'Ana Paula Souza', horario: '09:00', tipo: 'Retorno - Emagrecimento', status: 'Confirmado' },
@@ -23,13 +31,6 @@ export default function DashboardPage() {
     setIsLight(theme === 'light')
   }, [])
 
-  const estatisticas = [
-    { titulo: 'Pacientes Ativos', valor: '42', icone: '👥', tendencia: '+12% este mês', cor: 'text-emerald-500' },
-    { titulo: 'Dietas Prescritas', valor: '128', icone: '🥗', tendencia: '+8 esta semana', cor: 'text-sky-500' },
-    { titulo: 'Consultas no Mês', valor: '36', icone: '📅', tendencia: '95% de assiduidade', cor: 'text-purple-500' },
-    { titulo: 'Taxa de Retorno', valor: '88%', icone: '📈', tendencia: '+5% satisfação', cor: 'text-amber-500' },
-  ]
-
   const handleNovoAgendamento = (e: React.FormEvent) => {
     e.preventDefault()
     if (!horaConsulta || !dataConsulta) return
@@ -39,10 +40,21 @@ export default function DashboardPage() {
       ...proximasConsultas,
     ])
 
+    const partesData = dataConsulta.split('-')
+    const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : dataConsulta
+
+    const tel = listaPacientesExemplo[pacienteSelecionado]
+    if (enviarWhats && tel) {
+      const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${pacienteSelecionado}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida, estou à disposição!`
+      const url = `https://api.whatsapp.com/send?phone=55${tel}&text=${encodeURIComponent(mensagem)}`
+      window.open(url, '_blank')
+    } else {
+      alert(`Consulta agendada no sistema para ${pacienteSelecionado} às ${horaConsulta}!`)
+    }
+
     setModalAgendar(false)
     setDataConsulta('')
     setHoraConsulta('')
-    alert(`Consulta agendada para ${pacienteSelecionado} às ${horaConsulta}!`)
   }
 
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
@@ -51,12 +63,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Topo do Dashboard */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-emerald-500">Painel Principal de Gestão</h1>
           <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-            Bem-vindo de volta! Acompanhe o desempenho e a agenda de consultas do seu consultório.
+            Acompanhe atendimentos e agende consultas com envio opcional para o WhatsApp.
           </p>
         </div>
 
@@ -76,25 +87,42 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Cards de Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {estatisticas.map((item, idx) => (
-          <div key={idx} className={`p-5 rounded-2xl border transition ${bgCard}`}>
-            <div className="flex justify-between items-center mb-2">
-              <span className={`text-xs font-semibold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                {item.titulo}
-              </span>
-              <span className="text-xl">{item.icone}</span>
-            </div>
-            <div className={`text-2xl font-bold ${item.cor}`}>{item.valor}</div>
-            <span className="text-[10px] text-slate-400 block mt-1">{item.tendencia}</span>
+        <div className={`p-5 rounded-2xl border ${bgCard}`}>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-semibold text-slate-400">Pacientes Ativos</span>
+            <span className="text-xl">👥</span>
           </div>
-        ))}
+          <div className="text-2xl font-bold text-emerald-500">42</div>
+          <span className="text-[10px] text-slate-400 block mt-1">+12% este mês</span>
+        </div>
+        <div className={`p-5 rounded-2xl border ${bgCard}`}>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-semibold text-slate-400">Dietas Prescritas</span>
+            <span className="text-xl">🥗</span>
+          </div>
+          <div className="text-2xl font-bold text-sky-500">128</div>
+          <span className="text-[10px] text-slate-400 block mt-1">+8 esta semana</span>
+        </div>
+        <div className={`p-5 rounded-2xl border ${bgCard}`}>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-semibold text-slate-400">Consultas no Mês</span>
+            <span className="text-xl">📅</span>
+          </div>
+          <div className="text-2xl font-bold text-purple-500">36</div>
+          <span className="text-[10px] text-slate-400 block mt-1">95% de assiduidade</span>
+        </div>
+        <div className={`p-5 rounded-2xl border ${bgCard}`}>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-semibold text-slate-400">Taxa de Retorno</span>
+            <span className="text-xl">📈</span>
+          </div>
+          <div className="text-2xl font-bold text-amber-500">88%</div>
+          <span className="text-[10px] text-slate-400 block mt-1">+5% satisfação</span>
+        </div>
       </div>
 
-      {/* Agenda de Consultas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         <div className={`lg:col-span-2 p-6 rounded-2xl border space-y-4 ${bgCard}`}>
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-base">Agenda de Consultas do Dia</h2>
@@ -118,11 +146,7 @@ export default function DashboardPage() {
 
                 <div className="text-right space-y-1">
                   <span className="font-bold block text-emerald-500">{c.horario}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                    c.status === 'Confirmado' 
-                      ? 'bg-emerald-500/10 text-emerald-500' 
-                      : 'bg-amber-500/10 text-amber-500'
-                  }`}>
+                  <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-0.5 rounded font-medium">
                     {c.status}
                   </span>
                 </div>
@@ -131,7 +155,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Atalhos */}
         <div className={`p-6 rounded-2xl border space-y-4 ${bgCard}`}>
           <h2 className="font-bold text-base">Atalhos do Sistema</h2>
 
@@ -158,20 +181,18 @@ export default function DashboardPage() {
               <span>👥</span>
               <div>
                 <div>Ficha de Pacientes</div>
-                <div className="text-[10px] text-slate-400 font-normal">Cadastre e envie mensagens via WhatsApp</div>
+                <div className="text-[10px] text-slate-400 font-normal">Agendamento e mensagens no WhatsApp</div>
               </div>
             </Link>
           </div>
         </div>
-
       </div>
 
-      {/* Modal de Novo Agendamento no Dashboard */}
       {modalAgendar && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
             <div className="flex justify-between items-center">
-              <h3 className="font-bold text-base">Agendar Nova Consulta</h3>
+              <h3 className="font-bold text-base">Agendar Consulta</h3>
               <button onClick={() => setModalAgendar(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
 
@@ -224,6 +245,20 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* Opção de Enviar ou Não por WhatsApp */}
+              <div className="pt-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="chkWhatsappDash"
+                  checked={enviarWhats}
+                  onChange={(e) => setEnviarWhats(e.target.checked)}
+                  className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="chkWhatsappDash" className={`text-xs cursor-pointer ${textLabel}`}>
+                  Enviar confirmação diretamente para o WhatsApp do paciente
+                </label>
+              </div>
+
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
@@ -234,7 +269,7 @@ export default function DashboardPage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"
                 >
                   Confirmar Agendamento
                 </button>
