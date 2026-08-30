@@ -47,6 +47,7 @@ const gerarAlimentosTACO = () => {
 
 const bancoAlimentos = gerarAlimentosTACO()
 
+// Modelos Clínicos Completos (5 a 6 refeições por dia)
 const modelosPreProntos: Record<string, any> = {
   diabeticos: {
     titulo: 'Plano Controle Glicêmico (Diabetes Tipo 2 / Pré-Diabetes)',
@@ -56,7 +57,8 @@ const modelosPreProntos: Record<string, any> = {
       { hora: '10:00', nome: 'Lanche da Manhã', op1: '30g de nozes ou castanhas do pará', op2: '1 abacate pequeno (100g) com limão e farelo de aveia' },
       { hora: '12:30', nome: 'Almoço', op1: '130g Peito de frango grelhado + 80g Arroz integral + 100g Feijão + Salada folhosa à vontade', op2: '140g Filé de Tilápia + 100g Quinoa cozida + Brócolis e couve-flor no vapor' },
       { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 maçã com casca + 15g de pasta de amendoim integral', op2: '1 scoop de Whey Protein isolado diluído em água' },
-      { hora: '19:30', nome: 'Jantar', op1: '130g Patinho moído + Abobrinha e refogado de couve no azeite', op2: 'Omelete com 3 claras e 1 gema + salada verde com azeite de oliva extra virgem' }
+      { hora: '19:30', nome: 'Jantar', op1: '130g Patinho moído + Abobrinha e refogado de couve no azeite', op2: 'Omelete com 3 claras e 1 gema + salada verde com azeite de oliva' },
+      { hora: '21:30', nome: 'Ceia', op1: '1 xícara de chá de camomila + 3 castanhas-do-pará', op2: '100g de iogurte natural desnatado com canela em pó' }
     ]
   },
   tea: {
@@ -67,17 +69,20 @@ const modelosPreProntos: Record<string, any> = {
       { hora: '10:30', nome: 'Lanche da Manhã', op1: 'Morangos frescos higienizados e cortados em cubos', op2: 'Uvas sem semente congeladas ou em temperatura ambiente' },
       { hora: '12:00', nome: 'Almoço', op1: '120g Tiras de peito de frango empanadas na farinha de aveia + 100g Batata sorriso caseira', op2: '120g Hambúrguer caseiro de patinho + 100g Arroz branco soltinho' },
       { hora: '15:30', nome: 'Lanche da Tarde', op1: 'Vitamina batida (Leite + banana + maçã sem casca)', op2: 'Iogurte natural batido com frutas vermelhas coado' },
-      { hora: '19:00', nome: 'Jantar', op1: '120g Carne moída bem sequinha + 100g Macarrão sem molho picado', op2: 'Tiras de frango grelhado bem macias + 100g Purê de batata inglesa' }
+      { hora: '19:00', nome: 'Jantar', op1: '120g Carne moída bem sequinha + 100g Macarrão sem molho picado', op2: 'Tiras de frango grelhado bem macias + 100g Purê de batata inglesa' },
+      { hora: '21:00', nome: 'Ceia', op1: '1 copo de leite morno com canela', op2: '1 banana assada com aveia polvilhada' }
     ]
   },
   mounjaro: {
     titulo: 'Plano Nutricional Protocolo GLP-1 (Mounjaro / Ozempic)',
     calorias: '1400',
     refeicoes: [
-      { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos cozidos ou mexidos + 1 xícara de chá digestivo (hortelã ou gengibre)', op2: '1 scoop de Whey Protein em água + 10g de chia' },
+      { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos cozidos + 1 xícara de chá de hortelã ou gengibre', op2: '1 scoop de Whey Protein em água + 10g de chia' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: '1/2 xícara de mamão papaia em cubos', op2: '1 iogurte proteico desnatado' },
       { hora: '12:00', nome: 'Almoço', op1: '120g Peito de frango desfiado macio + 50g Arroz integral + Legumes cozidos', op2: '120g Filé de peixe assado + 60g Purê de mandioca + Salada leve' },
-      { hora: '15:30', nome: 'Lanche da Tarde', op1: '1 iogurte proteico desnatado', op2: '1 fatia de queijo minas frescal + 1/2 maçã' },
-      { hora: '19:00', nome: 'Jantar', op1: 'Sopa de legumes enriquecida com frango desfiado', op2: 'Omelete de claras com espinafre e cottage' }
+      { hora: '15:30', nome: 'Lanche da Tarde', op1: '1 fatia de queijo minas frescal + 1/2 maçã', op2: '1 scoop de Whey Protein batido com água de coco' },
+      { hora: '19:00', nome: 'Jantar', op1: 'Sopa leve de legumes com peito de frango desfiado', op2: 'Omelete de claras com espinafre e queijo cottage' },
+      { hora: '21:00', nome: 'Ceia', op1: 'Chá de erva-doce sem açúcar', op2: '1 xícara de chá de camomila com limão' }
     ]
   },
   bariatrica_pre: {
@@ -85,8 +90,11 @@ const modelosPreProntos: Record<string, any> = {
     calorias: '1200',
     refeicoes: [
       { hora: '08:00', nome: 'Café da Manhã', op1: '1 scoop de Whey Protein + 200ml de leite desnatado', op2: '2 claras de ovo mexidas + café com adoçante' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: '1 iogurte 0% gordura e 0% açúcar', op2: 'Gelatina zero açúcar + 1 colher de cottage' },
       { hora: '12:30', nome: 'Almoço', op1: '120g Peito de frango grelhado + Salada verde folhosa', op2: '130g Peixe grelhado + Brócolis no vapor' },
-      { hora: '19:30', nome: 'Jantar', op1: 'Caldo claro de legumes batido com 100g de peito de frango', op2: '120g Patinho moído refogado + Abobrinha no vapor' }
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 scoop de Whey Protein + 100ml de água', op2: '1 fatia fina de queijo ricota' },
+      { hora: '19:30', nome: 'Jantar', op1: 'Caldo claro de legumes batido com 100g de peito de frango', op2: '120g Patinho moído refogado + Abobrinha no vapor' },
+      { hora: '21:30', nome: 'Ceia', op1: 'Chá de camomila com gotas de limão', op2: 'Gelatina zero açúcar' }
     ]
   },
   bariatrica_pos: {
@@ -94,8 +102,11 @@ const modelosPreProntos: Record<string, any> = {
     calorias: '900',
     refeicoes: [
       { hora: '08:00', nome: 'Café da Manhã', op1: '50ml de Iogurte proteico desnatado', op2: '50ml de mingau leve de aveia com proteína' },
+      { hora: '10:00', nome: 'Lanche da Manhã', op1: '50ml de purê de maçã assada sem açúcar', op2: '50ml de mamão papaia processado' },
       { hora: '12:00', nome: 'Almoço', op1: '60g Purê de frango com abóbora bem processado', op2: '60g Purê de peixe com batata inglesa' },
-      { hora: '18:00', nome: 'Jantar', op1: '60g Sopa concentrada de patinho com legumes processados', op2: '60g Purê de mandioca com frango amaciado' }
+      { hora: '15:00', nome: 'Lanche da Tarde', op1: '1 scoop de Whey Isolado em 150ml de água (tomar devagar)', op2: '50g de queijo cottage amaciado' },
+      { hora: '18:00', nome: 'Jantar', op1: '60g Sopa concentrada de patinho com legumes processados', op2: '60g Purê de mandioca com frango amaciado' },
+      { hora: '20:30', nome: 'Ceia', op1: '50ml de chá de erva-doce gelado', op2: '50ml de infusão de camomila' }
     ]
   },
   obesidade: {
@@ -103,8 +114,11 @@ const modelosPreProntos: Record<string, any> = {
     calorias: '1700',
     refeicoes: [
       { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 2 fatias de pão integral + café sem açúcar', op2: '1 iogurte natural + 30g de aveia + 1 banana' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: '1 maçã + 3 castanhas-do-pará', op2: '1 xícara de morangos frescos' },
       { hora: '12:30', nome: 'Almoço', op1: '150g Peito de frango + 100g Arroz integral + 100g Feijão + Salada', op2: '150g Patinho moído + 120g Batata doce + Salada' },
-      { hora: '19:30', nome: 'Jantar', op1: '140g Peixe assado + 100g Mandioca + Legumes refogados', op2: 'Omelete de 3 ovos com legumes + salada folhosa' }
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '2 fatias de pão integral + 1 fatia de queijo minas', op2: '1 scoop de Whey Protein em água + 1 kiwi' },
+      { hora: '19:30', nome: 'Jantar', op1: '140g Peixe assado + 100g Mandioca + Legumes refogados', op2: 'Omelete de 3 ovos com legumes + salada folhosa' },
+      { hora: '21:30', nome: 'Ceia', op1: '1 iogurte desnatado com canela', op2: '1 xícara de chá de hortelã + 1 torrada integral' }
     ]
   },
   emagrecimento: {
@@ -112,17 +126,23 @@ const modelosPreProntos: Record<string, any> = {
     calorias: '1500',
     refeicoes: [
       { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 1 fatia de pão integral + café preto', op2: '1 iogurte desnatado + 20g de aveia + 1 maçã' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: '1 kiwi ou 1 goiaba fresca', op2: '20g de sementes de abóbora tostadas' },
       { hora: '12:30', nome: 'Almoço', op1: '120g Peito de frango grelhado + 80g Arroz integral + Salada verde', op2: '130g Filé de Tilápia + 100g Batata doce + Salada' },
-      { hora: '19:30', nome: 'Jantar', op1: '120g Patinho moído + Legumes no vapor', op2: 'Omelete com 3 claras e 1 gema + salada de folhas' }
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 banana prata + 10g de castanhas', op2: '1 scoop de Whey Protein em água' },
+      { hora: '19:30', nome: 'Jantar', op1: '120g Patinho moído + Legumes no vapor', op2: 'Omelete com 3 claras e 1 gema + salada de folhas' },
+      { hora: '21:30', nome: 'Ceia', op1: '1 xícara de chá de erva-cidreira', op2: '2 fatias finas de queijo minas frescal' }
     ]
   },
   hipertrofia: {
     titulo: 'Plano Hipercalórico - Ganho de Massa Muscular',
     calorias: '2800',
     refeicoes: [
-      { hora: '07:30', nome: 'Café da Manhã', op1: '3 ovos mexidos + 2 fatias de pão integral + 1 banana', op2: 'Vitamina: 300ml leite + 40g aveia + 1 scoop de Whey' },
-      { hora: '12:30', nome: 'Almoço', op1: '180g Peito de frango + 200g Arroz branco + 100g Feijão', op2: '180g Carne moída + 220g Batata doce' },
-      { hora: '20:00', nome: 'Jantar', op1: '180g Filé de Tilápia + 200g Arroz integral', op2: '180g Peito de frango + 250g Mandioca' }
+      { hora: '07:30', nome: 'Café da Manhã', op1: '3 ovos mexidos + 2 fatias de pão integral + 1 banana + 20g pasta amendoim', op2: 'Vitamina: 300ml leite + 40g aveia + 1 scoop de Whey + 1 banana' },
+      { hora: '10:00', nome: 'Lanche da Manhã', op1: '2 fatias de pão integral + 60g de atum em conserva', op2: '150g Batata doce cozida + 100g Frango desfiado' },
+      { hora: '12:30', nome: 'Almoço', op1: '180g Peito de frango + 200g Arroz branco + 100g Feijão + Salada', op2: '180g Carne moída + 220g Macarrão integral com molho caseiro' },
+      { hora: '16:00', nome: 'Pré-Treino / Lanche', op1: '150g Batata doce + 1 scoop Whey Protein', op2: '2 bananas + 30g Aveia + 1 colher de mel' },
+      { hora: '19:30', nome: 'Jantar', op1: '180g Filé de Tilápia + 200g Arroz integral + Salada no azeite', op2: '180g Peito de frango + 250g Mandioca cozida' },
+      { hora: '21:30', nome: 'Ceia', op1: '30g Whey Protein + 15g Pasta de amendoim + 100ml de leite', op2: '150g Iogurte grego + 20g de nozes picadas' }
     ]
   }
 }
@@ -139,12 +159,7 @@ export default function DietasPage() {
   const [refeicaoAtivaIndex, setRefeicaoAtivaIndex] = useState(0)
 
   const [refeicoes, setRefeicoes] = useState([
-    {
-      hora: '08:00',
-      nome: 'Café da Manhã',
-      op1: '2 ovos mexidos + 1 fatia de pão integral',
-      op2: '1 iogurte desnatado + 20g de aveia'
-    }
+    { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 1 fatia de pão integral', op2: '1 iogurte desnatado + 20g de aveia' }
   ])
 
   const carregarModelo = (chave: string) => {
@@ -182,12 +197,10 @@ export default function DietasPage() {
     setRefeicoes(novas)
   }
 
-  // Impressão PDF
   const handleImprimirPDF = () => {
     window.print()
   }
 
-  // Enviar WhatsApp
   const handleEnviarWhatsApp = () => {
     let mensagem = `📋 *PLANO ALIMENTAR PERSONALIZADO*\n`
     mensagem += `👤 *Paciente:* ${paciente || 'Paciente'}\n`
@@ -217,7 +230,6 @@ export default function DietasPage() {
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Estilos para PDF / Impressão */}
       <style jsx global>{`
         @media print {
           body {
@@ -262,7 +274,7 @@ export default function DietasPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
         <div>
           <h1 className="text-2xl font-bold text-emerald-400">Montador de Plano Alimentar</h1>
-          <p className="text-xs text-slate-400">Monte a dieta e selecione em qual refeição adicionar os alimentos do banco TACO</p>
+          <p className="text-xs text-slate-400">Modelos completos com 5 a 6 refeições diárias e banco de substituições</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -283,7 +295,7 @@ export default function DietasPage() {
 
       {/* Seletor de Modelos Clínicos */}
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2 no-print">
-        <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos:</span>
+        <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos (Completos - 6 Refeições):</span>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => carregarModelo('diabeticos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🩺 Diabéticos</button>
           <button onClick={() => carregarModelo('tea')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🧩 TEA / Seletividade</button>
@@ -372,7 +384,6 @@ export default function DietasPage() {
                         : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
                     }`}
                   >
-                    {/* Selo Visual de Refeição Selecionada no Formulário */}
                     <div className="no-print flex justify-between items-center mb-2">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                         isAtiva ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
@@ -387,7 +398,6 @@ export default function DietasPage() {
                       )}
                     </div>
 
-                    {/* Título Visível na Impressão/PDF */}
                     <div className="hidden print:block print-header-text">
                       ⏰ {ref.hora || '00:00'} - {ref.nome || 'Refeição'}
                     </div>
@@ -417,7 +427,6 @@ export default function DietasPage() {
                       />
                     </div>
 
-                    {/* Opção 1 */}
                     <div className="mb-3">
                       <label className="block text-[10px] text-emerald-400 font-bold uppercase mb-1 print:text-emerald-700">Opção Principal (Opção 1)</label>
                       <textarea
@@ -434,7 +443,6 @@ export default function DietasPage() {
                       <div className="hidden print:block print-value-text">{ref.op1 || 'Nenhum alimento inserido.'}</div>
                     </div>
 
-                    {/* Opção 2 */}
                     <div>
                       <label className="block text-[10px] text-sky-400 font-bold uppercase mb-1 print:text-sky-700">Opção de Substituição (Opção 2)</label>
                       <textarea
@@ -465,7 +473,6 @@ export default function DietasPage() {
               </span>
             </div>
 
-            {/* Seletor explícito de refeição destino */}
             <div>
               <label className="block text-[10px] text-slate-400 mb-1">Adicionar alimentos na refeição:</label>
               <select
