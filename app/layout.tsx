@@ -1,28 +1,21 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ThemeProvider } from "./context/ThemeContext";
+import './globals.css'
+import AuthGuard from '@/components/AuthGuard'
 
-export const metadata: Metadata = {
-  title: "NutriSaaS - Gestão para Nutricionistas",
-  description: "Plataforma completa de gestão e dietas",
-};
+export const metadata = {
+  title: 'NutriSaaS - Gestão para Nutricionistas',
+  description: 'Sistema de gestão e prescrição nutricional em conformidade com LGPD e CFN',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body 
-        className="min-h-screen transition-colors duration-200 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-white" 
-        suppressHydrationWarning
-      >
-        {/* O ThemeProvider embrulha todo o site aqui */}
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+    <html lang="pt-BR">
+      <body className="antialiased">
+        <AuthGuard>{children}</AuthGuard>
       </body>
     </html>
-  );
+  )
 }
