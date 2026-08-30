@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Banco Nutricional TACO/TBCA
 const gerarAlimentosTACO = () => {
@@ -47,7 +47,7 @@ const gerarAlimentosTACO = () => {
 
 const bancoAlimentos = gerarAlimentosTACO()
 
-// Modelos Clínicos Completos (5 a 6 refeições por dia)
+// Modelos Clínicos Completos (6 Refeições)
 const modelosPreProntos: Record<string, any> = {
   diabeticos: {
     titulo: 'Plano Controle Glicêmico (Diabetes Tipo 2 / Pré-Diabetes)',
@@ -148,6 +148,7 @@ const modelosPreProntos: Record<string, any> = {
 }
 
 export default function DietasPage() {
+  const [isLight, setIsLight] = useState(false)
   const [nutricionista, setNutricionista] = useState('Dra. Nutricionista')
   const [crn, setCrn] = useState('CRN 12345/RJ')
   const [paciente, setPaciente] = useState('')
@@ -157,6 +158,20 @@ export default function DietasPage() {
   const [busca, setBusca] = useState('')
   const [categoria, setCategoria] = useState('Todas')
   const [refeicaoAtivaIndex, setRefeicaoAtivaIndex] = useState(0)
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = localStorage.getItem('nutrisaas-theme')
+      setIsLight(theme === 'light')
+    }
+    checkTheme()
+    window.addEventListener('storage', checkTheme)
+    const interval = setInterval(checkTheme, 500)
+    return () => {
+      window.removeEventListener('storage', checkTheme)
+      clearInterval(interval)
+    }
+  }, [])
 
   const [refeicoes, setRefeicoes] = useState([
     { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 1 fatia de pão integral', op2: '1 iogurte desnatado + 20g de aveia' }
@@ -228,8 +243,14 @@ export default function DietasPage() {
     return porNome && porCat
   })
 
+  // Estilos de modo claro/escuro dinâmicos
+  const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
+  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
+  const bgSubCard = isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/50 border-slate-800'
+  const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
+
   return (
-    <div className="space-y-6 text-slate-100">
+    <div className="space-y-6">
       <style jsx global>{`
         @media print {
           body {
@@ -270,11 +291,13 @@ export default function DietasPage() {
         }
       `}</style>
 
-      {/* Topo da Tela */}
+      {/* Topo */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
         <div>
-          <h1 className="text-2xl font-bold text-emerald-400">Montador de Plano Alimentar</h1>
-          <p className="text-xs text-slate-400">Modelos completos com 5 a 6 refeições diárias e banco de substituições</p>
+          <h1 className="text-2xl font-bold text-emerald-500">Montador de Plano Alimentar</h1>
+          <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Modelos completos de 6 refeições com ajuste perfeito no modo claro e escuro
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -293,24 +316,24 @@ export default function DietasPage() {
         </div>
       </div>
 
-      {/* Seletor de Modelos Clínicos */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2 no-print">
-        <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos (Completos - 6 Refeições):</span>
+      {/* Modelos Prontos */}
+      <div className={`rounded-2xl border p-4 space-y-2 no-print ${bgCard}`}>
+        <span className={`text-xs block ${textLabel}`}>Modelos Clínicos Prontos (Completos - 6 Refeições):</span>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => carregarModelo('diabeticos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🩺 Diabéticos</button>
-          <button onClick={() => carregarModelo('tea')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🧩 TEA / Seletividade</button>
-          <button onClick={() => carregarModelo('mounjaro')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">💉 Mounjaro / GLP-1</button>
-          <button onClick={() => carregarModelo('bariatrica_pre')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🏥 Pré-Bariátrica</button>
-          <button onClick={() => carregarModelo('bariatrica_pos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🥣 Pós-Bariátrica</button>
-          <button onClick={() => carregarModelo('obesidade')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">⚖️ Obesidade</button>
-          <button onClick={() => carregarModelo('emagrecimento')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🔥 Emagrecimento</button>
-          <button onClick={() => carregarModelo('hipertrofia')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">💪 Hipertrofia</button>
+          <button onClick={() => carregarModelo('diabeticos')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>🩺 Diabéticos</button>
+          <button onClick={() => carregarModelo('tea')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>🧩 TEA / Seletividade</button>
+          <button onClick={() => carregarModelo('mounjaro')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>💉 Mounjaro / GLP-1</button>
+          <button onClick={() => carregarModelo('bariatrica_pre')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>🏥 Pré-Bariátrica</button>
+          <button onClick={() => carregarModelo('bariatrica_pos')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>🥣 Pós-Bariátrica</button>
+          <button onClick={() => carregarModelo('obesidade')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>⚖️ Obesidade</button>
+          <button onClick={() => carregarModelo('emagrecimento')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>🔥 Emagrecimento</button>
+          <button onClick={() => carregarModelo('hipertrofia')} className={`text-xs border px-3 py-1.5 rounded-lg transition font-medium ${isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-emerald-700' : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border-slate-700'}`}>💪 Hipertrofia</button>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 space-y-4 dieta-print-container">
+      <div className={`rounded-2xl border p-6 space-y-4 dieta-print-container ${bgCard}`}>
         
-        {/* Cabeçalho do PDF na Impressão */}
+        {/* PDF Header na Impressão */}
         <div className="hidden print:block border-b border-slate-300 pb-4 mb-6">
           <div className="flex justify-between items-center">
             <div>
@@ -329,44 +352,44 @@ export default function DietasPage() {
           </div>
         </div>
 
-        {/* Dados da Interface Web */}
+        {/* Inputs de Cadastro */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 no-print">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Nutricionista</label>
-            <input type="text" value={nutricionista} onChange={(e) => setNutricionista(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>Nutricionista</label>
+            <input type="text" value={nutricionista} onChange={(e) => setNutricionista(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">CRN</label>
-            <input type="text" value={crn} onChange={(e) => setCrn(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>CRN</label>
+            <input type="text" value={crn} onChange={(e) => setCrn(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Nome do Paciente</label>
-            <input type="text" placeholder="Ex: Maria Silva" value={paciente} onChange={(e) => setPaciente(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>Nome do Paciente</label>
+            <input type="text" placeholder="Ex: Maria Silva" value={paciente} onChange={(e) => setPaciente(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">WhatsApp Paciente</label>
-            <input type="text" placeholder="Ex: 21999998888" value={telefonePaciente} onChange={(e) => setTelefonePaciente(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>WhatsApp Paciente</label>
+            <input type="text" placeholder="Ex: 21999998888" value={telefonePaciente} onChange={(e) => setTelefonePaciente(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Título do Plano Alimentar</label>
-            <input type="text" placeholder="Ex: Dieta Hipertrofia - Fase 1" value={titulo} onChange={(e) => setTitulo(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>Título do Plano Alimentar</label>
+            <input type="text" placeholder="Ex: Dieta Hipertrofia - Fase 1" value={titulo} onChange={(e) => setTitulo(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Meta Calórica (kcal)</label>
-            <input type="number" placeholder="Ex: 1800" value={calorias} onChange={(e) => setCalorias(e.target.value)} className="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-xs text-white" />
+            <label className={`block text-xs mb-1 ${textLabel}`}>Meta Calórica (kcal)</label>
+            <input type="number" placeholder="Ex: 1800" value={calorias} onChange={(e) => setCalorias(e.target.value)} className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`} />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-800">
+        <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
           
-          {/* Refeições */}
+          {/* Refeições Estruturadas */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center mb-2 no-print">
-              <h2 className="text-lg font-bold text-white">Refeições Estruturadas</h2>
-              <button onClick={adicionarRefeicao} className="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-lg hover:bg-emerald-400 transition">
+              <h2 className="text-lg font-bold">Refeições Estruturadas</h2>
+              <button onClick={adicionarRefeicao} className="text-xs bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-xl hover:bg-emerald-400 transition">
                 + Adicionar Refeição
               </button>
             </div>
@@ -380,19 +403,25 @@ export default function DietasPage() {
                     onClick={() => setRefeicaoAtivaIndex(idx)}
                     className={`p-4 rounded-xl border transition cursor-pointer card-print relative ${
                       isAtiva
-                        ? 'border-emerald-500 bg-slate-950/80 shadow-md shadow-emerald-500/5'
+                        ? isLight
+                          ? 'border-emerald-500 bg-emerald-50/40 shadow-sm'
+                          : 'border-emerald-500 bg-slate-950 shadow-md shadow-emerald-500/5'
+                        : isLight
+                        ? 'border-slate-200 bg-slate-50/60 hover:border-slate-300'
                         : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
                     }`}
                   >
                     <div className="no-print flex justify-between items-center mb-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        isAtiva ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded ${
+                        isAtiva
+                          ? 'bg-emerald-500 text-slate-950'
+                          : isLight ? 'bg-slate-200 text-slate-600' : 'bg-slate-800 text-slate-400'
                       }`}>
                         {isAtiva ? '✓ Refeição Selecionada para Inserção' : 'Clique para Selecionar'}
                       </span>
 
                       {refeicoes.length > 1 && (
-                        <button onClick={(e) => { e.stopPropagation(); removerRefeicao(idx); }} className="text-xs text-red-400 hover:text-red-300">
+                        <button onClick={(e) => { e.stopPropagation(); removerRefeicao(idx); }} className="text-xs text-red-500 hover:text-red-400 font-semibold">
                           ✕ Remover
                         </button>
                       )}
@@ -411,7 +440,7 @@ export default function DietasPage() {
                           newRefs[idx].hora = e.target.value
                           setRefeicoes(newRefs)
                         }}
-                        className="rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white"
+                        className={`rounded-xl border p-2 text-xs ${bgInput}`}
                         placeholder="Horário (ex: 08:00)"
                       />
                       <input
@@ -422,13 +451,14 @@ export default function DietasPage() {
                           newRefs[idx].nome = e.target.value
                           setRefeicoes(newRefs)
                         }}
-                        className="md:col-span-2 rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white"
+                        className={`md:col-span-2 rounded-xl border p-2 text-xs ${bgInput}`}
                         placeholder="Nome da Refeição"
                       />
                     </div>
 
+                    {/* Opção 1 */}
                     <div className="mb-3">
-                      <label className="block text-[10px] text-emerald-400 font-bold uppercase mb-1 print:text-emerald-700">Opção Principal (Opção 1)</label>
+                      <label className={`block text-[10px] font-bold uppercase mb-1 ${isLight ? 'text-emerald-700' : 'text-emerald-400'}`}>Opção Principal (Opção 1)</label>
                       <textarea
                         value={ref.op1}
                         onChange={(e) => {
@@ -436,15 +466,16 @@ export default function DietasPage() {
                           newRefs[idx].op1 = e.target.value
                           setRefeicoes(newRefs)
                         }}
-                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none no-print"
+                        className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none no-print ${bgInput}`}
                         rows={2}
                         placeholder="Alimentos da primeira opção..."
                       />
                       <div className="hidden print:block print-value-text">{ref.op1 || 'Nenhum alimento inserido.'}</div>
                     </div>
 
+                    {/* Opção 2 */}
                     <div>
-                      <label className="block text-[10px] text-sky-400 font-bold uppercase mb-1 print:text-sky-700">Opção de Substituição (Opção 2)</label>
+                      <label className={`block text-[10px] font-bold uppercase mb-1 ${isLight ? 'text-sky-700' : 'text-sky-400'}`}>Opção de Substituição (Opção 2)</label>
                       <textarea
                         value={ref.op2}
                         onChange={(e) => {
@@ -452,7 +483,7 @@ export default function DietasPage() {
                           newRefs[idx].op2 = e.target.value
                           setRefeicoes(newRefs)
                         }}
-                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-sky-500 focus:outline-none no-print"
+                        className={`w-full rounded-xl border p-2 text-xs focus:border-sky-500 focus:outline-none no-print ${bgInput}`}
                         rows={2}
                         placeholder="Alimentos de substituição..."
                       />
@@ -464,21 +495,21 @@ export default function DietasPage() {
             </div>
           </div>
 
-          {/* Banco de Alimentos TACO */}
-          <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-4 h-fit no-print">
+          {/* Banco TACO */}
+          <div className={`space-y-3 rounded-2xl border p-4 h-fit no-print ${bgSubCard}`}>
             <div className="flex justify-between items-center">
-              <h3 className="font-bold text-sm text-white">Banco Nutricional TACO</h3>
-              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-semibold">
+              <h3 className="font-bold text-sm">Banco Nutricional TACO</h3>
+              <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded font-semibold">
                 Destino: Refeição {refeicaoAtivaIndex + 1}
               </span>
             </div>
 
             <div>
-              <label className="block text-[10px] text-slate-400 mb-1">Adicionar alimentos na refeição:</label>
+              <label className={`block text-[10px] mb-1 ${textLabel}`}>Adicionar alimento na refeição:</label>
               <select
                 value={refeicaoAtivaIndex}
                 onChange={(e) => setRefeicaoAtivaIndex(Number(e.target.value))}
-                className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-emerald-400 font-semibold"
+                className={`w-full rounded-xl border p-2 text-xs font-semibold text-emerald-500 ${bgInput}`}
               >
                 {refeicoes.map((r, i) => (
                   <option key={i} value={i}>
@@ -493,13 +524,13 @@ export default function DietasPage() {
               placeholder="Buscar alimento (ex: frango, ovo)..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
             />
 
             <select
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
-              className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-slate-300"
+              className={`w-full rounded-xl border p-2 text-xs ${bgInput}`}
             >
               <option value="Todas">Todas as Categorias</option>
               <option value="Carnes e Aves">Carnes e Aves</option>
@@ -515,13 +546,13 @@ export default function DietasPage() {
 
             <div className="space-y-2 max-h-[450px] overflow-y-auto pr-1">
               {alimentosFiltrados.slice(0, 50).map((item) => (
-                <div key={item.id} className="p-2.5 rounded-lg border border-slate-800 bg-slate-900 space-y-1.5">
+                <div key={item.id} className={`p-2.5 rounded-xl border space-y-1.5 ${isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'}`}>
                   <div className="flex justify-between items-start">
-                    <span className="text-xs font-medium text-white">{item.nome}</span>
-                    <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">{item.med}</span>
+                    <span className="text-xs font-semibold">{item.nome}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-800 text-slate-400'}`}>{item.med}</span>
                   </div>
 
-                  <div className="text-[10px] text-slate-400 flex gap-2">
+                  <div className={`text-[10px] flex gap-2 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                     <span>🔥 {item.cal} kcal</span>
                     <span>🍗 P: {item.prot}g</span>
                     <span>🍞 C: {item.carb}g</span>
@@ -530,13 +561,13 @@ export default function DietasPage() {
                   <div className="flex gap-1 pt-1">
                     <button
                       onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, refeicaoAtivaIndex, 'op1')}
-                      className="flex-1 text-[10px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 py-1 rounded transition"
+                      className="flex-1 text-[10px] bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 py-1 rounded-lg transition font-semibold"
                     >
                       + Opção 1
                     </button>
                     <button
                       onClick={() => adicionarAlimento(`${item.med} de ${item.nome}`, refeicaoAtivaIndex, 'op2')}
-                      className="flex-1 text-[10px] bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 py-1 rounded transition"
+                      className="flex-1 text-[10px] bg-sky-500/10 text-sky-500 hover:bg-sky-500/20 py-1 rounded-lg transition font-semibold"
                     >
                       + Opção 2
                     </button>
