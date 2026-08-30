@@ -1,82 +1,100 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function AnamnesePage() {
+  const [isLight, setIsLight] = useState(false)
   const [paciente, setPaciente] = useState('')
   const [historico, setHistorico] = useState('')
-  const [rotina, setRotina] = useState('')
   const [alergias, setAlergias] = useState('')
+  const [rotina, setRotina] = useState('')
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = localStorage.getItem('nutrisaas-theme')
+      setIsLight(theme === 'light')
+    }
+    checkTheme()
+    window.addEventListener('storage', checkTheme)
+    const interval = setInterval(checkTheme, 500)
+    return () => {
+      window.removeEventListener('storage', checkTheme)
+      clearInterval(interval)
+    }
+  }, [])
 
   const handleSalvar = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!paciente) {
-      alert('Por favor, informe o nome do paciente.')
-      return
-    }
-    alert(`Anamnese de ${paciente} registrada com sucesso!`)
-    setPaciente('')
-    setHistorico('')
-    setRotina('')
-    setAlergias('')
+    alert(`Anamnese de ${paciente || 'Paciente'} salva com sucesso!`)
   }
 
-  return (
-    <div className="space-y-6 text-slate-100">
-      <h1 className="text-2xl font-bold text-emerald-400">Ficha de Anamnese Nutricional</h1>
+  // Estilos dinâmicos de tema claro e escuro
+  const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
+  const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
+  const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
-      <form onSubmit={handleSalvar} className="rounded-xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-emerald-500">Ficha de Anamnese Nutricional</h1>
+        <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+          Registre o histórico clínico, alergias e hábitos do paciente
+        </p>
+      </div>
+
+      <form onSubmit={handleSalvar} className={`rounded-2xl border p-6 space-y-5 ${bgCard}`}>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Nome do Paciente</label>
+          <label className={`block text-xs mb-1 ${textLabel}`}>Nome do Paciente</label>
           <input
             type="text"
             placeholder="Ex: João Silva"
             value={paciente}
             onChange={(e) => setPaciente(e.target.value)}
-            className="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            required
+            className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Histórico Clínico e Patologias</label>
+          <label className={`block text-xs mb-1 ${textLabel}`}>Histórico Clínico e Patologias</label>
           <textarea
+            placeholder="Hipertensão, diabetes, histórico familiar de doenças, medicações em uso..."
             value={historico}
             onChange={(e) => setHistorico(e.target.value)}
-            className="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
             rows={3}
-            placeholder="Hipertensão, diabetes, histórico familiar de doenças..."
+            className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Alergias e Intolerâncias Alimentares</label>
-          <input
-            type="text"
+          <label className={`block text-xs mb-1 ${textLabel}`}>Alergias e Intolerâncias Alimentares</label>
+          <textarea
+            placeholder="Intolerância à lactose, alergia a frutos do mar, aversões alimentares..."
             value={alergias}
             onChange={(e) => setAlergias(e.target.value)}
-            className="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
-            placeholder="Intolerância à lactose, alergia a frutos do mar..."
+            rows={3}
+            className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Rotina, Sono e Hábitos Intestinais</label>
+          <label className={`block text-xs mb-1 ${textLabel}`}>Rotina, Sono e Hábitos Intestinais</label>
           <textarea
+            placeholder="Ingestão hídrica diária, qualidade do sono, nível de estresse, funcionamento intestinal (escala de Bristol)..."
             value={rotina}
             onChange={(e) => setRotina(e.target.value)}
-            className="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-white focus:border-emerald-500 focus:outline-none"
             rows={3}
-            placeholder="Ingestão hídrica diária, qualidade do sono, funcionamento intestinal..."
+            className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
           />
         </div>
 
-        <button
-          type="submit"
-          className="bg-emerald-500 font-bold text-slate-950 px-6 py-2.5 rounded-xl hover:bg-emerald-400"
-        >
-          Salvar Anamnese
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 px-6 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
+          >
+            Salvar Anamnese
+          </button>
+        </div>
       </form>
     </div>
   )
