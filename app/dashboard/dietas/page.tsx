@@ -2,37 +2,33 @@
 
 import { useState } from 'react'
 
-// Banco Nutricional TACO/TBCA com 800+ combinações e macronutrientes
+// Banco Nutricional TACO/TBCA
 const gerarAlimentosTACO = () => {
   const base = [
-    { nome: 'Peito de Frango Grelhado', cat: 'Carnes e Aves', cal: 163, carb: 0, prot: 31.5, gord: 3.2, med: '100g' },
-    { nome: 'Patinho Moído Grelhado', cat: 'Carnes e Aves', cal: 219, carb: 0, prot: 35.9, gord: 7.3, med: '100g' },
-    { nome: 'Filé Mignon Grelhado', cat: 'Carnes e Aves', cal: 220, carb: 0, prot: 32.8, gord: 8.8, med: '100g' },
-    { nome: 'Filé de Tilápia Assado', cat: 'Peixes e Frutos do Mar', cal: 96, carb: 0, prot: 20.1, gord: 1.7, med: '100g' },
-    { nome: 'Salmão Grelhado', cat: 'Peixes e Frutos do Mar', cal: 229, carb: 0, prot: 24.6, gord: 13.4, med: '100g' },
-    { nome: 'Ovo de Galinha Cozido', cat: 'Ovos e Laticínios', cal: 146, carb: 0.6, prot: 13.3, gord: 9.5, med: '2 un (100g)' },
-    { nome: 'Clara de Ovo Cozida', cat: 'Ovos e Laticínios', cal: 52, carb: 0.7, prot: 11.0, gord: 0.2, med: '3 un (100g)' },
-    { nome: 'Queijo Cottage', cat: 'Ovos e Laticínios', cal: 98, carb: 3.4, prot: 11.1, gord: 4.3, med: '100g' },
-    { nome: 'Queijo Minas Frescal', cat: 'Ovos e Laticínios', cal: 264, carb: 3.2, prot: 17.4, gord: 20.2, med: '100g' },
-    { nome: 'Iogurte Natural Desnatado', cat: 'Ovos e Laticínios', cal: 43, carb: 5.8, prot: 3.8, gord: 0.5, med: '1 copo (170g)' },
-    { nome: 'Arroz Integral Cozido', cat: 'Cereais e Massas', cal: 124, carb: 25.8, prot: 2.6, gord: 1.0, med: '100g' },
-    { nome: 'Arroz Branco Cozido', cat: 'Cereais e Massas', cal: 128, carb: 28.1, prot: 2.5, gord: 0.2, med: '100g' },
-    { nome: 'Feijão Carioca Cozido', cat: 'Leguminosas', cal: 76, carb: 13.6, prot: 4.8, gord: 0.5, med: '100g' },
-    { nome: 'Feijão Preto Cozido', cat: 'Leguminosas', cal: 77, carb: 14.0, prot: 4.5, gord: 0.5, med: '100g' },
-    { nome: 'Batata Doce Cozida', cat: 'Tubérculos e Raízes', cal: 77, carb: 18.4, prot: 0.6, gord: 0.1, med: '100g' },
-    { nome: 'Batata Inglesa Cozida', cat: 'Tubérculos e Raízes', cal: 52, carb: 11.9, prot: 1.2, gord: 0.1, med: '100g' },
-    { nome: 'Pão de Fôrma Integral', cat: 'Pães', cal: 253, carb: 49.9, prot: 9.4, gord: 3.7, med: '2 fatias (50g)' },
-    { nome: 'Banana Prata', cat: 'Frutas', cal: 98, carb: 26.0, prot: 1.3, gord: 0.1, med: '1 un (100g)' },
-    { nome: 'Maçã Fuji', cat: 'Frutas', cal: 56, carb: 15.2, prot: 0.3, gord: 0.2, med: '1 un (100g)' },
-    { nome: 'Aveia em Flocos', cat: 'Cereais', cal: 394, carb: 66.6, prot: 13.9, gord: 8.5, med: '3 colheres (30g)' },
-    { nome: 'Whey Protein 80%', cat: 'Suplementos', cal: 400, carb: 10.0, prot: 80.0, gord: 5.0, med: '1 scoop (30g)' },
+    { nome: 'Peito de Frango Grelhado', cat: 'Carnes e Aves', cal: 163, carb: 0, prot: 31.5, gord: 3.2, fib: 0, sod: 50, med: '100g' },
+    { nome: 'Patinho Moído Grelhado', cat: 'Carnes e Aves', cal: 219, carb: 0, prot: 35.9, gord: 7.3, fib: 0, sod: 60, med: '100g' },
+    { nome: 'Filé Mignon Grelhado', cat: 'Carnes e Aves', cal: 220, carb: 0, prot: 32.8, gord: 8.8, fib: 0, sod: 55, med: '100g' },
+    { nome: 'Filé de Tilápia Assado', cat: 'Peixes e Frutos do Mar', cal: 96, carb: 0, prot: 20.1, gord: 1.7, fib: 0, sod: 52, med: '100g' },
+    { nome: 'Salmão Grelhado', cat: 'Peixes e Frutos do Mar', cal: 229, carb: 0, prot: 24.6, gord: 13.4, fib: 0, sod: 59, med: '100g' },
+    { nome: 'Ovo de Galinha Cozido', cat: 'Ovos e Laticínios', cal: 146, carb: 0.6, prot: 13.3, gord: 9.5, fib: 0, sod: 146, med: '2 un (100g)' },
+    { nome: 'Clara de Ovo Cozida', cat: 'Ovos e Laticínios', cal: 52, carb: 0.7, prot: 11.0, gord: 0.2, fib: 0, sod: 166, med: '3 un (100g)' },
+    { nome: 'Queijo Cottage', cat: 'Ovos e Laticínios', cal: 98, carb: 3.4, prot: 11.1, gord: 4.3, fib: 0, sod: 364, med: '100g' },
+    { nome: 'Queijo Minas Frescal', cat: 'Ovos e Laticínios', cal: 264, carb: 3.2, prot: 17.4, gord: 20.2, fib: 0, sod: 310, med: '100g' },
+    { nome: 'Iogurte Natural Desnatado', cat: 'Ovos e Laticínios', cal: 43, carb: 5.8, prot: 3.8, gord: 0.5, fib: 0, sod: 52, med: '1 copo (170g)' },
+    { nome: 'Arroz Integral Cozido', cat: 'Cereais e Massas', cal: 124, carb: 25.8, prot: 2.6, gord: 1.0, fib: 2.7, sod: 1, med: '100g' },
+    { nome: 'Feijão Carioca Cozido', cat: 'Leguminosas', cal: 76, carb: 13.6, prot: 4.8, gord: 0.5, fib: 8.5, sod: 2, med: '100g' },
+    { nome: 'Batata Doce Cozida', cat: 'Tubérculos e Raízes', cal: 77, carb: 18.4, prot: 0.6, gord: 0.1, fib: 2.2, sod: 10, med: '100g' },
+    { nome: 'Pão de Fôrma Integral', cat: 'Pães', cal: 253, carb: 49.9, prot: 9.4, gord: 3.7, fib: 6.9, sod: 450, med: '2 fatias (50g)' },
+    { nome: 'Banana Prata', cat: 'Frutas', cal: 98, carb: 26.0, prot: 1.3, gord: 0.1, fib: 2.0, sod: 1, med: '1 un (100g)' },
+    { nome: 'Maçã Fuji', cat: 'Frutas', cal: 56, carb: 15.2, prot: 0.3, gord: 0.2, fib: 1.3, sod: 1, med: '1 un (100g)' },
+    { nome: 'Aveia em Flocos', cat: 'Cereais', cal: 394, carb: 66.6, prot: 13.9, gord: 8.5, fib: 9.1, sod: 4, med: '3 colheres (30g)' },
+    { nome: 'Whey Protein 80%', cat: 'Suplementos', cal: 400, carb: 10.0, prot: 80.0, gord: 5.0, fib: 0, sod: 160, med: '1 scoop (30g)' },
   ]
 
   const lista = []
   let id = 1
   for (let i = 0; i < 40; i++) {
     for (const item of base) {
-      if (lista.length >= 800) break
       const mult = (1 + i * 0.05).toFixed(2)
       lista.push({
         id: id++,
@@ -42,6 +38,8 @@ const gerarAlimentosTACO = () => {
         carb: parseFloat((item.carb * parseFloat(mult)).toFixed(1)),
         prot: parseFloat((item.prot * parseFloat(mult)).toFixed(1)),
         gord: parseFloat((item.gord * parseFloat(mult)).toFixed(1)),
+        fib: parseFloat((item.fib * parseFloat(mult)).toFixed(1)),
+        sod: Math.round(item.sod * parseFloat(mult)),
         med: i === 0 ? item.med : `${Math.round(100 * parseFloat(mult))}g`
       })
     }
@@ -49,14 +47,79 @@ const gerarAlimentosTACO = () => {
   return lista
 }
 
-const bancoAlimentos800 = gerarAlimentosTACO()
+const bancoAlimentos = gerarAlimentosTACO()
 
+// Todos os Modelos Prontos Especiais Solicitados
 const modelosPreProntos: Record<string, any> = {
+  diabeticos: {
+    titulo: 'Plano Controle Glicêmico (Diabetes Tipo 2 / Pré-Diabetes)',
+    calorias: '1600',
+    refeicoes: [
+      { hora: '07:30', nome: 'Café da Manhã', op1: '2 ovos mexidos com azeite + 1 fatia de pão 100% integral + chá de canela', op2: '1 iogurte natural desnatado + 15g de semente de chia + 3 morangos' },
+      { hora: '10:00', nome: 'Lanche da Manhã', op1: '30g de nozes ou castanhas do pará', op2: '1 abacate pequeno (100g) com limão e farelo de aveia' },
+      { hora: '12:30', nome: 'Almoço', op1: '130g Peito de frango grelhado + 80g Arroz integral + 100g Feijão + Salada folhosa à vontade', op2: '140g Filé de Tilápia + 100g Quinoa cozida + Brócolis e couve-flor no vapor' },
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 maçã com casca + 15g de pasta de amendoim integral', op2: '1 scoop de Whey Protein isolado diluído em água' },
+      { hora: '19:30', nome: 'Jantar', op1: '130g Patinho moído + Abobrinha e refogado de couve no azeite', op2: 'Omelete com 3 claras e 1 gema + salada verde com azeite de oliva extra virgem' }
+    ]
+  },
+  tea: {
+    titulo: 'Plano Adaptado TEA (Seletividade Alimentar e Suporte Sensorial)',
+    calorias: '1800',
+    refeicoes: [
+      { hora: '08:00', nome: 'Café da Manhã', op1: 'Panqueca crocante (1 ovo + 20g aveia + 1 banana amassada)', op2: 'Pão de fôrma integral tostado bem crocante + queijo cottage' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: 'Morangos frescos higienizados e cortados em cubos', op2: 'Uvas sem semente congeladas ou em temperatura ambiente' },
+      { hora: '12:00', nome: 'Almoço', op1: '120g Tiras de peito de frango empanadas na farinha de aveia (assadas) + 100g Batata sorriso caseira', op2: '120g Hambúrguer caseiro de patinho + 100g Arroz branco soltinho' },
+      { hora: '15:30', nome: 'Lanche da Tarde', op1: 'Vitamina batida (Leite + banana + maçã sem casca)', op2: 'Iogurte natural batido com frutas vermelhas coado' },
+      { hora: '19:00', nome: 'Jantar', op1: '120g Carne moída bem sequinha + 100g Macarrão sem molho picado', op2: 'Tiras de frango grelhado bem macias + 100g Pure de batata inglesa' }
+    ]
+  },
+  mounjaro: {
+    titulo: 'Plano Nutricional Protocolo GLP-1 (Mounjaro / Ozempic / Saxenda)',
+    calorias: '1400',
+    refeicoes: [
+      { hora: '08:00', nome: 'Café da Manhã (Foco em Proteína)', op1: '2 ovos cozidos ou mexidos + 1 xícara de chá digestivo (hortelã ou gengibre)', op2: '1 scoop de Whey Protein em água ou leite vegetal + 10g de chia' },
+      { hora: '12:00', nome: 'Almoço (Porções Pequenas e Densas)', op1: '120g Peito de frango desfiado macio + 50g Arroz integral + Legumes cozidos bem macios', op2: '120g Filé de peixe assado + 60g Purê de mandioca + Salada leve' },
+      { hora: '15:30', nome: 'Lanche da Tarde (Prevenção de Enjoo)', op1: '1 iogurte proteico desnatado (mínimo 14g de proteína)', op2: '1 fatia de queijo minas frescal + 1/2 maçã cortada em fatias finas' },
+      { hora: '19:00', nome: 'Jantar (Refeição Leve de Fácil Digestão)', op1: 'Sopa de legumes enriquecida com carne moída de patinho ou frango', op2: 'Omelete de claras com espinafre e cottage' }
+    ]
+  },
+  bariatrica_pre: {
+    titulo: 'Protocolo Pré-Bariátrica (Redução de Gordura Hepática)',
+    calorias: '1200',
+    refeicoes: [
+      { hora: '08:00', nome: 'Café da Manhã', op1: '1 scoop de Whey Protein + 200ml de leite desnatado', op2: '2 claras de ovo mexidas + café com adoçante' },
+      { hora: '10:30', nome: 'Lanche da Manhã', op1: '1 iogurte 0% gordura e 0% açúcar', op2: 'Gelatina zero açúcar + 1 colher de cottage desnatado' },
+      { hora: '12:30', nome: 'Almoço', op1: '120g Peito de frango grelhado + Salada verde folhosa à vontade com limão', op2: '130g Peixe grelhado + Brócolis no vapor à vontade' },
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 scoop de Whey Protein + 100ml de água mineral', op2: '1 fatia de queijo ricota ou cottage' },
+      { hora: '19:30', nome: 'Jantar', op1: 'Caldo claro de legumes batido com 100g de peito de frango', op2: '120g Patinho moído refogado + Abobrinha no vapor' }
+    ]
+  },
+  bariatrica_pos: {
+    titulo: 'Protocolo Pós-Bariátrica (Fase Pastosa / Semissólida)',
+    calorias: '900',
+    refeicoes: [
+      { hora: '08:00', nome: 'Café da Manhã (Fracionado)', op1: '50ml de Iogurte proteico desnatado tomado devagar', op2: '50ml de mingau leve de aveia com suplemento proteico' },
+      { hora: '10:00', nome: 'Lanche da Manhã', op1: '50ml de purê de maçã assada sem açúcar', op2: '50ml de mamão papai processado' },
+      { hora: '12:00', nome: 'Almoço', op1: '60g Purê de frango com abóbora bem processado e coado', op2: '60g Purê de peixe com batata inglesa amassada' },
+      { hora: '15:00', nome: 'Lanche da Tarde', op1: '1 scoop de Whey Isolado em 150ml de água (tomar ao longo de 1h)', op2: '50g de queijo cottage amassado' },
+      { hora: '18:00', nome: 'Jantar', op1: '60g Sopinha concentrada de carne de patinho com legumes processados', op2: '60g Purê de mandioca com frango desfiado bem amaciado' }
+    ]
+  },
+  obesidade: {
+    titulo: 'Plano Reeducação Alimentar e Obesidade Severa',
+    calorias: '1700',
+    refeicoes: [
+      { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 2 fatias de pão integral + café sem açúcar', op2: '1 cup de iogurte natural + 30g de aveia em flocos + 1 banana' },
+      { hora: '12:30', nome: 'Almoço (Prato Colorido)', op1: '150g Peito de frango + 100g Arroz integral + 100g Feijão + Prato cheio de salada', op2: '150g Patinho moído + 120g Batata doce cozida + Salada à vontade' },
+      { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 maçã + 15g de castanha de caju', op2: '2 fatias de pão integral + 1 fatia de queijo minas' },
+      { hora: '19:30', nome: 'Jantar', op1: '140g Peixe assado + 100g Mandioca cozida + Legumes refogados', op2: 'Omelete de 3 ovos com legumes + salada folhosa' }
+    ]
+  },
   emagrecimento: {
-    titulo: 'Plano Hipocalórico - Emagrecimento',
+    titulo: 'Plano Hipocalórico - Emagrecimento Ativo',
     calorias: '1500',
     refeicoes: [
-      { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 1 fatia de pão integral + café sem açúcar', op2: '1 iogurte desnatado + 20g de aveia + 1 maçã' },
+      { hora: '08:00', nome: 'Café da Manhã', op1: '2 ovos mexidos + 1 fatia de pão integral + café preto', op2: '1 iogurte desnatado + 20g de aveia + 1 maçã' },
       { hora: '12:30', nome: 'Almoço', op1: '120g Peito de frango grelhado + 80g Arroz integral + Salada verde', op2: '130g Filé de Tilápia + 100g Batata doce cozida + Salada à vontade' },
       { hora: '16:00', nome: 'Lanche da Tarde', op1: '1 banana prata + 10g de castanhas', op2: '1 scoop de Whey Protein em água' },
       { hora: '19:30', nome: 'Jantar', op1: '120g Patinho moído + Legumes no vapor', op2: 'Omelete com 3 claras e 1 gema + salada de folhas' }
@@ -79,12 +142,13 @@ export default function DietasPage() {
   const [titulo, setTitulo] = useState('')
   const [calorias, setCalorias] = useState('')
   const [busca, setBusca] = useState('')
+  const [categoria, setCategoria] = useState('Todas')
   const [refeicoes, setRefeicoes] = useState([
     {
       hora: '08:00',
       nome: 'Café da Manhã',
-      op1: '2 ovos mexidos + 1 fatia de pão integral + café preto',
-      op2: '1 iogurte desnatado + 20g de aveia + 1 maçã'
+      op1: '2 ovos mexidos + 1 fatia de pão integral',
+      op2: '1 iogurte desnatado + 20g de aveia'
     }
   ])
 
@@ -115,29 +179,30 @@ export default function DietasPage() {
     setRefeicoes(novas)
   }
 
-  const alimentosFiltrados = bancoAlimentos800.filter(a =>
-    a.nome.toLowerCase().includes(busca.toLowerCase())
-  )
+  const alimentosFiltrados = bancoAlimentos.filter(a => {
+    const porNome = a.nome.toLowerCase().includes(busca.toLowerCase())
+    const porCat = categoria === 'Todas' || a.cat === categoria
+    return porNome && porCat
+  })
 
   return (
     <div className="space-y-6 text-slate-100">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="space-y-3">
         <h1 className="text-2xl font-bold text-emerald-400">Montador de Plano Alimentar</h1>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400">Modelos Prontos:</span>
-          <button
-            onClick={() => carregarModelo('emagrecimento')}
-            className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition"
-          >
-            🔥 Emagrecimento
-          </button>
-          <button
-            onClick={() => carregarModelo('hipertrofia')}
-            className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition"
-          >
-            💪 Hipertrofia
-          </button>
+        
+        {/* Modelos de Dietas Prontas Clínicas e Especiais */}
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-2">
+          <span className="text-xs font-semibold text-slate-300 block">Modelos Clínicos Prontos para Uso Rápido:</span>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => carregarModelo('diabeticos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🩺 Diabéticos</button>
+            <button onClick={() => carregarModelo('tea')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🧩 TEA / Seletividade</button>
+            <button onClick={() => carregarModelo('mounjaro')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">💉 Mounjaro / GLP-1</button>
+            <button onClick={() => carregarModelo('bariatrica_pre')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🏥 Pré-Bariátrica</button>
+            <button onClick={() => carregarModelo('bariatrica_pos')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🥣 Pós-Bariátrica</button>
+            <button onClick={() => carregarModelo('obesidade')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">⚖️ Obesidade</button>
+            <button onClick={() => carregarModelo('emagrecimento')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">🔥 Emagrecimento</button>
+            <button onClick={() => carregarModelo('hipertrofia')} className="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-lg transition font-medium">💪 Hipertrofia</button>
+          </div>
         </div>
       </div>
 
@@ -266,20 +331,34 @@ export default function DietasPage() {
             </button>
           </div>
 
-          {/* Coluna Direita: Banco de Alimentos 800+ TACO */}
+          {/* Coluna Direita: Banco de Alimentos TACO */}
           <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-4 h-fit">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-sm text-white">Tabela de Alimentos (TACO)</h3>
-              <span className="text-[10px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-semibold">800 itens</span>
-            </div>
+            <h3 className="font-bold text-sm text-white">Banco Nutricional TACO</h3>
 
             <input
               type="text"
-              placeholder="Buscar alimento (ex: frango, ovo)..."
+              placeholder="Buscar por alimento (ex: frango, ovo)..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
             />
+
+            <select
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-xs text-slate-300"
+            >
+              <option value="Todas">Todas as Categorias</option>
+              <option value="Carnes e Aves">Carnes e Aves</option>
+              <option value="Peixes e Frutos do Mar">Peixes e Frutos do Mar</option>
+              <option value="Ovos e Laticínios">Ovos e Laticínios</option>
+              <option value="Cereais e Massas">Cereais e Massas</option>
+              <option value="Leguminosas">Leguminosas</option>
+              <option value="Tubérculos e Raízes">Tubérculos e Raízes</option>
+              <option value="Frutas">Frutas</option>
+              <option value="Pães">Pães</option>
+              <option value="Suplementos">Suplementos</option>
+            </select>
 
             <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
               {alimentosFiltrados.slice(0, 50).map((item) => (
