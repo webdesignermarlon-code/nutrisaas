@@ -8,6 +8,7 @@ interface Paciente {
   telefone: string
   objetivo: string
   status: string
+  ultimaConsulta?: string
 }
 
 export default function PacientesPage() {
@@ -15,6 +16,11 @@ export default function PacientesPage() {
   const [nome, setNome] = useState('')
   const [telefone, setTelefone] = useState('')
   const [objetivo, setObjetivo] = useState('')
+  const [modalAgendar, setModalAgendar] = useState<Paciente | null>(null)
+  const [dataConsulta, setDataConsulta] = useState('')
+  const [horaConsulta, setHoraConsulta] = useState('')
+  const [tipoConsulta, setTipoConsulta] = useState('Acompanhamento')
+
   const [pacientes, setPacientes] = useState<Paciente[]>([
     { id: 1, nome: 'Maria Silva', telefone: '(21) 99888-7766', objetivo: 'Emagrecimento', status: 'Ativo' },
     { id: 2, nome: 'João Pedro Santos', telefone: '(21) 98765-4321', objetivo: 'Hipertrofia', status: 'Ativo' },
@@ -65,9 +71,19 @@ export default function PacientesPage() {
       return
     }
 
-    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos conversar sobre o seu acompanhamento nutricional?`
+    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos agendar seu acompanhamento nutricional?`
     const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
     window.open(url, '_blank')
+  }
+
+  const handleConfirmarAgendamento = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!dataConsulta || !horaConsulta || !modalAgendar) return
+
+    alert(`Consulta agendada com sucesso para ${modalAgendar.nome} em ${dataConsulta} às ${horaConsulta}!`)
+    setModalAgendar(null)
+    setDataConsulta('')
+    setHoraConsulta('')
   }
 
   // Estilos dinâmicos do tema claro / escuro
@@ -82,7 +98,7 @@ export default function PacientesPage() {
       <div>
         <h1 className="text-2xl font-bold text-emerald-500">Gestão de Pacientes</h1>
         <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre novos pacientes, inicie conversas no WhatsApp e gerencie seus atendimentos
+          Cadastre pacientes, agende consultas e inicie atendimentos via WhatsApp
         </p>
       </div>
 
@@ -101,7 +117,7 @@ export default function PacientesPage() {
             />
           </div>
           <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp (com DDD)</label>
+            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp</label>
             <input
               type="text"
               placeholder="Ex: 21999998888"
@@ -131,7 +147,7 @@ export default function PacientesPage() {
         </div>
       </form>
 
-      {/* Tabela de Pacientes com WhatsApp e Excluir */}
+      {/* Tabela de Pacientes */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
@@ -165,6 +181,13 @@ export default function PacientesPage() {
                     <td className="p-4 text-right">
                       <div className="flex justify-end items-center gap-2">
                         <button
+                          onClick={() => setModalAgendar(p)}
+                          className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm"
+                          title="Agendar Consulta"
+                        >
+                          📅 Agendar
+                        </button>
+                        <button
                           onClick={() => handleAbrirWhatsApp(p)}
                           className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm"
                           title="Chamar no WhatsApp"
@@ -187,6 +210,72 @@ export default function PacientesPage() {
           </table>
         </div>
       </div>
+
+      {/* Modal de Agendamento */}
+      {modalAgendar && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-base">Agendar Consulta: {modalAgendar.nome}</h3>
+              <button onClick={() => setModalAgendar(null)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+
+            <form onSubmit={handleConfirmarAgendamento} className="space-y-3">
+              <div>
+                <label className={`block text-xs mb-1 ${textLabel}`}>Data da Consulta</label>
+                <input
+                  type="date"
+                  value={dataConsulta}
+                  onChange={(e) => setDataConsulta(e.target.value)}
+                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={`block text-xs mb-1 ${textLabel}`}>Horário</label>
+                <input
+                  type="time"
+                  value={horaConsulta}
+                  onChange={(e) => setHoraConsulta(e.target.value)}
+                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={`block text-xs mb-1 ${textLabel}`}>Tipo de Consulta</label>
+                <select
+                  value={tipoConsulta}
+                  onChange={(e) => setTipoConsulta(e.target.value)}
+                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
+                >
+                  <option value="Primeira Consulta">Primeira Consulta</option>
+                  <option value="Retorno e Acompanhamento">Retorno e Acompanhamento</option>
+                  <option value="Bioimpedância / Avaliação">Bioimpedância / Avaliação</option>
+                  <option value="Consulta Online">Consulta Online</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setModalAgendar(null)}
+                  className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold ${isLight ? 'border-slate-300' : 'border-slate-800'}`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"
+                >
+                  Confirmar Agendamento
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
