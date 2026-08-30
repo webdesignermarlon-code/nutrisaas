@@ -16,8 +16,9 @@ export default function AdminPage() {
   const [isLight, setIsLight] = useState(false)
   const [isAdminLogado, setIsAdminLogado] = useState(false)
   
-  // Credenciais exigidas
   const EMAIL_MESTRE = 'webdesignermarlon@gmail.com'
+  const SENHA_MESTRE = 'Gratidao*11'
+
   const [emailInput, setEmailInput] = useState('')
   const [senhaInput, setSenhaInput] = useState('')
   const [erroLogin, setErroLogin] = useState('')
@@ -56,7 +57,6 @@ export default function AdminPage() {
     const theme = localStorage.getItem('nutrisaas-theme')
     setIsLight(theme === 'light')
 
-    // Verifica se já estava logado nesta sessão do navegador
     const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
     if (logadoAdmin === 'true') {
       setIsAdminLogado(true)
@@ -87,18 +87,14 @@ export default function AdminPage() {
     e.preventDefault()
     setErroLogin('')
 
-    // Validação estrita do e-mail master e da senha definida por você
-    if (emailInput.trim().toLowerCase() === EMAIL_MESTRE) {
-      if (senhaInput.length >= 6) {
-        setIsAdminLogado(true)
-        sessionStorage.setItem('nutrisaas-admin-auth', 'true')
-        // Salva a senha personalizada do admin se desejar persistir
-        localStorage.setItem('nutrisaas-admin-senha', senhaInput)
-      } else {
-        setErroLogin('A senha de segurança deve conter pelo menos 6 caracteres.')
-      }
+    const emailLimpo = emailInput.trim().toLowerCase()
+    const senhaLimpa = senhaInput.trim()
+
+    if (emailLimpo === EMAIL_MESTRE && senhaLimpa === SENHA_MESTRE) {
+      setIsAdminLogado(true)
+      sessionStorage.setItem('nutrisaas-admin-auth', 'true')
     } else {
-      setErroLogin('E-mail de Administrador não autorizado.')
+      setErroLogin('E-mail ou senha de administrador incorretos.')
     }
   }
 
@@ -147,7 +143,6 @@ export default function AdminPage() {
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-slate-950 border-slate-800 text-white'
   const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
 
-  // TELA DE LOGIN SEGURA COM E-MAIL E SENHA MASTER
   if (!isAdminLogado) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 relative ${bgPage}`}>
@@ -169,7 +164,7 @@ export default function AdminPage() {
             <span className="text-3xl block">👑</span>
             <h1 className="text-2xl font-extrabold text-emerald-500">Painel Master Admin</h1>
             <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-              Área restrita de segurança máxima do proprietário
+              Insira suas credenciais mestre para gerenciar o sistema
             </p>
           </div>
 
@@ -189,10 +184,10 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>Crie ou Insira sua Senha de Acesso</label>
+              <label className={`block text-xs font-semibold mb-1 ${textLabel}`}>Senha de Acesso Mestre</label>
               <input
                 type="password"
-                placeholder="Mínimo de 6 dígitos..."
+                placeholder="••••••••••••"
                 value={senhaInput}
                 onChange={(e) => setSenhaInput(e.target.value)}
                 className={`w-full rounded-xl border p-3 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -204,7 +199,7 @@ export default function AdminPage() {
               type="submit"
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
             >
-              Autenticar Painel Master
+              Entrar no Painel Master
             </button>
           </form>
 
@@ -218,11 +213,8 @@ export default function AdminPage() {
     )
   }
 
-  // PAINEL MASTER COMPLETO APÓS LOGIN SEGURO
   return (
     <div className={`min-h-screen p-6 max-w-7xl mx-auto space-y-6 ${bgPage}`}>
-      
-      {/* Topo do Admin com Botão de Tema e Logout */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800">
         <div>
           <div className="flex items-center gap-2">
@@ -254,7 +246,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Cards de Métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className={`p-4 rounded-2xl border ${bgCard}`}>
           <span className="text-xs text-slate-400 font-semibold block">Total de Profissionais</span>
@@ -274,7 +265,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Tabela de Gestão de Nutricionistas */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
         <div className="p-4 border-b border-slate-800/40 flex justify-between items-center">
           <h2 className="text-sm font-bold uppercase text-emerald-500">Profissionais Cadastrados na Plataforma</h2>
@@ -331,7 +321,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Modal de Disparo WhatsApp */}
       {modalWhats && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
