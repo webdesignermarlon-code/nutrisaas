@@ -6,16 +6,34 @@ import { usePathname } from 'next/navigation'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isLight, setIsLight] = useState(false)
+  const [isLogado, setIsLogado] = useState(false) // Adicionamos o estado de controle de autenticação
   const pathname = usePathname()
 
   useEffect(() => {
+    // Verifica o tema
     const checkTheme = () => {
       const theme = localStorage.getItem('nutrisaas-theme')
       setIsLight(theme === 'light')
     }
     checkTheme()
-    window.addEventListener('storage', checkTheme)
-    const interval = setInterval(checkTheme, 500)
+    
+    // Verifica se o usuário está logado
+    const checkAuth = () => {
+      const auth = sessionStorage.getItem('nutrisaas-auth')
+      setIsLogado(auth === 'true')
+    }
+    checkAuth()
+
+    window.addEventListener('storage', () => {
+      checkTheme()
+      checkAuth()
+    })
+    
+    const interval = setInterval(() => {
+      checkTheme()
+      checkAuth()
+    }, 500)
+    
     return () => {
       window.removeEventListener('storage', checkTheme)
       clearInterval(interval)
@@ -42,6 +60,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const bgSidebar = isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
   const bgMain = isLight ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'
 
+  // Se NÃO estiver logado, renderiza apenas o conteúdo (tela de login) limpo, sem o sidebar
+  if (!isLogado) {
+    return (
+      <div className={`min-h-screen flex ${bgMain}`}>
+        <main className="flex-1 w-full mx-auto">{children}</main>
+      </div>
+    )
+  }
+
+  // Se ESTIVER logado, renderiza a estrutura completa com sidebar e footer
   return (
     <div className={`min-h-screen flex ${bgMain}`}>
       
