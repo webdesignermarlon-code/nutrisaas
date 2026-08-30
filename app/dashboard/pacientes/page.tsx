@@ -21,10 +21,7 @@ export default function PacientesPage() {
   const [tipoConsulta, setTipoConsulta] = useState('Retorno e Acompanhamento')
   const [enviarWhats, setEnviarWhats] = useState(true)
 
-  const [pacientes, setPacientes] = useState<Paciente[]>([
-    { id: 1, nome: 'Maria Silva', telefone: '21998887766', objetivo: 'Emagrecimento', status: 'Ativo' },
-    { id: 2, nome: 'João Pedro Santos', telefone: '21987654321', objetivo: 'Hipertrofia', status: 'Ativo' },
-  ])
+  const [pacientes, setPacientes] = useState<Paciente[]>([])
 
   useEffect(() => {
     const checkTheme = () => {
@@ -84,7 +81,6 @@ export default function PacientesPage() {
     const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : dataConsulta
     const numeroLimpo = modalAgendar.telefone.replace(/\D/g, '')
 
-    // Se a opção de enviar WhatsApp estiver marcada
     if (enviarWhats && numeroLimpo) {
       const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${modalAgendar.nome}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida ou necessidade de reagendamento, favor me avisar por aqui. Até breve!`
       const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
@@ -108,7 +104,7 @@ export default function PacientesPage() {
       <div>
         <h1 className="text-2xl font-bold text-emerald-500">Gestão de Pacientes</h1>
         <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre pacientes e agende consultas com opção opcional de envio por WhatsApp
+          Cadastre pacientes e gerencie o histórico de consultas do seu consultório
         </p>
       </div>
 
@@ -171,8 +167,8 @@ export default function PacientesPage() {
             <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-slate-800/60'}`}>
               {pacientes.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center text-slate-400">
-                    Nenhum paciente cadastrado ainda.
+                  <td colSpan={5} className="p-8 text-center text-slate-400">
+                    Nenhum paciente cadastrado ainda. Use o formulário acima para adicionar o primeiro paciente.
                   </td>
                 </tr>
               ) : (
@@ -264,7 +260,6 @@ export default function PacientesPage() {
                 </select>
               </div>
 
-              {/* Opção de Enviar ou Não por WhatsApp */}
               <div className="pt-2 flex items-center gap-2">
                 <input
                   type="checkbox"
