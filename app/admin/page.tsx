@@ -32,9 +32,6 @@ export default function AdminPage() {
     const lightMode = theme === 'light'
     setIsLight(lightMode)
 
-    // Pinta o fundo real do navegador de ponta a ponta
-    document.body.style.backgroundColor = lightMode ? '#f1f5f9' : '#020617'
-
     const logadoAdmin = sessionStorage.getItem('nutrisaas-admin-auth')
     if (logadoAdmin === 'true') {
       setIsAdminLogado(true)
@@ -54,7 +51,6 @@ export default function AdminPage() {
     const nextTheme = !isLight
     setIsLight(nextTheme)
     localStorage.setItem('nutrisaas-admin-theme', nextTheme ? 'light' : 'dark')
-    document.body.style.backgroundColor = nextTheme ? '#f1f5f9' : '#020617'
   }
 
   const salvarNutris = (novaLista: NutricionistaAdmin[]) => {
