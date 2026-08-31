@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface Atendimento {
   id: string
@@ -20,7 +19,6 @@ export default function DashboardPage() {
   const [senha, setSenha] = useState('')
   const [manterConectado, setManterConectado] = useState(false)
   const router = useRouter()
-  const supabase = createClientComponentClient()
 
   // Estados do Agendamento
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
@@ -33,45 +31,21 @@ export default function DashboardPage() {
   const [novoHorario, setNovoHorario] = useState('14:00')
 
   useEffect(() => {
-    async function carregarSessao() {
-      // Tenta buscar no Supabase primeiro
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        setIsLogado(true)
-        const nomeCadastrado = 
-          user.user_metadata?.full_name || 
-          user.user_metadata?.nome || 
-          localStorage.getItem('nutrisaas-nome') || 
-          sessionStorage.getItem('nutrisaas-nome')
+    // Carrega autenticação e nome salvos no navegador
+    const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
+    const savedName = sessionStorage.getItem('nutrisaas-nome') || localStorage.getItem('nutrisaas-nome')
+    const savedEmail = sessionStorage.getItem('nutrisaas-email') || localStorage.getItem('nutrisaas-email')
 
-        if (nomeCadastrado) {
-          setNomeUsuario(nomeCadastrado)
-        } else if (user.email) {
-          const nomeFormatado = user.email.split('@')[0].replace(/[._-]/g, ' ')
-          setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
-        }
-        return
-      }
-
-      // Verificação LocalStorage / SessionStorage
-      const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
-      const savedName = sessionStorage.getItem('nutrisaas-nome') || localStorage.getItem('nutrisaas-nome')
-      const savedEmail = sessionStorage.getItem('nutrisaas-email') || localStorage.getItem('nutrisaas-email')
-
-      if (auth === 'true') {
-        setIsLogado(true)
-        if (savedName) {
-          setNomeUsuario(savedName)
-        } else if (savedEmail) {
-          const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
-          setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
-        }
+    if (auth === 'true') {
+      setIsLogado(true)
+      if (savedName) {
+        setNomeUsuario(savedName)
+      } else if (savedEmail) {
+        const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
+        setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
       }
     }
-
-    carregarSessao()
-  }, [supabase])
+  }, [])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,7 +54,6 @@ export default function DashboardPage() {
     storage.setItem('nutrisaas-auth', 'true')
     storage.setItem('nutrisaas-email', email)
     
-    // Tenta usar um nome salvo localmente se existir
     const savedName = storage.getItem('nutrisaas-nome')
     if (savedName) {
       setNomeUsuario(savedName)
@@ -94,8 +67,7 @@ export default function DashboardPage() {
     router.refresh()
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
+  const handleLogout = () => {
     localStorage.removeItem('nutrisaas-auth')
     localStorage.removeItem('nutrisaas-email')
     localStorage.removeItem('nutrisaas-nome')
