@@ -20,11 +20,9 @@ export default function DashboardPage() {
   const [manterConectado, setManterConectado] = useState(false)
   const router = useRouter()
 
-  // Estados do Agendamento
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
   const [modalAgendarAberto, setModalAgendarAberto] = useState(false)
   
-  // Form de agendamento
   const [novoNome, setNovoNome] = useState('')
   const [novoTipo, setNovoTipo] = useState('Primeira Consulta')
   const [novaData, setNovaData] = useState('')
@@ -48,7 +46,6 @@ export default function DashboardPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    
     const storage = manterConectado ? localStorage : sessionStorage
     storage.setItem('nutrisaas-auth', 'true')
     storage.setItem('nutrisaas-email', email)
@@ -102,7 +99,6 @@ export default function DashboardPage() {
     }
   }
 
-  // === SE ESTIVER LOGADO ===
   if (isLogado) {
     return (
       <div className="space-y-6 animate-in fade-in duration-500 relative min-h-screen pb-16">
@@ -132,19 +128,19 @@ export default function DashboardPage() {
 
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg flex flex-col gap-1 hover:border-emerald-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-1 hover:border-emerald-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total de Pacientes</span>
             <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg flex flex-col gap-1 hover:border-sky-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-1 hover:border-sky-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Dietas Ativas</span>
             <span className="text-3xl font-extrabold text-sky-600 dark:text-sky-400">0</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Consultas Hoje</span>
             <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">{atendimentos.length}</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg flex flex-col gap-1 hover:border-red-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-1 hover:border-red-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Avisos / Retornos</span>
             <span className="text-3xl font-extrabold text-red-600 dark:text-red-400">0</span>
           </div>
@@ -153,8 +149,7 @@ export default function DashboardPage() {
         {/* Área Inferior */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Próximos Atendimentos */}
-          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg overflow-hidden flex flex-col">
+          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <h2 className="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
               <button className="text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:underline transition-colors">Ver Agenda &rarr;</button>
@@ -173,7 +168,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 atendimentos.map((paciente) => (
-                  <div key={paciente.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+                  <div key={paciente.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500 font-bold text-lg border border-emerald-500/20">
                         {paciente.nome.charAt(0).toUpperCase()}
@@ -202,8 +197,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Ações Rápidas */}
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-lg flex flex-col">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-500 tracking-wider">Ações Rápidas</h2>
             </div>
@@ -220,7 +214,7 @@ export default function DashboardPage() {
                 </div>
               </button>
 
-              <Link href="/dashboard/pacientes" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 hover:border-emerald-500/50 transition-all flex items-center gap-4 group">
+              <Link href="/dashboard/pacientes" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">👥</span>
                 <div>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Novo Paciente</p>
@@ -228,7 +222,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
               
-              <Link href="/dashboard/dietas" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 hover:border-sky-500/50 transition-all flex items-center gap-4 group">
+              <Link href="/dashboard/dietas" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">🥗</span>
                 <div>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Montar Dieta</p>
@@ -236,7 +230,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
 
-              <Link href="/dashboard/anamnese" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 hover:border-amber-500/50 transition-all flex items-center gap-4 group">
+              <Link href="/dashboard/anamnese" className="w-full text-left p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">📄</span>
                 <div>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Nova Anamnese</p>
@@ -338,7 +332,6 @@ export default function DashboardPage() {
     )
   }
 
-  // === SE NÃO ESTIVER LOGADO ===
   return (
     <div className="flex items-center justify-center min-h-[75vh]">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-2xl backdrop-blur-sm">

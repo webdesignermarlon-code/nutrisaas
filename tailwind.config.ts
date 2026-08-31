@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
-  darkMode: 'class', // <--- ESSENCIAL
+  darkMode: 'class', // <--- ESTA LINHA É A CHAVE QUE ATIVA O MODO ESCURO
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
