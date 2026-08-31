@@ -18,7 +18,9 @@ export default function DashboardPage() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [manterConectado, setManterConectado] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+  
+  // ESTADO DO TEMA (Garante que nunca vai dessincronizar)
+  const [isEscuro, setIsEscuro] = useState(true)
   const router = useRouter()
 
   // Estados do Agendamento
@@ -32,17 +34,22 @@ export default function DashboardPage() {
   const [novoHorario, setNovoHorario] = useState('14:00')
 
   useEffect(() => {
-    // Sincroniza exatamente com a presença da classe 'dark' no documento
-    const syncTheme = () => {
-      const hasDarkClass = document.documentElement.classList.contains('dark')
-      setIsDark(hasDarkClass)
+    // Função rigorosa para detectar se a página/menu está em Modo Escuro ou Claro
+    const checarTema = () => {
+      const htmlClass = document.documentElement.className
+      const bodyClass = document.body.className
+      const isDark = htmlClass.includes('dark') || bodyClass.includes('dark') || localStorage.getItem('theme') === 'dark'
+      
+      // Se não houver classe light explícita e o fundo geral for escuro
+      setIsEscuro(isDark)
     }
 
-    syncTheme()
-    
-    // Observa mudanças de classe no elemento HTML (quando clica no botão do menu)
-    const observer = new MutationObserver(syncTheme)
+    checarTema()
+
+    // Ouve qualquer clique ou mudança na página para atualizar as cores dos cards no mesmo instante
+    const observer = new MutationObserver(checarTema)
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
 
     const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
     const savedName = sessionStorage.getItem('nutrisaas-nome') || localStorage.getItem('nutrisaas-nome')
@@ -117,12 +124,16 @@ export default function DashboardPage() {
     }
   }
 
-  // Estilos trocados em tempo real de acordo com a classe do HTML
-  const cardBg = isDark ? 'bg-slate-900/90 border-slate-800 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-800 shadow-sm'
-  const subCardBg = isDark ? 'bg-slate-950/60 border-slate-800/60' : 'bg-slate-50 border-slate-200'
-  const textColor = isDark ? 'text-slate-100' : 'text-slate-800'
-  const subTextColor = isDark ? 'text-slate-400' : 'text-slate-500'
-  const borderHeader = isDark ? 'border-slate-800/80' : 'border-slate-200'
+  // DEFINIÇÃO DIRETA E INFALÍVEL DAS CORES COM BASE NO ESTADO
+  const estilos = {
+    cardBg: isEscuro ? '#0f172a' : '#ffffff',
+    cardBorder: isEscuro ? 'rgba(51, 65, 85, 0.8)' : '#e2e8f0',
+    itemBg: isEscuro ? '#020617' : '#f8fafc',
+    itemBorder: isEscuro ? 'rgba(30, 41, 59, 0.8)' : '#e2e8f0',
+    textoPrincipal: isEscuro ? '#f8fafc' : '#0f172a',
+    textoSecundario: isEscuro ? '#94a3b8' : '#64748b',
+    headerBorder: isEscuro ? 'rgba(51, 65, 85, 0.6)' : '#e2e8f0'
+  }
 
   // === SE ESTIVER LOGADO ===
   if (isLogado) {
@@ -130,17 +141,23 @@ export default function DashboardPage() {
       <div className="space-y-6 animate-in fade-in duration-500 relative min-h-screen pb-16">
         
         {/* Cabeçalho */}
-        <div className={`flex items-center justify-between border-b ${borderHeader} pb-4`}>
+        <div 
+          className="flex items-center justify-between pb-4 border-b transition-colors duration-300"
+          style={{ borderColor: estilos.headerBorder }}
+        >
           <div>
             <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
               Bem-vindo(a), Dr(a). {nomeUsuario}
             </h1>
-            <p className={`text-xs ${subTextColor} mt-0.5`}>Aqui está o resumo da sua rotina clínica hoje.</p>
+            <p className="text-xs mt-0.5 transition-colors duration-300" style={{ color: estilos.textoSecundario }}>
+              Aqui está o resumo da sua rotina clínica hoje.
+            </p>
           </div>
 
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl ${cardBg} border text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-all`}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-all border"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
             title="Encerrar sessão"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,36 +169,53 @@ export default function DashboardPage() {
 
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-emerald-500/40 transition-colors`}>
-            <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Total de Pacientes</span>
+          <div 
+            className="p-5 rounded-2xl border shadow-lg flex flex-col gap-1 transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: estilos.textoSecundario }}>Total de Pacientes</span>
             <span className="text-3xl font-extrabold text-emerald-500">0</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-sky-500/40 transition-colors`}>
-            <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Dietas Ativas</span>
+          <div 
+            className="p-5 rounded-2xl border shadow-lg flex flex-col gap-1 transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: estilos.textoSecundario }}>Dietas Ativas</span>
             <span className="text-3xl font-extrabold text-sky-500">0</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-amber-500/40 transition-colors`}>
-            <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Consultas Hoje</span>
+          <div 
+            className="p-5 rounded-2xl border shadow-lg flex flex-col gap-1 transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: estilos.textoSecundario }}>Consultas Hoje</span>
             <span className="text-3xl font-extrabold text-amber-500">{atendimentos.length}</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-red-500/40 transition-colors`}>
-            <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Avisos / Retornos</span>
+          <div 
+            className="p-5 rounded-2xl border shadow-lg flex flex-col gap-1 transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: estilos.textoSecundario }}>Avisos / Retornos</span>
             <span className="text-3xl font-extrabold text-red-500">0</span>
           </div>
         </div>
 
         {/* Área Inferior */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className={`lg:col-span-2 rounded-2xl border ${cardBg} overflow-hidden flex flex-col`}>
-            <div className={`p-5 border-b ${borderHeader} flex justify-between items-center`}>
+          
+          {/* Próximos Atendimentos */}
+          <div 
+            className="lg:col-span-2 rounded-2xl border shadow-lg overflow-hidden flex flex-col transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: estilos.headerBorder }}>
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
               <button className="text-xs font-bold text-emerald-500 hover:text-emerald-400 transition-colors">Ver Agenda &rarr;</button>
             </div>
             
             <div className="p-5 space-y-3 flex-1">
               {atendimentos.length === 0 ? (
-                <div className={`p-8 text-center border border-dashed ${borderHeader} rounded-xl`}>
-                  <p className={`text-sm ${subTextColor}`}>Nenhum atendimento agendado para hoje.</p>
+                <div className="p-8 text-center border border-dashed rounded-xl" style={{ borderColor: estilos.headerBorder }}>
+                  <p className="text-sm" style={{ color: estilos.textoSecundario }}>Nenhum atendimento agendado para hoje.</p>
                   <button 
                     onClick={() => setModalAgendarAberto(true)}
                     className="mt-3 text-xs text-emerald-500 hover:underline font-semibold"
@@ -191,14 +225,18 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 atendimentos.map((paciente) => (
-                  <div key={paciente.id} className={`flex items-center justify-between p-4 rounded-xl border ${subCardBg} transition-all`}>
+                  <div 
+                    key={paciente.id} 
+                    className="flex items-center justify-between p-4 rounded-xl border transition-all"
+                    style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder }}
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-lg border border-emerald-500/20">
                         {paciente.nome.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className={`text-sm font-bold ${textColor}`}>{paciente.nome}</p>
-                        <p className={`text-[11px] ${subTextColor}`}>{paciente.tipo}</p>
+                        <p className="text-sm font-bold" style={{ color: estilos.textoPrincipal }}>{paciente.nome}</p>
+                        <p className="text-[11px]" style={{ color: estilos.textoSecundario }}>{paciente.tipo}</p>
                       </div>
                     </div>
                     
@@ -220,8 +258,12 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className={`rounded-2xl border ${cardBg} flex flex-col`}>
-            <div className={`p-5 border-b ${borderHeader}`}>
+          {/* Ações Rápidas */}
+          <div 
+            className="rounded-2xl border shadow-lg flex flex-col transition-all duration-300"
+            style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+          >
+            <div className="p-5 border-b" style={{ borderColor: estilos.headerBorder }}>
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Ações Rápidas</h2>
             </div>
             
@@ -233,31 +275,43 @@ export default function DashboardPage() {
                 <span className="text-2xl group-hover:scale-110 transition-transform">📅</span>
                 <div>
                   <p className="text-sm font-bold text-emerald-500">Agendar Consulta</p>
-                  <p className={`text-[10px] ${subTextColor}`}>Marcar atendimento no sistema</p>
+                  <p className="text-[10px]" style={{ color: estilos.textoSecundario }}>Marcar atendimento no sistema</p>
                 </div>
               </button>
 
-              <Link href="/dashboard/pacientes" className={`w-full text-left p-4 rounded-xl border ${subCardBg} hover:border-emerald-500/50 transition-all flex items-center gap-4 group`}>
+              <Link 
+                href="/dashboard/pacientes" 
+                className="w-full text-left p-4 rounded-xl border hover:border-emerald-500/50 transition-all flex items-center gap-4 group"
+                style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder }}
+              >
                 <span className="text-2xl group-hover:scale-110 transition-transform">👥</span>
                 <div>
-                  <p className={`text-sm font-bold ${textColor}`}>Novo Paciente</p>
-                  <p className={`text-[10px] ${subTextColor}`}>Cadastrar prontuário</p>
+                  <p className="text-sm font-bold" style={{ color: estilos.textoPrincipal }}>Novo Paciente</p>
+                  <p className="text-[10px]" style={{ color: estilos.textoSecundario }}>Cadastrar prontuário</p>
                 </div>
               </Link>
               
-              <Link href="/dashboard/dietas" className={`w-full text-left p-4 rounded-xl border ${subCardBg} hover:border-sky-500/50 transition-all flex items-center gap-4 group`}>
+              <Link 
+                href="/dashboard/dietas" 
+                className="w-full text-left p-4 rounded-xl border hover:border-sky-500/50 transition-all flex items-center gap-4 group"
+                style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder }}
+              >
                 <span className="text-2xl group-hover:scale-110 transition-transform">🥗</span>
                 <div>
-                  <p className={`text-sm font-bold ${textColor}`}>Montar Dieta</p>
-                  <p className={`text-[10px] ${subTextColor}`}>Criar plano alimentar</p>
+                  <p className="text-sm font-bold" style={{ color: estilos.textoPrincipal }}>Montar Dieta</p>
+                  <p className="text-[10px]" style={{ color: estilos.textoSecundario }}>Criar plano alimentar</p>
                 </div>
               </Link>
 
-              <Link href="/dashboard/anamnese" className={`w-full text-left p-4 rounded-xl border ${subCardBg} hover:border-amber-500/50 transition-all flex items-center gap-4 group`}>
+              <Link 
+                href="/dashboard/anamnese" 
+                className="w-full text-left p-4 rounded-xl border hover:border-amber-500/50 transition-all flex items-center gap-4 group"
+                style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder }}
+              >
                 <span className="text-2xl group-hover:scale-110 transition-transform">📄</span>
                 <div>
-                  <p className={`text-sm font-bold ${textColor}`}>Nova Anamnese</p>
-                  <p className={`text-[10px] ${subTextColor}`}>Registrar avaliação clínica</p>
+                  <p className="text-sm font-bold" style={{ color: estilos.textoPrincipal }}>Nova Anamnese</p>
+                  <p className="text-[10px]" style={{ color: estilos.textoSecundario }}>Registrar avaliação clínica</p>
                 </div>
               </Link>
             </div>
@@ -267,31 +321,36 @@ export default function DashboardPage() {
         {/* Modal Agendar Consulta */}
         {modalAgendarAberto && (
           <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className={`w-full max-w-md rounded-2xl border ${cardBg} p-6 shadow-2xl space-y-4`}>
-              <div className={`flex justify-between items-center border-b ${borderHeader} pb-3`}>
+            <div 
+              className="w-full max-w-md rounded-2xl border p-6 shadow-2xl space-y-4"
+              style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+            >
+              <div className="flex justify-between items-center border-b pb-3" style={{ borderColor: estilos.headerBorder }}>
                 <h3 className="text-lg font-bold text-emerald-500">Agendar Consulta</h3>
-                <button onClick={() => setModalAgendarAberto(false)} className={subTextColor}>✕</button>
+                <button onClick={() => setModalAgendarAberto(false)} style={{ color: estilos.textoSecundario }}>✕</button>
               </div>
 
               <form onSubmit={handleAgendarConsulta} className="space-y-4">
                 <div>
-                  <label className={`block text-xs ${subTextColor} mb-1`}>Nome do Paciente</label>
+                  <label className="block text-xs mb-1" style={{ color: estilos.textoSecundario }}>Nome do Paciente</label>
                   <input
                     type="text"
                     required
                     placeholder="Ex: Maria Silva"
                     value={novoNome}
                     onChange={(e) => setNovoNome(e.target.value)}
-                    className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none`}
+                    className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
+                    style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
                   />
                 </div>
 
                 <div>
-                  <label className={`block text-xs ${subTextColor} mb-1`}>Tipo de Consulta</label>
+                  <label className="block text-xs mb-1" style={{ color: estilos.textoSecundario }}>Tipo de Consulta</label>
                   <select
                     value={novoTipo}
                     onChange={(e) => setNovoTipo(e.target.value)}
-                    className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none`}
+                    className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
+                    style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
                   >
                     <option value="Primeira Consulta">Primeira Consulta</option>
                     <option value="Retorno">Retorno</option>
@@ -301,21 +360,23 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={`block text-xs ${subTextColor} mb-1`}>Data</label>
+                    <label className="block text-xs mb-1" style={{ color: estilos.textoSecundario }}>Data</label>
                     <input
                       type="date"
                       value={novaData}
                       onChange={(e) => setNovaData(e.target.value)}
-                      className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none`}
+                      className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
+                      style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs ${subTextColor} mb-1`}>Horário</label>
+                    <label className="block text-xs mb-1" style={{ color: estilos.textoSecundario }}>Horário</label>
                     <input
                       type="time"
                       value={novoHorario}
                       onChange={(e) => setNovoHorario(e.target.value)}
-                      className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none`}
+                      className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
+                      style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
                     />
                   </div>
                 </div>
@@ -324,7 +385,8 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => setModalAgendarAberto(false)}
-                    className={`w-1/2 py-3 rounded-xl border ${borderHeader} text-xs font-bold ${textColor}`}
+                    className="w-1/2 py-3 rounded-xl border text-xs font-bold"
+                    style={{ borderColor: estilos.headerBorder, color: estilos.textoPrincipal }}
                   >
                     Cancelar
                   </button>
@@ -358,28 +420,32 @@ export default function DashboardPage() {
   // === SE NÃO ESTIVER LOGADO ===
   return (
     <div className="flex items-center justify-center min-h-[75vh]">
-      <div className={`w-full max-w-md rounded-2xl border ${cardBg} p-8 shadow-2xl backdrop-blur-sm`}>
+      <div 
+        className="w-full max-w-md rounded-2xl border p-8 shadow-2xl backdrop-blur-sm transition-all duration-300"
+        style={{ backgroundColor: estilos.cardBg, borderColor: estilos.cardBorder }}
+      >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-emerald-500 mb-1 tracking-tight">NutriSaaS</h1>
-          <p className={`text-xs ${subTextColor}`}>Acesse o seu painel de gestão nutricional</p>
+          <p className="text-xs" style={{ color: estilos.textoSecundario }}>Acesse o seu painel de gestão nutricional</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className={`mb-1.5 block text-xs ${subTextColor}`}>E-mail Profissional</label>
+            <label className="mb-1.5 block text-xs" style={{ color: estilos.textoSecundario }}>E-mail Profissional</label>
             <input
               type="email"
               required
               placeholder="seuemail@consultorio.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none transition-colors`}
+              className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+              style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
             />
           </div>
 
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label className={`block text-xs ${subTextColor}`}>Senha de Acesso</label>
+              <label className="block text-xs" style={{ color: estilos.textoSecundario }}>Senha de Acesso</label>
               <Link href="/esqueci-senha" className="text-[11px] font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
                 Esqueci a senha
               </Link>
@@ -390,7 +456,8 @@ export default function DashboardPage() {
               placeholder="••••••••"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className={`w-full rounded-xl border ${subCardBg} p-3 text-sm ${textColor} focus:border-emerald-500 focus:outline-none transition-colors`}
+              className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+              style={{ backgroundColor: estilos.itemBg, borderColor: estilos.itemBorder, color: estilos.textoPrincipal }}
             />
           </div>
 
@@ -400,9 +467,9 @@ export default function DashboardPage() {
               id="manter"
               checked={manterConectado}
               onChange={(e) => setManterConectado(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500"
+              className="h-4 w-4 rounded text-emerald-500 focus:ring-emerald-500"
             />
-            <label htmlFor="manter" className={`text-xs ${subTextColor} cursor-pointer`}>
+            <label htmlFor="manter" className="text-xs cursor-pointer" style={{ color: estilos.textoSecundario }}>
               Manter conectado neste dispositivo
             </label>
           </div>
