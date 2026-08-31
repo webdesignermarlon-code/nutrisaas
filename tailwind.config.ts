@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
-  darkMode: 'class', // <--- ESSENCIAL PARA O BOTÃO FUNCIONAR
+  darkMode: 'class', // <--- ESSENCIAL
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
