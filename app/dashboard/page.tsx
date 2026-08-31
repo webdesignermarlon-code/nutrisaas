@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface Atendimento {
   id: string
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const [senha, setSenha] = useState('')
   const [manterConectado, setManterConectado] = useState(false)
   const router = useRouter()
+  const supabase = createClientComponentClient()
 
   // Estados do Agendamento
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
@@ -31,53 +33,81 @@ export default function DashboardPage() {
   const [novoHorario, setNovoHorario] = useState('14:00')
 
   useEffect(() => {
-    const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
-    const savedEmail = sessionStorage.getItem('nutrisaas-email') || localStorage.getItem('nutrisaas-email')
-    
-    if (auth === 'true') {
-      setIsLogado(true)
-      if (savedEmail) {
-        // Pega o nome a partir do e-mail (ex: marlon@email.com vira "Marlon")
-        const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
-        const nomeCapitalizado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1)
-        setNomeUsuario(nomeCapitalizado)
+    async function carregarSessao() {
+      // Tenta buscar no Supabase primeiro
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        setIsLogado(true)
+        const nomeCadastrado = 
+          user.user_metadata?.full_name || 
+          user.user_metadata?.nome || 
+          localStorage.getItem('nutrisaas-nome') || 
+          sessionStorage.getItem('nutrisaas-nome')
+
+        if (nomeCadastrado) {
+          setNomeUsuario(nomeCadastrado)
+        } else if (user.email) {
+          const nomeFormatado = user.email.split('@')[0].replace(/[._-]/g, ' ')
+          setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
+        }
+        return
+      }
+
+      // Verificação LocalStorage / SessionStorage
+      const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
+      const savedName = sessionStorage.getItem('nutrisaas-nome') || localStorage.getItem('nutrisaas-nome')
+      const savedEmail = sessionStorage.getItem('nutrisaas-email') || localStorage.getItem('nutrisaas-email')
+
+      if (auth === 'true') {
+        setIsLogado(true)
+        if (savedName) {
+          setNomeUsuario(savedName)
+        } else if (savedEmail) {
+          const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
+          setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
+        }
       }
     }
-  }, [])
+
+    carregarSessao()
+  }, [supabase])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Salva o login e o e-mail no navegador
-    if (manterConectado) {
-      localStorage.setItem('nutrisaas-auth', 'true')
-      localStorage.setItem('nutrisaas-email', email)
+    const storage = manterConectado ? localStorage : sessionStorage
+    storage.setItem('nutrisaas-auth', 'true')
+    storage.setItem('nutrisaas-email', email)
+    
+    // Tenta usar um nome salvo localmente se existir
+    const savedName = storage.getItem('nutrisaas-nome')
+    if (savedName) {
+      setNomeUsuario(savedName)
     } else {
-      sessionStorage.setItem('nutrisaas-auth', 'true')
-      sessionStorage.setItem('nutrisaas-email', email)
+      const nomeFormatado = email.split('@')[0].replace(/[._-]/g, ' ')
+      setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
     }
-    
-    const nomeFormatado = email.split('@')[0].replace(/[._-]/g, ' ')
-    const nomeCapitalizado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1)
-    setNomeUsuario(nomeCapitalizado)
-    
+
     setIsLogado(true)
     window.dispatchEvent(new Event('storage'))
     router.refresh()
   }
 
-  // Função para SAIR do sistema
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     localStorage.removeItem('nutrisaas-auth')
     localStorage.removeItem('nutrisaas-email')
+    localStorage.removeItem('nutrisaas-nome')
     sessionStorage.removeItem('nutrisaas-auth')
     sessionStorage.removeItem('nutrisaas-email')
+    sessionStorage.removeItem('nutrisaas-nome')
+    
     setIsLogado(false)
     setNomeUsuario('Nutricionista')
     router.refresh()
   }
 
-  // Função para agendar nova consulta
   const handleAgendarConsulta = (e: React.FormEvent) => {
     e.preventDefault()
     if (!novoNome) return
@@ -95,19 +125,18 @@ export default function DashboardPage() {
     setModalAgendarAberto(false)
   }
 
-  // Função para cancelar consulta
   const handleCancelarConsulta = (id: string) => {
     if (confirm('Tem certeza que deseja cancelar esta consulta?')) {
       setAtendimentos((prev) => prev.filter((item) => item.id !== id))
     }
   }
 
-  // === SE ESTIVER LOGADO: MOSTRA O DASHBOARD ===
+  // === SE ESTIVER LOGADO ===
   if (isLogado) {
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="space-y-6 animate-in fade-in duration-500 relative min-h-screen pb-16">
         
-        {/* Cabeçalho com Saudação e Botão de Sair */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-slate-800/60 pb-4">
           <div>
             <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
@@ -116,7 +145,6 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-400 mt-0.5">Aqui está o resumo da sua rotina clínica hoje.</p>
           </div>
 
-          {/* Botão de Sair */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all shadow-sm"
@@ -149,10 +177,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Área Inferior: Agenda e Ações */}
+        {/* Área Inferior */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Lista de Atendimentos */}
           <div className="lg:col-span-2 rounded-2xl border border-slate-800/80 bg-slate-900/80 shadow-lg overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-800/60 flex justify-between items-center">
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
@@ -201,7 +227,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Atalhos Rápidos */}
           <div className="rounded-2xl border border-slate-800/80 bg-slate-900/80 shadow-lg flex flex-col">
             <div className="p-5 border-b border-slate-800/60">
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Ações Rápidas</h2>
@@ -244,21 +269,15 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
-
         </div>
 
-        {/* JANELA MODAL: AGENDAR CONSULTA */}
+        {/* Modal Agendar Consulta */}
         {modalAgendarAberto && (
           <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 className="text-lg font-bold text-emerald-500">Agendar Consulta</h3>
-                <button 
-                  onClick={() => setModalAgendarAberto(false)}
-                  className="text-slate-400 hover:text-white"
-                >
-                  ✕
-                </button>
+                <button onClick={() => setModalAgendarAberto(false)} className="text-slate-400 hover:text-white">✕</button>
               </div>
 
               <form onSubmit={handleAgendarConsulta} className="space-y-4">
@@ -328,15 +347,25 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* BOTÃO FLUTUANTE DE SUPORTE VIA WHATSAPP */}
+        <a
+          href="https://wa.me/5522999140912?text=Ol%C3%A1!%20Preciso%20de%20suporte%20no%20NutriSaaS."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-xl transition-all hover:scale-105"
+        >
+          <span className="text-base">💬</span>
+          <span>Suporte WhatsApp</span>
+        </a>
+
       </div>
     )
   }
 
-  // === SE NÃO ESTIVER LOGADO: TELA DE LOGIN ===
+  // === SE NÃO ESTIVER LOGADO ===
   return (
     <div className="flex items-center justify-center min-h-[75vh]">
       <div className="w-full max-w-md rounded-2xl border border-slate-800/80 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-sm">
-        
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-emerald-500 mb-1 tracking-tight">NutriSaaS</h1>
           <p className="text-xs text-slate-400">Acesse o seu painel de gestão nutricional</p>
@@ -358,10 +387,7 @@ export default function DashboardPage() {
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label className="block text-xs text-slate-400">Senha de Acesso</label>
-              <Link 
-                href="/esqueci-senha" 
-                className="text-[11px] font-semibold text-emerald-500 hover:text-emerald-400 transition-colors"
-              >
+              <Link href="/esqueci-senha" className="text-[11px] font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
                 Esqueci a senha
               </Link>
             </div>
@@ -401,7 +427,6 @@ export default function DashboardPage() {
             </Link>
           </div>
         </form>
-
       </div>
     </div>
   )
