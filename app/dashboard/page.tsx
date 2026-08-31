@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
   const [modalAgendarAberto, setModalAgendarAberto] = useState(false)
   
-  // Form de novo agendamento
+  // Formulário de novo agendamento
   const [novoNome, setNovoNome] = useState('')
   const [novoTipo, setNovoTipo] = useState('Primeira Consulta')
   const [novaData, setNovaData] = useState('')
@@ -37,7 +37,7 @@ export default function DashboardPage() {
     if (auth === 'true') {
       setIsLogado(true)
       if (savedEmail) {
-        // Extrai o primeiro nome a partir do email
+        // Pega o nome a partir do e-mail (ex: marlon@email.com vira "Marlon")
         const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
         const nomeCapitalizado = nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1)
         setNomeUsuario(nomeCapitalizado)
@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Salva o login e o e-mail no navegador
     if (manterConectado) {
       localStorage.setItem('nutrisaas-auth', 'true')
       localStorage.setItem('nutrisaas-email', email)
@@ -65,7 +66,18 @@ export default function DashboardPage() {
     router.refresh()
   }
 
-  // Agendar nova consulta
+  // Função para SAIR do sistema
+  const handleLogout = () => {
+    localStorage.removeItem('nutrisaas-auth')
+    localStorage.removeItem('nutrisaas-email')
+    sessionStorage.removeItem('nutrisaas-auth')
+    sessionStorage.removeItem('nutrisaas-email')
+    setIsLogado(false)
+    setNomeUsuario('Nutricionista')
+    router.refresh()
+  }
+
+  // Função para agendar nova consulta
   const handleAgendarConsulta = (e: React.FormEvent) => {
     e.preventDefault()
     if (!novoNome) return
@@ -83,29 +95,41 @@ export default function DashboardPage() {
     setModalAgendarAberto(false)
   }
 
-  // Cancelar consulta
+  // Função para cancelar consulta
   const handleCancelarConsulta = (id: string) => {
     if (confirm('Tem certeza que deseja cancelar esta consulta?')) {
       setAtendimentos((prev) => prev.filter((item) => item.id !== id))
     }
   }
 
-  // === SE ESTIVER LOGADO: MOSTRA O DASHBOARD COMPLETO ===
+  // === SE ESTIVER LOGADO: MOSTRA O DASHBOARD ===
   if (isLogado) {
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
         
-        {/* Cabeçalho com Saudação Dinâmica */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-4">
+        {/* Cabeçalho com Saudação e Botão de Sair */}
+        <div className="flex items-center justify-between border-b border-slate-800/60 pb-4">
           <div>
             <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
               Bem-vindo(a), Dr(a). {nomeUsuario}
             </h1>
             <p className="text-xs text-slate-400 mt-0.5">Aqui está o resumo da sua rotina clínica hoje.</p>
           </div>
+
+          {/* Botão de Sair */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all shadow-sm"
+            title="Encerrar sessão"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Sair da conta</span>
+          </button>
         </div>
 
-        {/* Cards de Métricas (zerados por padrão) */}
+        {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-5 rounded-2xl border border-slate-800/80 bg-slate-900/80 shadow-lg flex flex-col gap-1 hover:border-emerald-500/30 transition-colors">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total de Pacientes</span>
@@ -128,7 +152,7 @@ export default function DashboardPage() {
         {/* Área Inferior: Agenda e Ações */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Agenda de Hoje */}
+          {/* Lista de Atendimentos */}
           <div className="lg:col-span-2 rounded-2xl border border-slate-800/80 bg-slate-900/80 shadow-lg overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-800/60 flex justify-between items-center">
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
@@ -184,7 +208,6 @@ export default function DashboardPage() {
             </div>
             
             <div className="p-5 flex flex-col gap-3">
-              {/* NOVO BOTÃO: Agendar Consulta */}
               <button 
                 onClick={() => setModalAgendarAberto(true)}
                 className="w-full text-left p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/20 transition-all flex items-center gap-4 group"
@@ -224,7 +247,7 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* MODAL DE AGENDAMENTO DE CONSULTA */}
+        {/* JANELA MODAL: AGENDAR CONSULTA */}
         {modalAgendarAberto && (
           <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
@@ -309,7 +332,7 @@ export default function DashboardPage() {
     )
   }
 
-  // === SE NÃO ESTIVER LOGADO: MOSTRA A TELA DE LOGIN ===
+  // === SE NÃO ESTIVER LOGADO: TELA DE LOGIN ===
   return (
     <div className="flex items-center justify-center min-h-[75vh]">
       <div className="w-full max-w-md rounded-2xl border border-slate-800/80 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-sm">
