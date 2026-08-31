@@ -18,7 +18,7 @@ export default function DashboardPage() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [manterConectado, setManterConectado] = useState(false)
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const router = useRouter()
 
   // Estados do Agendamento
@@ -32,18 +32,16 @@ export default function DashboardPage() {
   const [novoHorario, setNovoHorario] = useState('14:00')
 
   useEffect(() => {
-    // Detecta o tema atual no localStorage/documento
-    const checkTheme = () => {
-      const isDarkMode = document.documentElement.classList.contains('dark') || 
-                         localStorage.getItem('theme') === 'dark' || 
-                         localStorage.getItem('theme') === null
-      setIsDark(isDarkMode)
+    // Sincroniza exatamente com a presença da classe 'dark' no documento
+    const syncTheme = () => {
+      const hasDarkClass = document.documentElement.classList.contains('dark')
+      setIsDark(hasDarkClass)
     }
 
-    checkTheme()
+    syncTheme()
     
-    // Observer para capturar quando o botão do menu altera o tema
-    const observer = new MutationObserver(checkTheme)
+    // Observa mudanças de classe no elemento HTML (quando clica no botão do menu)
+    const observer = new MutationObserver(syncTheme)
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 
     const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
@@ -119,12 +117,12 @@ export default function DashboardPage() {
     }
   }
 
-  // Definição de classes de estilo dinâmicas (Evita falhas de tema)
-  const cardBg = isDark ? 'bg-slate-900/80 border-slate-800/80 text-white' : 'bg-white border-slate-200 text-slate-800 shadow-sm'
-  const subCardBg = isDark ? 'bg-slate-950/50 border-slate-800/50' : 'bg-slate-50 border-slate-200'
-  const textColor = isDark ? 'text-slate-200' : 'text-slate-800'
+  // Estilos trocados em tempo real de acordo com a classe do HTML
+  const cardBg = isDark ? 'bg-slate-900/90 border-slate-800 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-800 shadow-sm'
+  const subCardBg = isDark ? 'bg-slate-950/60 border-slate-800/60' : 'bg-slate-50 border-slate-200'
+  const textColor = isDark ? 'text-slate-100' : 'text-slate-800'
   const subTextColor = isDark ? 'text-slate-400' : 'text-slate-500'
-  const borderHeader = isDark ? 'border-slate-800/60' : 'border-slate-200'
+  const borderHeader = isDark ? 'border-slate-800/80' : 'border-slate-200'
 
   // === SE ESTIVER LOGADO ===
   if (isLogado) {
@@ -154,21 +152,21 @@ export default function DashboardPage() {
 
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-emerald-500/30 transition-colors`}>
+          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-emerald-500/40 transition-colors`}>
             <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Total de Pacientes</span>
-            <span className="text-3xl font-extrabold text-emerald-400">0</span>
+            <span className="text-3xl font-extrabold text-emerald-500">0</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-sky-500/30 transition-colors`}>
+          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-sky-500/40 transition-colors`}>
             <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Dietas Ativas</span>
-            <span className="text-3xl font-extrabold text-sky-400">0</span>
+            <span className="text-3xl font-extrabold text-sky-500">0</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-amber-500/30 transition-colors`}>
+          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-amber-500/40 transition-colors`}>
             <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Consultas Hoje</span>
-            <span className="text-3xl font-extrabold text-amber-400">{atendimentos.length}</span>
+            <span className="text-3xl font-extrabold text-amber-500">{atendimentos.length}</span>
           </div>
-          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-red-500/30 transition-colors`}>
+          <div className={`p-5 rounded-2xl border ${cardBg} flex flex-col gap-1 hover:border-red-500/40 transition-colors`}>
             <span className={`text-xs font-bold ${subTextColor} uppercase tracking-wider`}>Avisos / Retornos</span>
-            <span className="text-3xl font-extrabold text-red-400">0</span>
+            <span className="text-3xl font-extrabold text-red-500">0</span>
           </div>
         </div>
 
@@ -186,7 +184,7 @@ export default function DashboardPage() {
                   <p className={`text-sm ${subTextColor}`}>Nenhum atendimento agendado para hoje.</p>
                   <button 
                     onClick={() => setModalAgendarAberto(true)}
-                    className="mt-3 text-xs text-emerald-400 hover:underline font-semibold"
+                    className="mt-3 text-xs text-emerald-500 hover:underline font-semibold"
                   >
                     + Agendar uma consulta agora
                   </button>
@@ -205,12 +203,12 @@ export default function DashboardPage() {
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+                      <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
                         {paciente.hora}
                       </span>
                       <button
                         onClick={() => handleCancelarConsulta(paciente.id)}
-                        className="text-xs text-red-400 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg transition-colors"
+                        className="text-xs text-red-500 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg transition-colors"
                         title="Cancelar consulta"
                       >
                         Cancelar
@@ -234,7 +232,7 @@ export default function DashboardPage() {
               >
                 <span className="text-2xl group-hover:scale-110 transition-transform">📅</span>
                 <div>
-                  <p className="text-sm font-bold text-emerald-400">Agendar Consulta</p>
+                  <p className="text-sm font-bold text-emerald-500">Agendar Consulta</p>
                   <p className={`text-[10px] ${subTextColor}`}>Marcar atendimento no sistema</p>
                 </div>
               </button>
