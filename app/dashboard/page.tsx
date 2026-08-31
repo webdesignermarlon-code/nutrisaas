@@ -18,9 +18,6 @@ export default function DashboardPage() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [manterConectado, setManterConectado] = useState(false)
-  
-  // Detecta e sincroniza com o tema real da pagina
-  const [isPaginaEscura, setIsPaginaEscura] = useState(true)
   const router = useRouter()
 
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([])
@@ -32,35 +29,6 @@ export default function DashboardPage() {
   const [novoHorario, setNovoHorario] = useState('14:00')
 
   useEffect(() => {
-    // Mede a cor de fundo real renderizada pelo layout pai
-    const sincronizarTemaReal = () => {
-      const html = document.documentElement
-      const body = document.body
-      
-      const bodyBg = window.getComputedStyle(body).backgroundColor
-      const htmlBg = window.getComputedStyle(html).backgroundColor
-      const bgToTest = (bodyBg && bodyBg !== 'rgba(0, 0, 0, 0)' && bodyBg !== 'transparent') ? bodyBg : htmlBg
-
-      const rgb = bgToTest.match(/\d+/g)
-      if (rgb && rgb.length >= 3) {
-        const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000
-        setIsPaginaEscura(brightness < 128)
-      } else {
-        const isDarkClass = html.classList.contains('dark') || body.classList.contains('dark')
-        setIsPaginaEscura(isDarkClass)
-      }
-    }
-
-    sincronizarTemaReal()
-
-    // Ouve qualquer alteracao de tema do layout em tempo real
-    const observer = new MutationObserver(sincronizarTemaReal)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] })
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] })
-
-    window.addEventListener('resize', sincronizarTemaReal)
-    const timer = setInterval(sincronizarTemaReal, 250)
-
     const auth = sessionStorage.getItem('nutrisaas-auth') || localStorage.getItem('nutrisaas-auth')
     const savedName = sessionStorage.getItem('nutrisaas-nome') || localStorage.getItem('nutrisaas-nome')
     const savedEmail = sessionStorage.getItem('nutrisaas-email') || localStorage.getItem('nutrisaas-email')
@@ -73,12 +41,6 @@ export default function DashboardPage() {
         const nomeFormatado = savedEmail.split('@')[0].replace(/[._-]/g, ' ')
         setNomeUsuario(nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1))
       }
-    }
-
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('resize', sincronizarTemaReal)
-      clearInterval(timer)
     }
   }, [])
 
@@ -137,36 +99,24 @@ export default function DashboardPage() {
     }
   }
 
-  // Mapeamento infalivel de paleta baseado na luminescencia
-  const tema = {
-    cardBg: isPaginaEscura ? '#0f172a' : '#ffffff',
-    cardBorder: isPaginaEscura ? '#1e293b' : '#e2e8f0',
-    itemBg: isPaginaEscura ? '#020617' : '#f8fafc',
-    itemBorder: isPaginaEscura ? '#1e293b' : '#e2e8f0',
-    textMain: isPaginaEscura ? '#f8fafc' : '#0f172a',
-    textMuted: isPaginaEscura ? '#94a3b8' : '#64748b',
-    headerBorder: isPaginaEscura ? '#1e293b' : '#e2e8f0'
-  }
-
   if (isLogado) {
     return (
       <div className="space-y-6 animate-in fade-in duration-500 relative min-h-screen pb-16">
         
-        {/* Cabecalho */}
-        <div className="flex items-center justify-between pb-4 border-b transition-colors duration-200" style={{ borderColor: tema.headerBorder }}>
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between pb-4 border-b border-theme">
           <div>
             <h1 className="text-2xl font-bold text-emerald-500 tracking-tight">
               Bem-vindo(a), Dr(a). {nomeUsuario}
             </h1>
-            <p className="text-xs mt-0.5 transition-colors duration-200" style={{ color: tema.textMuted }}>
+            <p className="text-xs subtext-theme mt-0.5">
               Aqui está o resumo da sua rotina clínica hoje.
             </p>
           </div>
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-all border shadow-sm"
-            style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl card-theme border text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-all shadow-sm"
             title="Encerrar sessão"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,39 +126,39 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Cards de Metricasal */}
+        {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl border shadow-md flex flex-col gap-1 transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: tema.textMuted }}>Total de Pacientes</span>
+          <div className="p-5 rounded-2xl border card-theme shadow-md flex flex-col gap-1 hover:border-emerald-500/40 transition-all">
+            <span className="text-xs font-bold uppercase tracking-wider subtext-theme">Total de Pacientes</span>
             <span className="text-3xl font-extrabold text-emerald-500">0</span>
           </div>
-          <div className="p-5 rounded-2xl border shadow-md flex flex-col gap-1 transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: tema.textMuted }}>Dietas Ativas</span>
+          <div className="p-5 rounded-2xl border card-theme shadow-md flex flex-col gap-1 hover:border-sky-500/40 transition-all">
+            <span className="text-xs font-bold uppercase tracking-wider subtext-theme">Dietas Ativas</span>
             <span className="text-3xl font-extrabold text-sky-500">0</span>
           </div>
-          <div className="p-5 rounded-2xl border shadow-md flex flex-col gap-1 transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: tema.textMuted }}>Consultas Hoje</span>
+          <div className="p-5 rounded-2xl border card-theme shadow-md flex flex-col gap-1 hover:border-amber-500/40 transition-all">
+            <span className="text-xs font-bold uppercase tracking-wider subtext-theme">Consultas Hoje</span>
             <span className="text-3xl font-extrabold text-amber-500">{atendimentos.length}</span>
           </div>
-          <div className="p-5 rounded-2xl border shadow-md flex flex-col gap-1 transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: tema.textMuted }}>Avisos / Retornos</span>
+          <div className="p-5 rounded-2xl border card-theme shadow-md flex flex-col gap-1 hover:border-red-500/40 transition-all">
+            <span className="text-xs font-bold uppercase tracking-wider subtext-theme">Avisos / Retornos</span>
             <span className="text-3xl font-extrabold text-red-500">0</span>
           </div>
         </div>
 
-        {/* Area Inferior */}
+        {/* Área Inferior */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <div className="lg:col-span-2 rounded-2xl border shadow-md overflow-hidden flex flex-col transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: tema.headerBorder }}>
+          <div className="lg:col-span-2 rounded-2xl border card-theme shadow-md overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-theme flex justify-between items-center">
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
               <button className="text-xs font-bold text-emerald-500 hover:underline transition-colors">Ver Agenda &rarr;</button>
             </div>
             
             <div className="p-5 space-y-3 flex-1">
               {atendimentos.length === 0 ? (
-                <div className="p-8 text-center border border-dashed rounded-xl" style={{ borderColor: tema.headerBorder }}>
-                  <p className="text-sm" style={{ color: tema.textMuted }}>Nenhum atendimento agendado para hoje.</p>
+                <div className="p-8 text-center border border-dashed border-theme rounded-xl">
+                  <p className="text-sm subtext-theme">Nenhum atendimento agendado para hoje.</p>
                   <button 
                     onClick={() => setModalAgendarAberto(true)}
                     className="mt-3 text-xs text-emerald-500 hover:underline font-semibold"
@@ -218,14 +168,14 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 atendimentos.map((paciente) => (
-                  <div key={paciente.id} className="flex items-center justify-between p-4 rounded-xl border transition-all" style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder }}>
+                  <div key={paciente.id} className="flex items-center justify-between p-4 rounded-xl border item-theme transition-all">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-lg border border-emerald-500/20">
                         {paciente.nome.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold" style={{ color: tema.textMain }}>{paciente.nome}</p>
-                        <p className="text-[11px]" style={{ color: tema.textMuted }}>{paciente.tipo}</p>
+                        <p className="text-sm font-bold">{paciente.nome}</p>
+                        <p className="text-[11px] subtext-theme">{paciente.tipo}</p>
                       </div>
                     </div>
                     
@@ -247,8 +197,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border shadow-md flex flex-col transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-            <div className="p-5 border-b" style={{ borderColor: tema.headerBorder }}>
+          <div className="rounded-2xl border card-theme shadow-md flex flex-col">
+            <div className="p-5 border-b border-theme">
               <h2 className="text-sm font-bold uppercase text-emerald-500 tracking-wider">Ações Rápidas</h2>
             </div>
             
@@ -260,31 +210,31 @@ export default function DashboardPage() {
                 <span className="text-2xl group-hover:scale-110 transition-transform">📅</span>
                 <div>
                   <p className="text-sm font-bold text-emerald-500">Agendar Consulta</p>
-                  <p className="text-[10px]" style={{ color: tema.textMuted }}>Marcar atendimento no sistema</p>
+                  <p className="text-[10px] subtext-theme">Marcar atendimento no sistema</p>
                 </div>
               </button>
 
-              <Link href="/dashboard/pacientes" className="w-full text-left p-4 rounded-xl border hover:border-emerald-500/50 transition-all flex items-center gap-4 group" style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder }}>
+              <Link href="/dashboard/pacientes" className="w-full text-left p-4 rounded-xl border item-theme hover:border-emerald-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">👥</span>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: tema.textMain }}>Novo Paciente</p>
-                  <p className="text-[10px]" style={{ color: tema.textMuted }}>Cadastrar prontuário</p>
+                  <p className="text-sm font-bold">Novo Paciente</p>
+                  <p className="text-[10px] subtext-theme">Cadastrar prontuário</p>
                 </div>
               </Link>
               
-              <Link href="/dashboard/dietas" className="w-full text-left p-4 rounded-xl border hover:border-sky-500/50 transition-all flex items-center gap-4 group" style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder }}>
+              <Link href="/dashboard/dietas" className="w-full text-left p-4 rounded-xl border item-theme hover:border-sky-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">🥗</span>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: tema.textMain }}>Montar Dieta</p>
-                  <p className="text-[10px]" style={{ color: tema.textMuted }}>Criar plano alimentar</p>
+                  <p className="text-sm font-bold">Montar Dieta</p>
+                  <p className="text-[10px] subtext-theme">Criar plano alimentar</p>
                 </div>
               </Link>
 
-              <Link href="/dashboard/anamnese" className="w-full text-left p-4 rounded-xl border hover:border-amber-500/50 transition-all flex items-center gap-4 group" style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder }}>
+              <Link href="/dashboard/anamnese" className="w-full text-left p-4 rounded-xl border item-theme hover:border-amber-500/50 transition-all flex items-center gap-4 group">
                 <span className="text-2xl group-hover:scale-110 transition-transform">📄</span>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: tema.textMain }}>Nova Anamnese</p>
-                  <p className="text-[10px]" style={{ color: tema.textMuted }}>Registrar avaliação clínica</p>
+                  <p className="text-sm font-bold">Nova Anamnese</p>
+                  <p className="text-[10px] subtext-theme">Registrar avaliação clínica</p>
                 </div>
               </Link>
             </div>
@@ -294,33 +244,31 @@ export default function DashboardPage() {
         {/* Modal Agendar Consulta */}
         {modalAgendarAberto && (
           <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-md rounded-2xl border p-6 shadow-2xl space-y-4" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
-              <div className="flex justify-between items-center border-b pb-3" style={{ borderColor: tema.headerBorder }}>
+            <div className="w-full max-w-md rounded-2xl border card-theme p-6 shadow-2xl space-y-4">
+              <div className="flex justify-between items-center border-b border-theme pb-3">
                 <h3 className="text-lg font-bold text-emerald-500">Agendar Consulta</h3>
-                <button onClick={() => setModalAgendarAberto(false)} style={{ color: tema.textMuted }}>✕</button>
+                <button onClick={() => setModalAgendarAberto(false)} className="subtext-theme">✕</button>
               </div>
 
               <form onSubmit={handleAgendarConsulta} className="space-y-4">
                 <div>
-                  <label className="block text-xs mb-1" style={{ color: tema.textMuted }}>Nome do Paciente</label>
+                  <label className="block text-xs subtext-theme mb-1">Nome do Paciente</label>
                   <input
                     type="text"
                     required
                     placeholder="Ex: Maria Silva"
                     value={novoNome}
                     onChange={(e) => setNovoNome(e.target.value)}
-                    className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
-                    style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+                    className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs mb-1" style={{ color: tema.textMuted }}>Tipo de Consulta</label>
+                  <label className="block text-xs subtext-theme mb-1">Tipo de Consulta</label>
                   <select
                     value={novoTipo}
                     onChange={(e) => setNovoTipo(e.target.value)}
-                    className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
-                    style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+                    className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none"
                   >
                     <option value="Primeira Consulta">Primeira Consulta</option>
                     <option value="Retorno">Retorno</option>
@@ -330,23 +278,21 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: tema.textMuted }}>Data</label>
+                    <label className="block text-xs subtext-theme mb-1">Data</label>
                     <input
                       type="date"
                       value={novaData}
                       onChange={(e) => setNovaData(e.target.value)}
-                      className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
-                      style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+                      className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs mb-1" style={{ color: tema.textMuted }}>Horário</label>
+                    <label className="block text-xs subtext-theme mb-1">Horário</label>
                     <input
                       type="time"
                       value={novoHorario}
                       onChange={(e) => setNovoHorario(e.target.value)}
-                      className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none"
-                      style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+                      className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -355,8 +301,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => setModalAgendarAberto(false)}
-                    className="w-1/2 py-3 rounded-xl border text-xs font-bold"
-                    style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder, color: tema.textMain }}
+                    className="w-1/2 py-3 rounded-xl border card-theme text-xs font-bold"
                   >
                     Cancelar
                   </button>
@@ -389,29 +334,28 @@ export default function DashboardPage() {
 
   return (
     <div className="flex items-center justify-center min-h-[75vh]">
-      <div className="w-full max-w-md rounded-2xl border p-8 shadow-2xl backdrop-blur-sm transition-all duration-200" style={{ backgroundColor: tema.cardBg, borderColor: tema.cardBorder }}>
+      <div className="w-full max-w-md rounded-2xl border card-theme p-8 shadow-2xl backdrop-blur-sm">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-emerald-500 mb-1 tracking-tight">NutriSaaS</h1>
-          <p className="text-xs" style={{ color: tema.textMuted }}>Acesse o seu painel de gestão nutricional</p>
+          <p className="text-xs subtext-theme">Acesse o seu painel de gestão nutricional</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="mb-1.5 block text-xs" style={{ color: tema.textMuted }}>E-mail Profissional</label>
+            <label className="mb-1.5 block text-xs subtext-theme">E-mail Profissional</label>
             <input
               type="email"
               required
               placeholder="seuemail@consultorio.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
-              style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+              className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
             />
           </div>
 
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label className="block text-xs" style={{ color: tema.textMuted }}>Senha de Acesso</label>
+              <label className="block text-xs subtext-theme">Senha de Acesso</label>
               <Link href="/esqueci-senha" className="text-[11px] font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">
                 Esqueci a senha
               </Link>
@@ -422,8 +366,7 @@ export default function DashboardPage() {
               placeholder="••••••••"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="w-full rounded-xl border p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
-              style={{ backgroundColor: tema.itemBg, borderColor: tema.itemBorder, color: tema.textMain }}
+              className="w-full rounded-xl border item-theme p-3 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
             />
           </div>
 
@@ -435,7 +378,7 @@ export default function DashboardPage() {
               onChange={(e) => setManterConectado(e.target.checked)}
               className="h-4 w-4 rounded text-emerald-500 focus:ring-emerald-500"
             />
-            <label htmlFor="manter" className="text-xs cursor-pointer" style={{ color: tema.textMuted }}>
+            <label htmlFor="manter" className="text-xs cursor-pointer subtext-theme">
               Manter conectado neste dispositivo
             </label>
           </div>
