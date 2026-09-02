@@ -2,163 +2,102 @@
 
 import { useState, useEffect } from 'react'
 
-interface RegistroEvolucao {
+interface EvolucaoRegistro {
+  id: number
   data: string
-  peso: number
-  percentualGordura: number
+  peso: string
+  gordura: string
+  cintura: string
+  quadril: string
+  fotoAntes?: string
+  fotoDepois?: string
 }
 
 interface Paciente {
   id: number
   nome: string
+  genero: 'feminino' | 'masculino'
   telefone: string
   objetivo: string
-  dataPrimeiraConsulta: string
-  idade: number
-  altura: number
-  pesoInicial: number
-  percentualGorduraInicial: number
-  historicoEvolucao: RegistroEvolucao[]
-  status: string
-}
-
-// Componente Anatômico Estilo Escaneamento DEXA
-function AvatarDexa({ percentualGordura, peso, titulo }: { percentualGordura: number; peso: number; titulo: string }) {
-  // Ajuste proporcional da silhueta de gordura com base no % de gordura corporal
-  const fatPct = Math.max(8, Math.min(50, percentualGordura || 25))
-  const fatWidth = (fatPct / 100) * 28 // espessura da camada verde/amarela
-
-  return (
-    <div className="flex flex-col items-center bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-center text-white">
-      <span className="text-xs font-bold text-emerald-400">{titulo}</span>
-      <div className="text-[11px] text-slate-400 font-semibold">
-        {peso ? `${peso} kg` : '-'} • {percentualGordura ? `${percentualGordura}% Gordura` : '-'}
-      </div>
-
-      <div className="relative w-36 h-64 bg-slate-900 rounded-lg p-2 flex items-center justify-center overflow-hidden border border-slate-800/80">
-        <svg viewBox="0 0 100 200" className="w-full h-full">
-          {/* Fundo de escaneamento anatômico */}
-          <rect x="0" y="0" width="100" height="200" fill="#030712" />
-          
-          {/* Linhas de escaneamento de bioimpedância */}
-          <line x1="10" y1="20" x2="90" y2="20" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
-          <line x1="10" y1="60" x2="90" y2="60" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
-          <line x1="10" y1="100" x2="90" y2="100" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
-          <line x1="10" y1="140" x2="90" y2="140" stroke="#1e293b" strokeDasharray="2,2" strokeWidth="0.5" />
-
-          {/* 🟢 Camada Externa de Gordura Corporal (Verde e Amarelo - Ajusta dinamicamente) */}
-          <path
-            d={`M 50 20 
-               C ${38 - fatWidth} 22, ${35 - fatWidth} 35, 50 40 
-               C ${25 - fatWidth} 50, ${20 - fatWidth} 80, ${25 - fatWidth} 100 
-               C ${20 - fatWidth} 110, ${15 - fatWidth} 130, ${20 - fatWidth} 185
-               L ${35 - fatWidth / 2} 185
-               L 42 120
-               L 50 120
-               L 58 120
-               L 65 + ${fatWidth / 2} 185
-               L ${80 + fatWidth} 185
-               C ${85 + fatWidth} 130, ${80 + fatWidth} 110, ${75 + fatWidth} 100
-               C ${80 + fatWidth} 80, ${75 + fatWidth} 50, 50 40 Z`}
-            fill="#22c55e"
-            opacity="0.85"
-          />
-
-          {/* Halo Amarelo / Visceral */}
-          <path
-            d={`M 50 45 C ${32 - fatWidth * 0.7} 60, ${30 - fatWidth * 0.7} 85, 50 95 C ${70 + fatWidth * 0.7} 85, ${68 + fatWidth * 0.7} 60, 50 45 Z`}
-            fill="#eab308"
-            opacity="0.6"
-          />
-
-          {/* 🔴 Tecido Muscular / Massa Magra (Vermelho Intenso) */}
-          <path
-            d="M 50 22 
-               C 42 24, 40 33, 50 38 
-               C 32 46, 28 75, 32 95 
-               C 28 105, 25 125, 28 180
-               L 38 180
-               L 44 115
-               L 50 115
-               L 56 115
-               L 62 180
-               L 72 180
-               C 75 125, 72 105, 68 95
-               C 72 75, 68 46, 50 38 Z"
-            fill="#ef4444"
-          />
-
-          {/* 🔵 Estrutura Óssea e Órgãos (Azul / Roxo / Rosa) */}
-          {/* Crânio e Coluna */}
-          <ellipse cx="50" cy="28" rx="5" ry="6" fill="#06b6d4" />
-          <line x1="50" y1="34" x2="50" y2="105" stroke="#e0e7ff" strokeWidth="2.5" />
-
-          {/* Caixa Torácica / Pulmões */}
-          <ellipse cx="44" cy="58" rx="5" ry="9" fill="#a855f7" />
-          <ellipse cx="56" cy="58" rx="5" ry="9" fill="#a855f7" />
-
-          {/* Fígado / Região Abdominal */}
-          <path d="M 42 70 Q 50 68 58 72 L 56 82 Q 48 84 42 78 Z" fill="#2563eb" />
-          
-          {/* Rins / Bacia Óssea */}
-          <circle cx="43" cy="85" r="3" fill="#ec4899" />
-          <circle cx="57" cy="85" r="3" fill="#ec4899" />
-          <path d="M 40 98 Q 50 105 60 98 L 57 110 L 43 110 Z" fill="#cbd5e1" opacity="0.8" />
-        </svg>
-      </div>
-
-      <div className="flex items-center gap-2 text-[9px] pt-1">
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Muscular</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Gordura</span>
-      </div>
-    </div>
-  )
+  dataConsulta: string
+  idade: string
+  altura: string
+  pesoInicial: string
+  gorduraInicial: string
+  ultimoPeso?: string
+  
+  // Medidas Antropométricas para Cálculo
+  modoCalculoGordura: 'manual' | 'dobras' | 'medidas'
+  triceps: string
+  subescapular: string
+  suprailiaca: string
+  abdomenDobra: string
+  cintura: string
+  pescoco: string
+  quadril: string
+  
+  // Histórico e Escaneamento Visual
+  historicoEvolucao: EvolucaoRegistro[]
+  observacoesProntuario: string
 }
 
 export default function PacientesPage() {
   const [isLight, setIsLight] = useState(false)
+  const [pacientes, setPacientes] = useState<Paciente[]>([])
   
-  // Campos de cadastro
+  // Busca em tempo real
+  const [busca, setBusca] = useState('')
+
+  // Seleção e visualização de Prontuário / Evolução
+  const [pacienteDetalhadoId, setPacienteDetalhadoId] = useState<number | null>(null)
+
+  // Estado do Formulário
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [nome, setNome] = useState('')
+  const [genero, setGenero] = useState<'feminino' | 'masculino'>('feminino')
   const [telefone, setTelefone] = useState('')
   const [objetivo, setObjetivo] = useState('')
-  const [data1aConsulta, setData1aConsulta] = useState('')
+  const [dataConsulta, setDataConsulta] = useState('')
   const [idade, setIdade] = useState('')
   const [altura, setAltura] = useState('')
   const [pesoInicial, setPesoInicial] = useState('')
   const [gorduraInicial, setGorduraInicial] = useState('')
+  const [observacoes, setObservacoes] = useState('')
 
-  // Modais de ações
-  const [pacienteEvolucao, setPacienteEvolucao] = useState<Paciente | null>(null)
-  const [modalAgendar, setModalAgendar] = useState<Paciente | null>(null)
+  // Campos para Cálculo Automático de Gordura
+  const [modoCalculoGordura, setModoCalculoGordura] = useState<'manual' | 'dobras' | 'medidas'>('dobras')
+  const [triceps, setTriceps] = useState('')
+  const [subescapular, setSubescapular] = useState('')
+  const [suprailiaca, setSuprailiaca] = useState('')
+  const [abdomenDobra, setAbdomenDobra] = useState('')
+  const [cintura, setCintura] = useState('')
+  const [pescoco, setPescoco] = useState('')
+  const [quadril, setQuadril] = useState('')
 
-  // Campos para adicionar nova avaliação na Evolução
-  const [novaDataAvaliacao, setNovaDataAvaliacao] = useState('')
-  const [novoPesoAvaliacao, setNovoPesoAvaliacao] = useState('')
-  const [novaGorduraAvaliacao, setNovaGorduraAvaliacao] = useState('')
-
-  // Campos de Agendamento
-  const [dataConsulta, setDataConsulta] = useState('')
-  const [horaConsulta, setHoraConsulta] = useState('')
-  const [tipoConsulta, setTipoConsulta] = useState('Retorno e Acompanhamento')
-  const [enviarWhats, setEnviarWhats] = useState(true)
-
-  // Banco de dados local
-  const [pacientes, setPacientes] = useState<Paciente[]>([])
+  // Modal para adicionar nova evolução/foto ao histórico do paciente
+  const [modalEvolucaoAberto, setModalEvolucaoAberto] = useState(false)
+  const [novoPesoEvolucao, setNovoPesoEvolucao] = useState('')
+  const [novaGorduraEvolucao, setNovaGorduraEvolucao] = useState('')
+  const [novaCinturaEvolucao, setNovaCinturaEvolucao] = useState('')
+  const [novaQuadrilEvolucao, setNovaQuadrilEvolucao] = useState('')
+  const [fotoAntesEvolucao, setFotoAntesEvolucao] = useState<string | null>(null)
+  const [fotoDepoisEvolucao, setFotoDepoisEvolucao] = useState<string | null>(null)
 
   useEffect(() => {
+    // 1. Sincronização de Tema
     const checkTheme = () => {
       const theme = localStorage.getItem('nutrisaas-theme')
       setIsLight(theme === 'light')
     }
     checkTheme()
 
-    const salvos = localStorage.getItem('nutrisaas-pacientes-db')
-    if (salvos) {
+    // 2. Carregamento do Banco de Dados Local
+    const pacientesSalvos = localStorage.getItem('nutrisaas-pacientes-db')
+    if (pacientesSalvos) {
       try {
-        setPacientes(JSON.parse(salvos))
+        setPacientes(JSON.parse(pacientesSalvos))
       } catch (e) {
-        console.error('Erro ao carregar banco de pacientes', e)
+        console.error('Erro ao carregar banco de pacientes:', e)
       }
     }
 
@@ -170,546 +109,802 @@ export default function PacientesPage() {
     }
   }, [])
 
-  const salvarNoBanco = (novosPacientes: Paciente[]) => {
+  // ==========================================
+  // CÁLCULO AUTOMÁTICO DE % GORDURA CORPORAL
+  // ==========================================
+  useEffect(() => {
+    if (modoCalculoGordura === 'manual') return
+
+    const numIdade = parseFloat(idade) || 25
+    const numAltura = parseFloat(altura) || 165
+    const numPeso = parseFloat(pesoInicial) || 70
+
+    if (modoCalculoGordura === 'dobras') {
+      const tri = parseFloat(triceps) || 0
+      const sub = parseFloat(subescapular) || 0
+      const sup = parseFloat(suprailiaca) || 0
+      const abd = parseFloat(abdomenDobra) || 0
+
+      const somaDobras = tri + sub + sup + abd
+
+      if (somaDobras > 0) {
+        let densidadeCorporal = 0
+        if (genero === 'feminino') {
+          densidadeCorporal = 1.096095 - (0.000695 * somaDobras) + (0.0000011 * Math.pow(somaDobras, 2)) - (0.0000714 * numIdade)
+        } else {
+          densidadeCorporal = 1.10938 - (0.0008267 * somaDobras) + (0.0000016 * Math.pow(somaDobras, 2)) - (0.0002574 * numIdade)
+        }
+
+        if (densidadeCorporal > 0) {
+          const percentualGordura = ((4.95 / densidadeCorporal) - 4.5) * 100
+          if (!isNaN(percentualGordura) && percentualGordura > 0 && percentualGordura < 70) {
+            setGorduraInicial(percentualGordura.toFixed(1))
+          }
+        }
+      }
+    } else if (modoCalculoGordura === 'medidas') {
+      const numCintura = parseFloat(cintura) || 0
+      const numPescoco = parseFloat(pescoco) || 0
+      const numQuadril = parseFloat(quadril) || 0
+
+      if (numCintura > 0 && numPescoco > 0 && numAltura > 0) {
+        let percentualGordura = 0
+        if (genero === 'masculino') {
+          percentualGordura = 86.010 * Math.log10(numCintura - numPescoco) - 70.041 * Math.log10(numAltura) + 36.76
+        } else if (numQuadril > 0) {
+          percentualGordura = 163.205 * Math.log10(numCintura + numQuadril - numPescoco) - 97.684 * Math.log10(numAltura) - 78.387
+        }
+
+        if (!isNaN(percentualGordura) && percentualGordura > 2 && percentualGordura < 70) {
+          setGorduraInicial(percentualGordura.toFixed(1))
+        }
+      }
+    }
+  }, [
+    modoCalculoGordura, genero, idade, altura, pesoInicial,
+    triceps, subescapular, suprailiaca, abdomenDobra,
+    cintura, pescoco, quadril
+  ])
+
+  // Salvar no localStorage
+  const atualizarBanco = (novosPacientes: Paciente[]) => {
     setPacientes(novosPacientes)
     localStorage.setItem('nutrisaas-pacientes-db', JSON.stringify(novosPacientes))
   }
 
-  const handleCadastrar = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!nome) return
-
-    const pInit = parseFloat(pesoInicial) || 0
-    const gInit = parseFloat(gorduraInicial) || 0
-    const dConsulta = data1aConsulta || new Date().toISOString().split('T')[0]
-
-    const novo: Paciente = {
-      id: Date.now(),
-      nome,
-      telefone: telefone || 'Não informado',
-      objetivo: objetivo || 'Acompanhamento Nutricional',
-      dataPrimeiraConsulta: dConsulta,
-      idade: parseInt(idade) || 0,
-      altura: parseFloat(altura) || 0,
-      pesoInicial: pInit,
-      percentualGorduraInicial: gInit,
-      status: 'Ativo',
-      historicoEvolucao: [
-        {
-          data: dConsulta,
-          peso: pInit,
-          percentualGordura: gInit,
-        },
-      ],
-    }
-
-    const atualizada = [novo, ...pacientes]
-    salvarNoBanco(atualizada)
-
+  // Limpa Formulário
+  const limparFormulario = () => {
+    setEditingId(null)
     setNome('')
+    setGenero('feminino')
     setTelefone('')
     setObjetivo('')
-    setData1aConsulta('')
+    setDataConsulta('')
     setIdade('')
     setAltura('')
     setPesoInicial('')
     setGorduraInicial('')
+    setObservacoes('')
+    setTriceps('')
+    setSubescapular('')
+    setSuprailiaca('')
+    setAbdomenDobra('')
+    setCintura('')
+    setPescoco('')
+    setQuadril('')
   }
 
+  // Iniciar Edição do Paciente
+  const handleIniciarEdicao = (paciente: Paciente) => {
+    setEditingId(paciente.id)
+    setNome(paciente.nome)
+    setGenero(paciente.genero || 'feminino')
+    setTelefone(paciente.telefone)
+    setObjetivo(paciente.objetivo)
+    setDataConsulta(paciente.dataConsulta)
+    setIdade(paciente.idade)
+    setAltura(paciente.altura)
+    setPesoInicial(paciente.pesoInicial)
+    setGorduraInicial(paciente.gorduraInicial)
+    setObservacoes(paciente.observacoesProntuario || '')
+    setModoCalculoGordura(paciente.modoCalculoGordura || 'dobras')
+    setTriceps(paciente.triceps || '')
+    setSubescapular(paciente.subescapular || '')
+    setSuprailiaca(paciente.suprailiaca || '')
+    setAbdomenDobra(paciente.abdomenDobra || '')
+    setCintura(paciente.cintura || '')
+    setPescoco(paciente.pescoco || '')
+    setQuadril(paciente.quadril || '')
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Salvar / Atualizar Cadastro
+  const handleSalvarPaciente = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!nome.trim()) return
+
+    if (editingId) {
+      // Atualização
+      const listaAtualizada = pacientes.map((p) => {
+        if (p.id === editingId) {
+          return {
+            ...p,
+            nome,
+            genero,
+            telefone,
+            objetivo,
+            dataConsulta,
+            idade,
+            altura,
+            pesoInicial,
+            gorduraInicial,
+            ultimoPeso: p.ultimoPeso || pesoInicial,
+            modoCalculoGordura,
+            triceps,
+            subescapular,
+            suprailiaca,
+            abdomenDobra,
+            cintura,
+            pescoco,
+            quadril,
+            observacoesProntuario: observacoes
+          }
+        }
+        return p
+      })
+      atualizarBanco(listaAtualizada)
+    } else {
+      // Novo Cadastro
+      const novoPaciente: Paciente = {
+        id: Date.now(),
+        nome,
+        genero,
+        telefone,
+        objetivo,
+        dataConsulta,
+        idade,
+        altura,
+        pesoInicial,
+        gorduraInicial,
+        ultimoPeso: pesoInicial,
+        modoCalculoGordura,
+        triceps,
+        subescapular,
+        suprailiaca,
+        abdomenDobra,
+        cintura,
+        pescoco,
+        quadril,
+        historicoEvolucao: [],
+        observacoesProntuario: observacoes
+      }
+      atualizarBanco([novoPaciente, ...pacientes])
+    }
+
+    limparFormulario()
+  }
+
+  // Excluir Paciente
+  const handleExcluirPaciente = (id: number) => {
+    if (confirm('Tem certeza que deseja excluir permanentemente este paciente e todo o seu prontuário?')) {
+      const listaFiltrada = pacientes.filter((p) => p.id !== id)
+      atualizarBanco(listaFiltrada)
+      if (editingId === id) limparFormulario()
+      if (pacienteDetalhadoId === id) setPacienteDetalhadoId(null)
+    }
+  }
+
+  // Adicionar Nova Consulta/Evolução no Prontuário Visual
   const handleAdicionarEvolucao = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!pacienteEvolucao || !novoPesoAvaliacao) return
+    if (!pacienteDetalhadoId) return
 
-    const pesoNum = parseFloat(novoPesoAvaliacao)
-    const gordNum = parseFloat(novaGorduraAvaliacao) || 0
-    const dataReg = novaDataAvaliacao || new Date().toISOString().split('T')[0]
-
-    const novoRegistro: RegistroEvolucao = {
-      data: dataReg,
-      peso: pesoNum,
-      percentualGordura: gordNum,
+    const novaEvolucao: EvolucaoRegistro = {
+      id: Date.now(),
+      data: new Date().toLocaleDateString('pt-BR'),
+      peso: novoPesoEvolucao || '0',
+      gordura: novaGorduraEvolucao || '0',
+      cintura: novaCinturaEvolucao || '0',
+      quadril: novaQuadrilEvolucao || '0',
+      fotoAntes: fotoAntesEvolucao || undefined,
+      fotoDepois: fotoDepoisEvolucao || undefined
     }
 
     const listaAtualizada = pacientes.map((p) => {
-      if (p.id === pacienteEvolucao.id) {
+      if (p.id === pacienteDetalhadoId) {
+        const novoHistorico = [novaEvolucao, ...p.historicoEvolucao]
         return {
           ...p,
-          historicoEvolucao: [novoRegistro, ...p.historicoEvolucao],
+          ultimoPeso: novoPesoEvolucao || p.ultimoPeso,
+          historicoEvolucao: novoHistorico
         }
       }
       return p
     })
 
-    salvarNoBanco(listaAtualizada)
-    const pacienteAtualizado = listaAtualizada.find((p) => p.id === pacienteEvolucao.id) || null
-    setPacienteEvolucao(pacienteAtualizado)
-
-    setNovaDataAvaliacao('')
-    setNovoPesoAvaliacao('')
-    setNovaGorduraAvaliacao('')
-    alert('Nova avaliação física registrada com sucesso!')
+    atualizarBanco(listaAtualizada)
+    setNovoPesoEvolucao('')
+    setNovaGorduraEvolucao('')
+    setNovaCinturaEvolucao('')
+    setNovaQuadrilEvolucao('')
+    setFotoAntesEvolucao(null)
+    setFotoDepoisEvolucao(null)
+    setModalEvolucaoAberto(false)
   }
 
-  const handleExcluir = (id: number, nomePaciente: string) => {
-    if (confirm(`Tem certeza que deseja excluir o prontuário de "${nomePaciente}"?`)) {
-      const filtrados = pacientes.filter((p) => p.id !== id)
-      salvarNoBanco(filtrados)
-      if (pacienteEvolucao?.id === id) setPacienteEvolucao(null)
+  const handleUploadFoto = (e: React.ChangeEvent<HTMLInputElement>, tipo: 'antes' | 'depois') => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        if (tipo === 'antes') setFotoAntesEvolucao(reader.result as string)
+        else setFotoDepoisEvolucao(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
-  const handleAbrirWhatsApp = (paciente: Paciente) => {
-    const numeroLimpo = paciente.telefone.replace(/\D/g, '')
-    if (!numeroLimpo) {
-      alert('Este paciente não possui um número de telefone válido cadastrado.')
-      return
-    }
+  // Pacientes filtrados na busca
+  const pacientesFiltrados = pacientes.filter((p) => {
+    const termo = busca.toLowerCase()
+    return (
+      p.nome.toLowerCase().includes(termo) ||
+      p.telefone.includes(termo) ||
+      p.objetivo.toLowerCase().includes(termo)
+    )
+  })
 
-    const mensagem = `Olá, ${paciente.nome}! Tudo bem? Sou seu nutricionista. Vamos conversar sobre o seu acompanhamento?`
-    const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
-    window.open(url, '_blank')
-  }
+  const pacienteAtivoDetalhado = pacientes.find((p) => p.id === pacienteDetalhadoId)
 
-  const handleConfirmarAgendamento = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!dataConsulta || !horaConsulta || !modalAgendar) return
-
-    const partesData = dataConsulta.split('-')
-    const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : dataConsulta
-    const numeroLimpo = modalAgendar.telefone.replace(/\D/g, '')
-
-    if (enviarWhats && numeroLimpo) {
-      const mensagem = `🗓️ *AGENDAMENTO DE CONSULTA NUTRICIONAL*\n\nOlá, *${modalAgendar.nome}*!\nSua consulta foi agendada com sucesso.\n\n📅 *Data:* ${dataFormatada}\n⏰ *Horário:* ${horaConsulta}\n📌 *Tipo:* ${tipoConsulta}\n\nQualquer dúvida, entre em contato!`
-      const url = `https://api.whatsapp.com/send?phone=55${numeroLimpo}&text=${encodeURIComponent(mensagem)}`
-      window.open(url, '_blank')
-    } else {
-      alert(`Consulta agendada para ${modalAgendar.nome} em ${dataFormatada} às ${horaConsulta}!`)
-    }
-
-    setModalAgendar(null)
-    setDataConsulta('')
-    setHoraConsulta('')
-  }
-
+  // Classes do Tema
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
-  const bgHeaderTable = isLight ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-950 text-slate-400 border-slate-800'
-  const bgSubCard = isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/60 border-slate-800'
-  const textLabel = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
+  const bgSubCard = isLight ? 'bg-slate-100 border-slate-200' : 'bg-slate-950 border-slate-800'
+  const textMuted = isLight ? 'text-slate-600 font-semibold' : 'text-slate-400'
+  const borderDivider = isLight ? 'border-slate-200' : 'border-slate-800'
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-emerald-500">Banco de Dados e Gestão de Pacientes</h1>
-        <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-          Cadastre dados antropométricos, agende consultas e veja o escaneamento visual de evolução corporal
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-emerald-500">Banco de Dados e Gestão de Pacientes</h1>
+          <p className={`text-xs ${textMuted}`}>
+            Cadastre dados antropométricos, acompanhe o % de gordura automático e veja a evolução corporal
+          </p>
+        </div>
       </div>
 
-      {/* Form Cadastro */}
-      <form onSubmit={handleCadastrar} className={`rounded-2xl border p-6 space-y-4 ${bgCard}`}>
-        <h2 className="text-sm font-bold border-b pb-2">Cadastrar Novo Paciente (Prontuário Inicial)</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Nome Completo *</label>
-            <input
-              type="text"
-              placeholder="Ex: Ana Maria Souza"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
-              required
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Telefone / WhatsApp (com DDD)</label>
-            <input
-              type="text"
-              placeholder="Ex: 21999998888"
-              value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Objetivo Principal</label>
-            <input
-              type="text"
-              placeholder="Ex: Emagrecimento, Hipertrofia"
-              value={objetivo}
-              onChange={(e) => setObjetivo(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
-            />
-          </div>
+      {/* FORMULÁRIO DE CADASTRO / EDIÇÃO */}
+      <div className={`p-6 rounded-2xl border ${bgCard}`}>
+        <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-800/40">
+          <h2 className="text-sm font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-2">
+            {editingId ? '✏️ Modo de Edição de Prontuário' : '➕ Cadastrar Novo Paciente (Prontuário Inicial)'}
+          </h2>
+          {editingId && (
+            <button
+              onClick={limparFormulario}
+              className="text-xs text-rose-500 hover:underline font-bold"
+            >
+              ✕ Cancelar Edição
+            </button>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Data 1ª Consulta</label>
-            <input
-              type="date"
-              value={data1aConsulta}
-              onChange={(e) => setData1aConsulta(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Idade (Anos)</label>
-            <input
-              type="number"
-              placeholder="Ex: 28"
-              value={idade}
-              onChange={(e) => setIdade(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Altura (cm)</label>
-            <input
-              type="number"
-              placeholder="Ex: 165"
-              value={altura}
-              onChange={(e) => setAltura(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>Peso Inicial (kg)</label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="Ex: 75.5"
-              value={pesoInicial}
-              onChange={(e) => setPesoInicial(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-1 ${textLabel}`}>% Gordura Inicial</label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="Ex: 28.0"
-              value={gorduraInicial}
-              onChange={(e) => setGorduraInicial(e.target.value)}
-              className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-            />
-          </div>
-        </div>
+        <form onSubmit={handleSalvarPaciente} className="space-y-5">
+          {/* Dados Pessoais */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
+              <label className={`block text-xs mb-1 ${textMuted}`}>Nome Completo *</label>
+              <input
+                type="text"
+                required
+                placeholder="Ex: Ana Maria Souza"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
 
-        <div className="pt-2 flex justify-end">
-          <button
-            type="submit"
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 px-6 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
-          >
-            + Cadastrar Paciente no Banco de Dados
-          </button>
-        </div>
-      </form>
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Gênero Biológico *</label>
+              <select
+                value={genero}
+                onChange={(e) => setGenero(e.target.value as 'feminino' | 'masculino')}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              >
+                <option value="feminino">Feminino</option>
+                <option value="masculino">Masculino</option>
+              </select>
+            </div>
 
-      {/* Tabela de Pacientes */}
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Telefone / WhatsApp (com DDD)</label>
+              <input
+                type="text"
+                placeholder="Ex: 21999998888"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Objetivo Principal</label>
+              <input
+                type="text"
+                placeholder="Ex: Emagrecimento, Hipertrofia"
+                value={objetivo}
+                onChange={(e) => setObjetivo(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Data 1ª Consulta</label>
+              <input
+                type="date"
+                value={dataConsulta}
+                onChange={(e) => setDataConsulta(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Idade (Anos)</label>
+              <input
+                type="number"
+                placeholder="Ex: 28"
+                value={idade}
+                onChange={(e) => setIdade(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Altura (cm)</label>
+              <input
+                type="number"
+                placeholder="Ex: 165"
+                value={altura}
+                onChange={(e) => setAltura(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs mb-1 ${textMuted}`}>Peso Inicial (kg)</label>
+              <input
+                type="text"
+                placeholder="Ex: 75.5"
+                value={pesoInicial}
+                onChange={(e) => setPesoInicial(e.target.value)}
+                className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+              />
+            </div>
+          </div>
+
+          {/* PAINEL DE CÁLCULO AUTOMÁTICO DE GORDURA */}
+          <div className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2 border-slate-700/30">
+              <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-1.5">
+                ⚡ Módulo de Antropometria & Cálculo de Gordura Corporal
+              </span>
+
+              <div className="flex items-center gap-2 text-xs">
+                <span className={textMuted}>Método:</span>
+                <select
+                  value={modoCalculoGordura}
+                  onChange={(e) => setModoCalculoGordura(e.target.value as any)}
+                  className={`rounded-lg border p-1.5 text-xs font-bold focus:outline-none ${bgInput}`}
+                >
+                  <option value="dobras">Dobras Cutâneas (Jackson & Pollock)</option>
+                  <option value="medidas">Circunferências (US Navy Method)</option>
+                  <option value="manual">Manual / Bioimpedância</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Campos por Dobras */}
+            {modoCalculoGordura === 'dobras' && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-in fade-in">
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Tríceps (mm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 12"
+                    value={triceps}
+                    onChange={(e) => setTriceps(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Subescapular (mm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 18"
+                    value={subescapular}
+                    onChange={(e) => setSubescapular(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Suprailíaca (mm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 15"
+                    value={suprailiaca}
+                    onChange={(e) => setSuprailiaca(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Abdômen (mm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 22"
+                    value={abdomenDobra}
+                    onChange={(e) => setAbdomenDobra(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Campos por Medidas */}
+            {modoCalculoGordura === 'medidas' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-in fade-in">
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Cintura (cm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 78"
+                    value={cintura}
+                    onChange={(e) => setCintura(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-[11px] mb-1 ${textMuted}`}>Pescoço (cm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 36"
+                    value={pescoco}
+                    onChange={(e) => setPescoco(e.target.value)}
+                    className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                {genero === 'feminino' && (
+                  <div>
+                    <label className={`block text-[11px] mb-1 ${textMuted}`}>Quadril (cm)</label>
+                    <input
+                      type="number"
+                      placeholder="Ex: 98"
+                      value={quadril}
+                      onChange={(e) => setQuadril(e.target.value)}
+                      className={`w-full rounded-xl border p-2 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Resultado do % de Gordura */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-700/20">
+              <span className={`text-xs ${textMuted}`}>
+                {modoCalculoGordura !== 'manual' ? '📊 % Gordura Calculado Automaticamente:' : '✍️ Digite o % Gordura Manual / Bioimpedância:'}
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Ex: 22.5"
+                  value={gorduraInicial}
+                  onChange={(e) => setGorduraInicial(e.target.value)}
+                  className={`w-28 rounded-xl border p-2 text-center text-sm font-extrabold text-emerald-500 focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                />
+                <span className="text-xs font-bold text-emerald-500">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className={`block text-xs mb-1 ${textMuted}`}>Observações do Prontuário / Histórico Clínico</label>
+            <textarea
+              rows={2}
+              placeholder="Restrições alimentares, alergias, rotina de treino ou patologias associadas..."
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-1">
+            {editingId && (
+              <button
+                type="button"
+                onClick={limparFormulario}
+                className={`px-5 py-2.5 rounded-xl border text-xs font-semibold ${bgCard}`}
+              >
+                Cancelar
+              </button>
+            )}
+            <button
+              type="submit"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
+            >
+              {editingId ? '💾 Salvar Alterações no Prontuário' : '+ Cadastrar Paciente no Banco de Dados'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* BARRA DE BUSCA EM TEMPO REAL E TABELA DE PACIENTES */}
       <div className={`rounded-2xl border overflow-hidden ${bgCard}`}>
+        
+        <div className={`p-4 border-b flex flex-col md:flex-row gap-4 justify-between items-center ${borderDivider}`}>
+          <div className="relative w-full md:w-96">
+            <input
+              type="text"
+              placeholder="🔍 Pesquisar paciente por nome, WhatsApp ou objetivo..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className={`w-full rounded-xl border p-2.5 text-xs pl-3 pr-8 focus:border-emerald-500 focus:outline-none ${bgInput}`}
+            />
+            {busca && (
+              <button
+                onClick={() => setBusca('')}
+                className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <span className={`text-xs ${textMuted}`}>
+            Exibindo <strong className="text-emerald-500">{pacientesFiltrados.length}</strong> de {pacientes.length} paciente(s)
+          </span>
+        </div>
+
+        {/* TABELA DE PACIENTES */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className={`border-b text-[10px] font-bold uppercase tracking-wider ${bgHeaderTable}`}>
+          <table className="w-full text-left text-xs">
+            <thead className={`border-b uppercase font-bold text-[10px] tracking-wider ${borderDivider} ${isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-950/60 text-slate-400'}`}>
+              <tr>
                 <th className="p-4">Paciente</th>
                 <th className="p-4">1ª Consulta</th>
                 <th className="p-4">Peso Inicial</th>
                 <th className="p-4">Último Peso</th>
+                <th className="p-4">% Gordura</th>
                 <th className="p-4">Objetivo</th>
                 <th className="p-4 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className={`divide-y ${isLight ? 'divide-slate-200' : 'divide-slate-800/60'}`}>
-              {pacientes.length === 0 ? (
+            <tbody className={`divide-y ${borderDivider}`}>
+              {pacientesFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-400">
-                    Nenhum paciente cadastrado ainda. Use o formulário acima para criar o primeiro prontuário.
+                  <td colSpan={7} className="p-8 text-center text-slate-400">
+                    {busca ? 'Nenhum paciente encontrado para a pesquisa.' : 'Nenhum paciente cadastrado ainda. Use o formulário acima para criar o primeiro prontuário.'}
                   </td>
                 </tr>
               ) : (
-                pacientes.map((p) => {
-                  const ultimoRegistro = p.historicoEvolucao[0] || { peso: p.pesoInicial, percentualGordura: p.percentualGorduraInicial }
-                  const d1 = p.dataPrimeiraConsulta ? p.dataPrimeiraConsulta.split('-').reverse().join('/') : '-'
-
-                  return (
-                    <tr key={p.id} className={`transition ${isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}`}>
-                      <td className="p-4 font-bold">
-                        <div>{p.nome}</div>
-                        <div className={`text-[10px] font-normal ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                          {p.telefone} {p.idade ? `• ${p.idade} anos` : ''} {p.altura ? `• ${p.altura}cm` : ''}
-                        </div>
-                      </td>
-                      <td className={`p-4 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>{d1}</td>
-                      <td className={`p-4 font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-                        {p.pesoInicial ? `${p.pesoInicial} kg` : '-'}
-                      </td>
-                      <td className="p-4 font-bold text-emerald-500">
-                        {ultimoRegistro.peso ? `${ultimoRegistro.peso} kg` : '-'}
-                      </td>
-                      <td className={`p-4 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>{p.objetivo}</td>
-                      <td className="p-4 text-right">
-                        <div className="flex justify-end items-center gap-2">
-                          <button
-                            onClick={() => setPacienteEvolucao(p)}
-                            className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1"
-                            title="Ver Histórico de Evolução"
-                          >
-                            📈 Evolução & Visão DEXA
-                          </button>
-                          <button
-                            onClick={() => setModalAgendar(p)}
-                            className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm"
-                            title="Agendar Consulta"
-                          >
-                            📅 Agendar
-                          </button>
-                          <button
-                            onClick={() => handleAbrirWhatsApp(p)}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-2.5 py-1 rounded-lg text-[11px] transition flex items-center gap-1 shadow-sm"
-                            title="Chamar no WhatsApp"
-                          >
-                            💬
-                          </button>
-                          <button
-                            onClick={() => handleExcluir(p.id, p.nome)}
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-semibold px-2.5 py-1 rounded-lg text-[11px] transition"
-                            title="Excluir paciente"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
+                pacientesFiltrados.map((paciente) => (
+                  <tr key={paciente.id} className={`transition ${isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-800/50'}`}>
+                    <td className="p-4 font-bold flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-bold flex items-center justify-center text-xs">
+                        {paciente.nome.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold">{paciente.nome}</p>
+                        {paciente.telefone && <p className="text-[10px] text-slate-400">📱 {paciente.telefone}</p>}
+                      </div>
+                    </td>
+                    <td className="p-4">{paciente.dataConsulta || '-'}</td>
+                    <td className="p-4 font-semibold text-emerald-500">{paciente.pesoInicial ? `${paciente.pesoInicial} kg` : '-'}</td>
+                    <td className="p-4 font-semibold">{paciente.ultimoPeso ? `${paciente.ultimoPeso} kg` : '-'}</td>
+                    <td className="p-4 font-bold text-emerald-500">{paciente.gorduraInicial ? `${paciente.gorduraInicial}%` : '-'}</td>
+                    <td className="p-4">{paciente.objetivo || '-'}</td>
+                    <td className="p-4 text-right space-x-1.5">
+                      <button
+                        onClick={() => setPacienteDetalhadoId(pacienteDetalhadoId === paciente.id ? null : paciente.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 font-semibold text-[11px] border border-emerald-500/20 transition"
+                      >
+                        👁️ Prontuário Visual
+                      </button>
+                      <button
+                        onClick={() => handleIniciarEdicao(paciente)}
+                        className="px-2.5 py-1.5 rounded-lg bg-sky-500/10 text-sky-500 hover:bg-sky-500/20 font-semibold text-[11px] border border-sky-500/20 transition"
+                      >
+                        ✏️ Editar
+                      </button>
+                      <button
+                        onClick={() => handleExcluirPaciente(paciente.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-semibold text-[11px] border border-rose-500/20 transition"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
+
       </div>
 
-      {/* Modal de Prontuário, Escaneamento DEXA e Evolução do Paciente */}
-      {pacienteEvolucao && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-3xl rounded-2xl border p-6 space-y-5 max-h-[90vh] overflow-y-auto ${bgCard}`}>
-            <div className="flex justify-between items-center border-b pb-3">
-              <div>
-                <h3 className="font-bold text-lg text-emerald-500">Prontuário & Evolução Corporal: {pacienteEvolucao.nome}</h3>
-                <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                  Comparação anatômica em modelo de escaneamento de composição corporal
-                </p>
-              </div>
-              <button onClick={() => setPacienteEvolucao(null)} className="text-slate-400 hover:text-white text-lg">✕</button>
+      {/* MÓDULO VISUAL DE PRONTUÁRIO, EVOLUÇÃO E COMPARATIVO ANTES/DEPOIS */}
+      {pacienteAtivoDetalhado && (
+        <div className={`p-6 rounded-2xl border space-y-6 animate-in fade-in duration-300 ${bgCard}`}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-slate-800/40">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">Prontuário e Escaneamento Corporal</span>
+              <h2 className="text-xl font-bold">{pacienteAtivoDetalhado.nome}</h2>
+              <p className={`text-xs ${textMuted}`}>
+                Gênero: {pacienteAtivoDetalhado.genero === 'feminino' ? 'Feminino' : 'Masculino'} • Idade: {pacienteAtivoDetalhado.idade || '-'} anos • Altura: {pacienteAtivoDetalhado.altura || '-'} cm
+              </p>
             </div>
 
-            {/* Escaneamento Anatômico Lado a Lado (Antes x Atual) */}
-            <div className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
-              <div className="flex justify-between items-center">
-                <h4 className="text-xs font-bold uppercase text-emerald-500">
-                  🔬 Escaneamento Anatômico DEXA (Comparativo de Gordura Corporal)
-                </h4>
-                <span className="text-[10px] text-slate-400">Mudança de Camada Subcutânea (Verde/Amarelo)</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <AvatarDexa
-                  titulo="1ª CONSULTA (INICIAL)"
-                  peso={pacienteEvolucao.pesoInicial}
-                  percentualGordura={pacienteEvolucao.percentualGorduraInicial}
-                />
-                <AvatarDexa
-                  titulo="AVALIAÇÃO ATUAL"
-                  peso={pacienteEvolucao.historicoEvolucao[0]?.peso || pacienteEvolucao.pesoInicial}
-                  percentualGordura={pacienteEvolucao.historicoEvolucao[0]?.percentualGordura || pacienteEvolucao.percentualGorduraInicial}
-                />
-              </div>
-            </div>
-
-            {/* Resumo Antropométrico */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className={`p-3 rounded-xl border ${bgSubCard}`}>
-                <span className="text-[10px] text-slate-400 block font-semibold">Peso Inicial</span>
-                <span className="text-sm font-bold">{pacienteEvolucao.pesoInicial ? `${pacienteEvolucao.pesoInicial} kg` : '-'}</span>
-              </div>
-              <div className={`p-3 rounded-xl border ${bgSubCard}`}>
-                <span className="text-[10px] text-slate-400 block font-semibold">Último Peso</span>
-                <span className="text-sm font-bold text-emerald-500">
-                  {pacienteEvolucao.historicoEvolucao[0]?.peso ? `${pacienteEvolucao.historicoEvolucao[0].peso} kg` : '-'}
-                </span>
-              </div>
-              <div className={`p-3 rounded-xl border ${bgSubCard}`}>
-                <span className="text-[10px] text-slate-400 block font-semibold">Variação de Peso</span>
-                {(() => {
-                  const ult = pacienteEvolucao.historicoEvolucao[0]?.peso || pacienteEvolucao.pesoInicial
-                  const diff = parseFloat((ult - pacienteEvolucao.pesoInicial).toFixed(1))
-                  return (
-                    <span className={`text-sm font-bold ${diff < 0 ? 'text-emerald-500' : diff > 0 ? 'text-amber-500' : 'text-slate-400'}`}>
-                      {diff > 0 ? `+${diff}` : diff} kg
-                    </span>
-                  )
-                })()}
-              </div>
-              <div className={`p-3 rounded-xl border ${bgSubCard}`}>
-                <span className="text-[10px] text-slate-400 block font-semibold">% Gordura Atual</span>
-                <span className="text-sm font-bold text-sky-500">
-                  {pacienteEvolucao.historicoEvolucao[0]?.percentualGordura ? `${pacienteEvolucao.historicoEvolucao[0].percentualGordura}%` : '-'}
-                </span>
-              </div>
-            </div>
-
-            {/* Form Nova Avaliação */}
-            <form onSubmit={handleAdicionarEvolucao} className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
-              <h4 className="text-xs font-bold uppercase text-emerald-500">+ Registrar Nova Reavaliação Física</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className={`block text-[10px] mb-1 ${textLabel}`}>Data da Avaliação</label>
-                  <input
-                    type="date"
-                    value={novaDataAvaliacao}
-                    onChange={(e) => setNovaDataAvaliacao(e.target.value)}
-                    className={`w-full rounded-xl border p-2 text-xs ${bgInput}`}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-[10px] mb-1 ${textLabel}`}>Peso Atual (kg)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    placeholder="Ex: 72.0"
-                    value={novoPesoAvaliacao}
-                    onChange={(e) => setNovoPesoAvaliacao(e.target.value)}
-                    className={`w-full rounded-xl border p-2 text-xs ${bgInput}`}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-[10px] mb-1 ${textLabel}`}>% Gordura Atual</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    placeholder="Ex: 24.5"
-                    value={novaGorduraAvaliacao}
-                    onChange={(e) => setNovaGorduraAvaliacao(e.target.value)}
-                    className={`w-full rounded-xl border p-2 text-xs ${bgInput}`}
-                  />
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
               <button
-                type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition"
+                onClick={() => setModalEvolucaoAberto(true)}
+                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-emerald-500/10"
               >
-                Salvar Reavaliação no Histórico
+                + Registrar Nova Consulta / Evolução
               </button>
-            </form>
-
-            {/* Tabela de Consultas */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold">Histórico de Consultas e Medições</h4>
-              <div className="rounded-xl border overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className={`border-b text-[10px] font-bold uppercase ${bgHeaderTable}`}>
-                      <th className="p-3">Data</th>
-                      <th className="p-3">Peso</th>
-                      <th className="p-3">% Gordura</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {pacienteEvolucao.historicoEvolucao.map((reg, idx) => {
-                      const d = reg.data ? reg.data.split('-').reverse().join('/') : '-'
-                      return (
-                        <tr key={idx} className={isLight ? 'hover:bg-slate-50' : 'hover:bg-slate-950/40'}>
-                          <td className="p-3 font-semibold">{d}</td>
-                          <td className="p-3 font-bold text-emerald-500">{reg.peso} kg</td>
-                          <td className="p-3">{reg.percentualGordura ? `${reg.percentualGordura}%` : '-'}</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
               <button
-                onClick={() => setPacienteEvolucao(null)}
-                className={`py-2 px-5 rounded-xl border text-xs font-semibold ${isLight ? 'border-slate-300' : 'border-slate-800'}`}
+                onClick={() => setPacienteDetalhadoId(null)}
+                className="p-2 text-slate-400 hover:text-white"
               >
-                Fechar Prontuário
+                ✕
               </button>
             </div>
+          </div>
+
+          {/* Histórico Clínico */}
+          {pacienteAtivoDetalhado.observacoesProntuario && (
+            <div className={`p-4 rounded-xl border ${bgSubCard}`}>
+              <h3 className="text-xs font-bold uppercase text-emerald-500 mb-1">Observações do Prontuário</h3>
+              <p className="text-xs leading-relaxed whitespace-pre-wrap">{pacienteAtivoDetalhado.observacoesProntuario}</p>
+            </div>
+          )}
+
+          {/* Galeria de Fotos Antes/Depois e Histórico */}
+          <div>
+            <h3 className="text-xs font-bold uppercase text-emerald-500 mb-3 tracking-wider">Histórico de Escaneamento Corporal</h3>
+            
+            {pacienteAtivoDetalhado.historicoEvolucao.length === 0 ? (
+              <div className={`p-6 text-center text-xs rounded-xl border border-dashed ${borderDivider} ${textMuted}`}>
+                Nenhum registro de evolução adicionado para este paciente ainda. Clique no botão acima para inserir novas medições ou fotos comparativas.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {pacienteAtivoDetalhado.historicoEvolucao.map((reg) => (
+                  <div key={reg.id} className={`p-4 rounded-xl border space-y-3 ${bgSubCard}`}>
+                    <div className="flex justify-between items-center border-b pb-2 border-slate-700/30">
+                      <span className="text-xs font-bold text-emerald-500">📅 Consulta em: {reg.data}</span>
+                      <span className="text-xs font-bold">Peso: {reg.peso} kg • Gordura: {reg.gordura}%</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                      <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                        <span className="block text-[10px] text-slate-400">Cintura</span>
+                        <strong className="text-emerald-500">{reg.cintura ? `${reg.cintura} cm` : '-'}</strong>
+                      </div>
+                      <div className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                        <span className="block text-[10px] text-slate-400">Quadril</span>
+                        <strong className="text-emerald-500">{reg.quadril ? `${reg.quadril} cm` : '-'}</strong>
+                      </div>
+                    </div>
+
+                    {(reg.fotoAntes || reg.fotoDepois) && (
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {reg.fotoAntes && (
+                          <div>
+                            <span className="text-[10px] font-bold block mb-1 text-center text-slate-400">Antes</span>
+                            <img src={reg.fotoAntes} alt="Antes" className="w-full h-36 object-cover rounded-lg border border-slate-700" />
+                          </div>
+                        )}
+                        {reg.fotoDepois && (
+                          <div>
+                            <span className="text-[10px] font-bold block mb-1 text-center text-slate-400">Depois</span>
+                            <img src={reg.fotoDepois} alt="Depois" className="w-full h-36 object-cover rounded-lg border border-slate-700" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Modal de Agendamento */}
-      {modalAgendar && (
+      {/* MODAL ADICIONAR EVOLUÇÃO / FOTOS DE CONSULTA */}
+      {modalEvolucaoAberto && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md rounded-2xl border p-6 space-y-4 ${bgCard}`}>
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-base">Agendar Consulta: {modalAgendar.nome}</h3>
-              <button onClick={() => setModalAgendar(null)} className="text-slate-400 hover:text-white">✕</button>
+          <div className={`w-full max-w-lg rounded-2xl border p-6 space-y-4 ${bgCard}`}>
+            <div className="flex justify-between items-center border-b pb-3 border-slate-800">
+              <h3 className="font-bold text-sm text-emerald-500">+ Nova Consulta de Retorno / Evolução</h3>
+              <button onClick={() => setModalEvolucaoAberto(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
 
-            <form onSubmit={handleConfirmarAgendamento} className="space-y-3">
-              <div>
-                <label className={`block text-xs mb-1 ${textLabel}`}>Data da Consulta</label>
-                <input
-                  type="date"
-                  value={dataConsulta}
-                  onChange={(e) => setDataConsulta(e.target.value)}
-                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-                  required
-                />
+            <form onSubmit={handleAdicionarEvolucao} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Novo Peso (kg)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: 73.2"
+                    value={novoPesoEvolucao}
+                    onChange={(e) => setNovoPesoEvolucao(e.target.value)}
+                    className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Novo % Gordura</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 24.1"
+                    value={novaGorduraEvolucao}
+                    onChange={(e) => setNovaGorduraEvolucao(e.target.value)}
+                    className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className={`block text-xs mb-1 ${textLabel}`}>Horário</label>
-                <input
-                  type="time"
-                  value={horaConsulta}
-                  onChange={(e) => setHoraConsulta(e.target.value)}
-                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Cintura (cm)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 76"
+                    value={novaCinturaEvolucao}
+                    onChange={(e) => setNovaCinturaEvolucao(e.target.value)}
+                    className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Quadril (cm)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 96"
+                    value={novaQuadrilEvolucao}
+                    onChange={(e) => setNovaQuadrilEvolucao(e.target.value)}
+                    className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className={`block text-xs mb-1 ${textLabel}`}>Tipo de Consulta</label>
-                <select
-                  value={tipoConsulta}
-                  onChange={(e) => setTipoConsulta(e.target.value)}
-                  className={`w-full rounded-xl border p-2.5 text-xs ${bgInput}`}
-                >
-                  <option value="Primeira Consulta">Primeira Consulta</option>
-                  <option value="Retorno e Acompanhamento">Retorno e Acompanhamento</option>
-                  <option value="Bioimpedância / Avaliação">Bioimpedância / Avaliação</option>
-                  <option value="Consulta Online">Consulta Online</option>
-                </select>
-              </div>
+              {/* Upload de Fotos Comparativas */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Foto Inicial / Antes</label>
+                  <label className={`block p-3 border border-dashed rounded-xl text-center cursor-pointer hover:border-emerald-500 transition ${bgSubCard}`}>
+                    <span className="text-xs text-emerald-500 font-bold block">📷 Anexar Foto</span>
+                    <input type="file" accept="image/*" onChange={(e) => handleUploadFoto(e, 'antes')} className="hidden" />
+                  </label>
+                  {fotoAntesEvolucao && <span className="text-[10px] text-emerald-500 block text-center mt-1">✓ Foto Antes anexada</span>}
+                </div>
 
-              <div className="pt-2 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="chkWhatsapp"
-                  checked={enviarWhats}
-                  onChange={(e) => setEnviarWhats(e.target.checked)}
-                  className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
-                />
-                <label htmlFor="chkWhatsapp" className={`text-xs cursor-pointer ${textLabel}`}>
-                  Enviar confirmação diretamente para o WhatsApp do paciente
-                </label>
+                <div>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Foto Atual / Depois</label>
+                  <label className={`block p-3 border border-dashed rounded-xl text-center cursor-pointer hover:border-emerald-500 transition ${bgSubCard}`}>
+                    <span className="text-xs text-emerald-500 font-bold block">📷 Anexar Foto</span>
+                    <input type="file" accept="image/*" onChange={(e) => handleUploadFoto(e, 'depois')} className="hidden" />
+                  </label>
+                  {fotoDepoisEvolucao && <span className="text-[10px] text-emerald-500 block text-center mt-1">✓ Foto Depois anexada</span>}
+                </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setModalAgendar(null)}
-                  className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold ${isLight ? 'border-slate-300' : 'border-slate-800'}`}
+                  onClick={() => setModalEvolucaoAberto(false)}
+                  className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold ${bgCard}`}
                 >
                   Cancelar
                 </button>
@@ -717,7 +912,7 @@ export default function PacientesPage() {
                   type="submit"
                   className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"
                 >
-                  Confirmar Agendamento
+                  Salvar Evolução
                 </button>
               </div>
             </form>
