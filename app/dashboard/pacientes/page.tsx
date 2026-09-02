@@ -337,12 +337,11 @@ export default function PacientesPage() {
     }
   }
 
-  // Auxiliares de Cálculo de IMC e Iniciais
   const calcularIMC = (pesoKg: string, alturaCm: string) => {
     const p = parseFloat(pesoKg.replace(',', '.'))
     let a = parseFloat(alturaCm.replace(',', '.'))
     if (!p || !a) return '-'
-    if (a > 3) a = a / 100 // Converte cm para m
+    if (a > 3) a = a / 100
     const imc = p / (a * a)
     return imc.toFixed(2).replace('.', ',')
   }
@@ -373,7 +372,6 @@ export default function PacientesPage() {
 
   const pacienteAtivo = pacientes.find((p) => p.id === pacienteDetalhadoId)
 
-  // Classes de Estilo Dinâmico
   const bgCard = isLight ? 'bg-white border-slate-200 text-slate-900 shadow-sm' : 'bg-slate-900 border-slate-800 text-slate-100'
   const bgInput = isLight ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400' : 'bg-slate-950 border-slate-800 text-white'
   const bgSubCard = isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/70 border-slate-800'
@@ -387,7 +385,7 @@ export default function PacientesPage() {
       {pacienteAtivo ? (
         <div className="space-y-5 animate-in fade-in duration-300">
           
-          {/* Breadcrumb e Topo */}
+          {/* Topo do Prontuário - Apenas Nome, Altura, Peso e IMC */}
           <div className={`p-5 rounded-2xl border ${bgCard}`}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200/20">
               <div className="flex items-center gap-4">
@@ -395,10 +393,10 @@ export default function PacientesPage() {
                   {extrairIniciais(pacienteAtivo.nome)}
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold flex items-center gap-2">
+                  <h1 className="text-xl font-bold flex flex-wrap items-center gap-2">
                     {pacienteAtivo.nome}
                     <span className="text-sm font-normal text-slate-400">
-                      - {pacienteAtivo.idade || '46'} anos | {formatarAlturaM(pacienteAtivo.altura)} | {(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70').replace('.', ',')}kg | IMC: {calcularIMC(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70', pacienteAtivo.altura || '165')}
+                      - {formatarAlturaM(pacienteAtivo.altura)} | {(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70').replace('.', ',')}kg | IMC: {calcularIMC(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70', pacienteAtivo.altura || '165')}
                     </span>
                   </h1>
                 </div>
@@ -424,7 +422,7 @@ export default function PacientesPage() {
                   &larr; Lista de Pacientes
                 </button>
                 <span className="text-emerald-500 flex items-center gap-1 border-b-2 border-emerald-500 pb-0.5">
-                  🏥 Prontuário Completo
+                  🏥 Prontuário
                 </span>
               </div>
               <span className="text-slate-400 cursor-pointer hover:text-white">❓ Suporte</span>
@@ -439,7 +437,7 @@ export default function PacientesPage() {
             >
               <div className="flex items-center gap-2 font-bold text-sm">
                 <span>{secaoPlanoAberto ? '⌄' : '❯'}</span>
-                <span>Plano Alimentar</span>
+                <span>Plano alimentar</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span>Planos inativos</span>
@@ -491,7 +489,7 @@ export default function PacientesPage() {
                     <div>
                       <span className="text-xs font-bold mr-2">Suplementação e Fórmulas</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-semibold">
-                        Disponível no app
+                        disponível no app
                       </span>
                     </div>
                   </div>
@@ -512,7 +510,7 @@ export default function PacientesPage() {
             >
               <div className="flex items-center gap-2 font-bold text-sm">
                 <span>{secaoAvaliacoesAberto ? '⌄' : '❯'}</span>
-                <span>Avaliações Antropométricas ({pacienteAtivo.historicoEvolucao.length + 1})</span>
+                <span>Avaliações antropométricas ({pacienteAtivo.historicoEvolucao.length + 1})</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span>Formulário offline ▼</span>
@@ -524,7 +522,6 @@ export default function PacientesPage() {
             {secaoAvaliacoesAberto && (
               <div className={`p-4 border-t space-y-2 ${borderDivider} ${bgSubCard}`}>
                 
-                {/* Registros Anteriores do Histórico */}
                 {pacienteAtivo.historicoEvolucao.map((evalItem, idx) => (
                   <div key={evalItem.id} className="p-3 rounded-xl border border-slate-200/20 bg-white dark:bg-slate-900 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -539,11 +536,10 @@ export default function PacientesPage() {
                   </div>
                 ))}
 
-                {/* Avaliação Inicial do Prontuário */}
                 <div className="p-3 rounded-xl border border-slate-200/20 bg-white dark:bg-slate-900 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="p-2 rounded-lg bg-sky-500/10 text-sky-500 text-xs">📷</span>
-                    <span className="text-xs font-bold">1ª Avaliação Física (Prontuário Inicial)</span>
+                    <span className="text-xs font-bold">1ª Avaliação Física</span>
                     <span className="text-xs text-slate-400">({pacienteAtivo.pesoInicial}kg | {pacienteAtivo.gorduraInicial}% gordura)</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-400">
@@ -556,11 +552,11 @@ export default function PacientesPage() {
             )}
           </div>
 
-          {/* SEÇÃO 4: RESUMO CLÍNICO AUTOMÁTICO */}
+          {/* SEÇÃO 4: RESUMO CLÍNICO */}
           <div className={`p-5 rounded-2xl border space-y-2 ${bgCard}`}>
-            <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Resumo Clínico</h3>
+            <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Resumo</h3>
             <p className="text-xs text-slate-500 dark:text-slate-300 leading-relaxed">
-              <strong>{pacienteAtivo.nome}</strong> é seu paciente desde <strong>{pacienteAtivo.dataConsulta || 'o cadastro inicial'}</strong>. Sua última interação registrada foi em <strong>{pacienteAtivo.historicoEvolucao[0]?.data || pacienteAtivo.dataConsulta || 'recente'}</strong>. De acordo com a última avaliação antropométrica, <strong>{pacienteAtivo.nome}</strong> possui <strong>{formatarAlturaM(pacienteAtivo.altura)}</strong> e <strong>{(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70').replace('.', ',')}kg</strong>. O IMC atual é de <strong>{calcularIMC(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70', pacienteAtivo.altura || '165')}</strong>.
+              <strong>{pacienteAtivo.nome}</strong> é seu paciente desde <strong>{pacienteAtivo.dataConsulta || 'o cadastro inicial'}</strong>. Sua última interação foi <strong>{pacienteAtivo.historicoEvolucao[0]?.data || pacienteAtivo.dataConsulta || 'recente'}</strong>. De acordo com a última avaliação antropométrica, realizada em <strong>{pacienteAtivo.historicoEvolucao[0]?.data || pacienteAtivo.dataConsulta}</strong>, <strong>{pacienteAtivo.nome}</strong> possui <strong>{formatarAlturaM(pacienteAtivo.altura)}</strong> e <strong>{(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70').replace('.', ',')}kg</strong>. O IMC é de <strong>{calcularIMC(pacienteAtivo.ultimoPeso || pacienteAtivo.pesoInicial || '70', pacienteAtivo.altura || '165')}</strong>.
             </p>
           </div>
 
@@ -912,7 +908,7 @@ export default function PacientesPage() {
                             onClick={() => setPacienteDetalhadoId(paciente.id)}
                             className="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 font-semibold text-[11px] border border-emerald-500/20 transition"
                           >
-                            👁️ Prontuário Visual
+                            👁️ Prontuário
                           </button>
                           <button
                             onClick={() => handleIniciarEdicao(paciente)}
