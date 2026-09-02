@@ -128,19 +128,19 @@ export default function DashboardPage() {
 
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-emerald-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-emerald-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total de Pacientes</span>
             <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-sky-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-sky-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Dietas Ativas</span>
             <span className="text-3xl font-extrabold text-sky-600 dark:text-sky-400">0</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-amber-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Consultas Hoje</span>
             <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">{atendimentos.length}</span>
           </div>
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-red-500/40 transition-colors">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm flex flex-col gap-1 hover:border-red-500/40 transition-colors">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Avisos / Retornos</span>
             <span className="text-3xl font-extrabold text-red-600 dark:text-red-400">0</span>
           </div>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
         {/* Área Inferior */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm overflow-hidden flex flex-col">
             <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <h2 className="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-500 tracking-wider">Próximos Atendimentos</h2>
               <button className="text-xs font-bold text-emerald-600 dark:text-emerald-500 hover:underline transition-colors">Ver Agenda &rarr;</button>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm flex flex-col">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-sm font-bold uppercase text-emerald-600 dark:text-emerald-500 tracking-wider">Ações Rápidas</h2>
             </div>
