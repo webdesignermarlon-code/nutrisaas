@@ -112,34 +112,48 @@ export default function PacientesPage() {
     }
   }, [])
 
-  // Cálculo Automático do % de Gordura
+  // CÁLCULO AUTOMÁTICO DE GORDURA CORPORAL (POR PESO/ALTURA/IDADE OU DOBRAS)
   useEffect(() => {
     if (modoCalculoGordura === 'manual') return
 
-    const numIdade = parseFloat(idade) || 25
-    const numAltura = parseFloat(altura) || 165
+    const numIdade = parseFloat(idade.replace(',', '.')) || 0
+    const numPeso = parseFloat(pesoInicial.replace(',', '.')) || 0
+    let numAltura = parseFloat(altura.replace(',', '.')) || 0
+    if (numAltura > 3) numAltura = numAltura / 100 // Se digitou em cm (180), converte pra m (1.80)
 
     if (modoCalculoGordura === 'dobras') {
       const tri = parseFloat(triceps) || 0
       const sub = parseFloat(subescapular) || 0
       const sup = parseFloat(suprailiaca) || 0
       const abd = parseFloat(abdomenDobra) || 0
-
       const somaDobras = tri + sub + sup + abd
 
+      // 1. Se preencheu dobras cutâneas, calcula por Jackson & Pollock
       if (somaDobras > 0) {
         let densidadeCorporal = 0
+        const idCalculo = numIdade || 25
         if (genero === 'feminino') {
-          densidadeCorporal = 1.096095 - (0.000695 * somaDobras) + (0.0000011 * Math.pow(somaDobras, 2)) - (0.0000714 * numIdade)
+          densidadeCorporal = 1.096095 - (0.000695 * somaDobras) + (0.0000011 * Math.pow(somaDobras, 2)) - (0.0000714 * idCalculo)
         } else {
-          densidadeCorporal = 1.10938 - (0.0008267 * somaDobras) + (0.0000016 * Math.pow(somaDobras, 2)) - (0.0002574 * numIdade)
+          densidadeCorporal = 1.10938 - (0.0008267 * somaDobras) + (0.0000016 * Math.pow(somaDobras, 2)) - (0.0002574 * idCalculo)
         }
 
         if (densidadeCorporal > 0) {
           const percentualGordura = ((4.95 / densidadeCorporal) - 4.5) * 100
           if (!isNaN(percentualGordura) && percentualGordura > 0 && percentualGordura < 70) {
             setGorduraInicial(percentualGordura.toFixed(1))
+            return
           }
+        }
+      }
+
+      // 2. Se ainda não preencheu dobras, mas colocou Peso, Altura e Idade -> Estimativa por Deurenberg (IMC + Idade)
+      if (numPeso > 0 && numAltura > 0 && numIdade > 0) {
+        const imc = numPeso / (numAltura * numAltura)
+        const fatorSexo = genero === 'masculino' ? 1 : 0
+        const percentualGordura = (1.20 * imc) + (0.23 * numIdade) - (10.8 * fatorSexo) - 5.4
+        if (!isNaN(percentualGordura) && percentualGordura > 3 && percentualGordura < 70) {
+          setGorduraInicial(percentualGordura.toFixed(1))
         }
       }
     } else if (modoCalculoGordura === 'medidas') {
@@ -149,10 +163,11 @@ export default function PacientesPage() {
 
       if (numCintura > 0 && numPescoco > 0 && numAltura > 0) {
         let percentualGordura = 0
+        const altCm = numAltura < 3 ? numAltura * 100 : numAltura
         if (genero === 'masculino') {
-          percentualGordura = 86.010 * Math.log10(numCintura - numPescoco) - 70.041 * Math.log10(numAltura) + 36.76
+          percentualGordura = 86.010 * Math.log10(numCintura - numPescoco) - 70.041 * Math.log10(altCm) + 36.76
         } else if (numQuadril > 0) {
-          percentualGordura = 163.205 * Math.log10(numCintura + numQuadril - numPescoco) - 97.684 * Math.log10(numAltura) - 78.387
+          percentualGordura = 163.205 * Math.log10(numCintura + numQuadril - numPescoco) - 97.684 * Math.log10(altCm) - 78.387
         }
 
         if (!isNaN(percentualGordura) && percentualGordura > 2 && percentualGordura < 70) {
@@ -161,7 +176,7 @@ export default function PacientesPage() {
       }
     }
   }, [
-    modoCalculoGordura, genero, idade, altura,
+    modoCalculoGordura, genero, idade, altura, pesoInicial,
     triceps, subescapular, suprailiaca, abdomenDobra,
     cintura, pescoco, quadril
   ])
@@ -651,8 +666,8 @@ export default function PacientesPage() {
                 <div>
                   <label className={`block text-xs mb-1 ${textMuted}`}>Idade (Anos)</label>
                   <input
-                    type="number"
-                    placeholder="Ex: 28"
+                    type="text"
+                    placeholder="Ex: 38"
                     value={idade}
                     onChange={(e) => setIdade(e.target.value)}
                     className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -660,10 +675,10 @@ export default function PacientesPage() {
                 </div>
 
                 <div>
-                  <label className={`block text-xs mb-1 ${textMuted}`}>Altura (cm)</label>
+                  <label className={`block text-xs mb-1 ${textMuted}`}>Altura (cm ou m)</label>
                   <input
-                    type="number"
-                    placeholder="Ex: 165"
+                    type="text"
+                    placeholder="Ex: 180 ou 1.80"
                     value={altura}
                     onChange={(e) => setAltura(e.target.value)}
                     className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -674,7 +689,7 @@ export default function PacientesPage() {
                   <label className={`block text-xs mb-1 ${textMuted}`}>Peso Inicial (kg)</label>
                   <input
                     type="text"
-                    placeholder="Ex: 75.5"
+                    placeholder="Ex: 85"
                     value={pesoInicial}
                     onChange={(e) => setPesoInicial(e.target.value)}
                     className={`w-full rounded-xl border p-2.5 text-xs focus:border-emerald-500 focus:outline-none ${bgInput}`}
@@ -696,7 +711,7 @@ export default function PacientesPage() {
                       onChange={(e) => setModoCalculoGordura(e.target.value as any)}
                       className={`rounded-lg border p-1.5 text-xs font-bold focus:outline-none ${bgInput}`}
                     >
-                      <option value="dobras">Dobras Cutâneas (Jackson & Pollock)</option>
+                      <option value="dobras">Dobras Cutâneas (ou Estimativa por Peso/Altura)</option>
                       <option value="medidas">Circunferências (US Navy Method)</option>
                       <option value="manual">Manual / Bioimpedância</option>
                     </select>
