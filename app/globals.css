@@ -1,1 +1,35 @@
 @import "tailwindcss";
+
+/* Estilos exclusivos para o Dashboard */
+.dashboard-card {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.dashboard-item {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.dashboard-subtext {
+  color: #64748b;
+}
+
+/* Ativado automaticamente no modo escuro */
+:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-card {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-item {
+  background-color: #020617 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-subtext {
+  color: #94a3b8 !important;
+}
