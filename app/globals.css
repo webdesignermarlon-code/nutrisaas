@@ -1,35 +1,40 @@
 @import "tailwindcss";
 
-/* Estilos exclusivos para o Dashboard */
-.dashboard-card {
-  background-color: #ffffff;
-  border-color: #e2e8f0;
-  color: #0f172a;
+/* 1. Definição das variáveis no Modo Claro (Padrão) */
+:root {
+  --dash-card-bg: #ffffff;
+  --dash-card-border: #e2e8f0;
+  --dash-item-bg: #f8fafc;
+  --dash-text: #0f172a;
+  --dash-subtext: #64748b;
 }
 
-.dashboard-item {
-  background-color: #f8fafc;
-  border-color: #e2e8f0;
-  color: #0f172a;
+/* 2. Mapeia QUALQUER forma que o seu menu use para ativar o modo escuro */
+html.dark,
+body.dark,
+.dark,
+[data-theme="dark"],
+[data-theme="dark"] body {
+  --dash-card-bg: #0f172a !important;      /* Slate 900 */
+  --dash-card-border: #1e293b !important;  /* Slate 800 */
+  --dash-item-bg: #020617 !important;      /* Slate 950 */
+  --dash-text: #f8fafc !important;         /* Slate 50 */
+  --dash-subtext: #94a3b8 !important;      /* Slate 400 */
 }
 
-.dashboard-subtext {
-  color: #64748b;
+/* 3. Classes Utilitárias do Dashboard */
+.dash-card {
+  background-color: var(--dash-card-bg) !important;
+  border-color: var(--dash-card-border) !important;
+  color: var(--dash-text) !important;
 }
 
-/* Ativado automaticamente no modo escuro */
-:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-card {
-  background-color: #0f172a !important;
-  border-color: #1e293b !important;
-  color: #f8fafc !important;
+.dash-item {
+  background-color: var(--dash-item-bg) !important;
+  border-color: var(--dash-card-border) !important;
+  color: var(--dash-text) !important;
 }
 
-:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-item {
-  background-color: #020617 !important;
-  border-color: #1e293b !important;
-  color: #f8fafc !important;
-}
-
-:is(.dark, [data-theme="dark"], .dark-mode, html.dark, body.dark) .dashboard-subtext {
-  color: #94a3b8 !important;
+.dash-subtext {
+  color: var(--dash-subtext) !important;
 }
